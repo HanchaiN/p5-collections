@@ -79,7 +79,7 @@ function wave_function(n, l, m) {
     return function (r, theta, phi) {
         let rho = (2 * r) / (n * a0);
         return math.multiply(
-            math.exp(-rho / 2) * math.pow(rho, l) * laguerre_(rho),
+            k * math.exp(-rho / 2) * math.pow(rho, l) * laguerre_(rho),
             sph_harm_(theta, phi)
         );
     };

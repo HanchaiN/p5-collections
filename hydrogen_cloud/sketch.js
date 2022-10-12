@@ -44,7 +44,7 @@ function setup() {
 }
 function draw() {
     loadPixels();
-    let size_scale = 25;
+    const size_scale = 25;
     for (let px = 0; px < width; px += 1) {
         for (let py = 0; py < height; py += 1) {
             let x = size_scale * hrz(px);
@@ -60,7 +60,7 @@ function draw() {
             {
                 let color_;
                 let brightness = possibility;
-                let brightness_scale = 100;
+                let brightness_scale = 1000;
                 // brightness scaling
                 brightness *= brightness_scale;
                 // // gamma correction
@@ -118,10 +118,10 @@ function draw() {
     updatePixels();
     // filter(GRAY);
     noFill();
-    stroke(0, 0, 100, 0.25);
+    stroke(0, 0, 255, 100);
     strokeWeight(1);
     for (let i = 1; i < sqrt(size_scale) + 1; i += 1) {
-        let radius = (i * i) / size_scale;
+        const radius = (i * i) / size_scale;
         ellipse(width / 2, height / 2, radius * width, radius * height);
     }
 }
