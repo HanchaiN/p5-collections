@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.145.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.145.0/examples/jsm/",
+          "d3-color": "https://cdn.skypack.dev/d3-color"
+        }
+      }
+    </script>
+    <script src="https://unpkg.com/mathjs@11.3.0/lib/browser/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-color@3"></script>
+    <script type="module">
+      import * as THREE from "three";
+      // import math from "mathjs";
+      // import d3 from "d3-color";
+      import Stats from "three/addons/libs/stats.module.js";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      import {
+        superposition,
+        wave_function,
+        mass_red as mass,
+        hbar,
+      } from "./psi.js";
+
+      let camera, scene, renderer, controls, stats, electron_mesh, clock;
+
+      const psi = (
+        (psi) =>
+        (pos, time = 0) => {
+          const coord = new THREE.Spherical().setFromVector3(pos);
+          return psi(coord.radius, coord.phi, coord.theta, time);
+        }
+      )(superposition([{ coeff: 1, psi: wave_function(2, 1, 1) }]));
+      const electrons = (() => {
+        const electrons = [];
+        const point_gen = (function* () {
+          const normalizer = 1;
+          let total_prob = 0;
+          const d_r = 0.1;
+          for (let r = 0; true; r += d_r) {
+            const d_theta = math.pi / 180; // May varies by r
+            for (let theta = -math.pi; theta <= +math.pi; theta += d_theta) {
+              const d_phi = math.pi / 180; // May varies by r
+              for (let phi = 0; phi <= +math.pi; phi += d_phi) {
+                const pos = new THREE.Vector3().setFromSphericalCoords(
+                  r,
+                  phi,
+                  theta
+                );
+                const weight = math.square(math.abs(psi(pos)));
+                const volume = r ** 2 * math.sin(phi) * d_r * d_theta * d_phi;
+                const prob = (math.isNaN(weight) ? 0 : weight) * volume;
+                total_prob += prob;
+                if (prob > 0) {
+                  yield [pos, total_prob * normalizer, 0];
+                }
+              }
+            }
+          }
+          // Use to update `normalizer` in case of error;
+          console.warn(
+            `Total probability of points in lattice is ${total_prob}, please update normalizer to ${
+              1 / total_prob
+            }`
+          );
+        })();
+        const lattice = [];
+        for (let i = 0; i < 1000; i++) {
+          const ind = (() => {
+            const num = math.random();
+            let i = 0;
+            do {
+              while (i >= lattice.length) {
+                const next = point_gen.next();
+                if (next.done)
+                  throw new Error(
+                    `Cannot generate more point while total probability is ${
+                      lattice[lattice.lastIndexOf][1]
+                    }`
+                  );
+                lattice.push(next.value);
+              }
+            } while (num > lattice[i++][1]);
+            return --i;
+          })();
+          if (!lattice[ind][2]) electrons.push(lattice[ind][0]);
+          lattice[ind][2]++;
+        }
+        return electrons;
+      })();
+
+      function getVel(pos, t) {
+        const vel = new THREE.Vector3();
+        const val = psi(pos, t);
+        for (let i = 0; i < 3; i++) {
+          const EPSILON = 1e-12;
+          const incr = new THREE.Vector3(
+            ...new Array(3).fill(0).map((_, j) => (j === i ? +EPSILON : 0))
+          );
+          const post = pos.clone().add(incr);
+          const prev = pos.clone().sub(incr);
+          const vel_ = !math.equal(val, 0)
+            ? math.im(
+                math.divide(
+                  math.divide(
+                    math.subtract(psi(post, t), psi(prev, t)),
+                    2 * EPSILON
+                  ),
+                  val
+                )
+              )
+            : 0;
+          vel.setComponent(i, vel_);
+        }
+        vel.multiplyScalar(hbar / mass);
+        return vel;
+      }
+      function getColor(pos, t) {
+        const polar = psi(pos, t).toPolar();
+        const mag = math.square(polar.r);
+        const phase = polar.phi;
+        const color = new THREE.Color();
+        const constrain = (num, min, max) => math.min(math.max(num, min), max);
+        const degrees = (rad) => (rad * 180) / math.pi;
+        let hue = phase;
+        while (hue < 0) {
+          hue += 2 * math.pi;
+        }
+        while (hue > 2 * math.pi) {
+          hue -= 2 * math.pi;
+        }
+        let brightness = mag;
+        let brightness_scale = 1000;
+        brightness *= brightness_scale;
+        let gamma = 1;
+        brightness = math.pow(brightness, gamma);
+        switch (0) {
+          case 0:
+            brightness *= 1 / (1 + brightness);
+            break;
+          case 1:
+            brightness = (2 / PI) * atan(brightness);
+            break;
+          case 2:
+            const a = 1 / 2;
+            brightness = 1 - pow(a, abs(brightness));
+            break;
+        }
+        // return color.setScalar(brightness);
+        let hsv = [degrees(hue), 1, brightness];
+        hsv[0] = constrain(hsv[0], 0, 360);
+        hsv[1] = constrain(hsv[1], 0, 1);
+        hsv[2] = constrain(hsv[2], 0, 1);
+        let hsl = [hsv[0], 0, hsv[2] * (1 - hsv[1] / 2)];
+        if (hsl[2] != 0 && hsl[2] != 1) {
+          hsl[1] = (hsv[2] - hsl[2]) / math.min(hsl[2], 1 - hsl[2]);
+        }
+        hsl[0] = constrain(hsl[0], 0, 360);
+        hsl[1] = constrain(hsl[1], 0, 1);
+        hsl[2] = constrain(hsl[2], 0, 1);
+        let lch = [hsv[2] * 100, hsv[1] * 100 * brightness, hsv[0]];
+        lch[0] = constrain(lch[0], 0, 100);
+        lch[1] = constrain(lch[1], 0, 160);
+        lch[2] = constrain(lch[2], 0, 360);
+        return color.set(d3.lch(lch[0], lch[1], lch[2]).formatHex());
+      }
+
+      function init() {
+        clock = new THREE.Clock();
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        camera.position.z = 5;
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        controls = new OrbitControls(camera, renderer.domElement);
+
+        stats = new Stats();
+        document.body.appendChild(stats.dom);
+
+        function onWindowResize() {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener("resize", onWindowResize);
+
+        {
+          const nucleus = new THREE.Mesh(
+            new THREE.SphereGeometry(0.01, 32, 16),
+            new THREE.MeshPhongMaterial({
+              color: 0x804040,
+              emissive: 0x302020,
+            })
+          );
+          scene.add(nucleus);
+        }
+        {
+          const geometry = new THREE.SphereGeometry(0.05, 32, 16);
+          const material = new THREE.MeshPhongMaterial({
+            color: 0x404080,
+            emissive: 0x202030,
+          });
+          electron_mesh = new THREE.InstancedMesh(
+            geometry,
+            material,
+            electrons.length
+          );
+          electron_mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+          electrons.forEach((position, index) => {
+            const matrix = new THREE.Matrix4();
+            matrix.setPosition(position.x, position.y, position.z);
+            electron_mesh.setMatrixAt(index, matrix);
+          });
+          scene.add(electron_mesh);
+        }
+        {
+          const light = new THREE.AmbientLight(0x404040);
+          scene.add(light);
+        }
+        {
+          const light = new THREE.HemisphereLight(0xffffff, 0x888888);
+          light.position.set(0, 1, 0);
+          scene.add(light);
+        }
+      }
+      function render({ deltaTime, time }) {
+        electrons.forEach((position, index) => {
+          const time_step = 5;
+          for (let i = 0; i < time_step; i++)
+            position.add(
+              getVel(
+                position,
+                time + (i / time_step) * deltaTime
+              ).multiplyScalar(deltaTime / time_step)
+            );
+          const matrix = new THREE.Matrix4();
+          matrix.setPosition(position.x, position.y, position.z);
+          electron_mesh.setMatrixAt(index, matrix);
+          electron_mesh.instanceMatrix.needsUpdate = true;
+          electron_mesh.setColorAt(index, getColor(position, time));
+          electron_mesh.instanceColor.needsUpdate = true;
+        });
+      }
+      function animate() {
+        requestAnimationFrame(animate);
+        const time_scale = 5e2;
+        const time = clock.oldTime * time_scale;
+        const deltaTime = clock.getDelta() * time_scale;
+        render({
+          deltaTime,
+          time,
+        });
+        controls.update();
+        renderer.render(scene, camera);
+        stats.update();
+      }
+
+      init();
+      animate();
+    </script>
+  </body>
+</html>
