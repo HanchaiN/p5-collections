@@ -27,7 +27,7 @@ function generateBuffer(order) {
     const length = resolution * resolution;
     const buffer = new Uint8ClampedArray(resolution * resolution * 4).fill(255);
     generateXY(order).forEach((_, x) => _.forEach((d, y) => {
-        const color = d3.hsl(d / length * 360, 1, 0.5).rgb();
+        const color = d3.hcl(d / length * 360, 100, 100).rgb();
         buffer[y * (resolution * 4) + x * 4 + 0] = color.r;
         buffer[y * (resolution * 4) + x * 4 + 1] = color.g;
         buffer[y * (resolution * 4) + x * 4 + 2] = color.b;

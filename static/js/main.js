@@ -28,8 +28,10 @@ window.addEventListener("DOMContentLoaded", async (e) => {
 
     navbar.querySelectorAll("a").forEach((item_link) => {
         const path = item_link.getAttribute("href");
-        const title = item_link.innerText;
+        if (path?.[0] !== "#") return;
         const id = path.replace(/^#/, "");
+        if (id === "") return;
+        const title = item_link.innerText;
         item_link.addEventListener("click", (e) => {
             e.preventDefault();
             document.querySelector("nav input#menu_toggle").checked = false;

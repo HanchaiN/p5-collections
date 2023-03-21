@@ -13,9 +13,11 @@ config.reroute = (function () {
             canvas.innerHTML = "";
         });
         document.title = defaultTitle ?? "index";
+        document.body.querySelector("main").style.display = "block";
     }
     function loadDisplay({ id, title, preview, loader }) {
         clearDisplay();
+        document.body.querySelector("main").style.display = "none";
         document.title = defaultTitle ? `${title} - ${defaultTitle}` : title;
         document.body.appendChild(preview);
         const canvas = preview.querySelector("[slot=content]");

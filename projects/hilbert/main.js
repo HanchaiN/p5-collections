@@ -26,7 +26,10 @@ export default function execute() {
       resizeObserver = new ResizeObserver(parentResized).observe(parent);
       sketch.mouseClicked(() => {
         order++;
-        if (order > maxOrder) order = 0;
+        if (order > maxOrder) {
+          order = 0;
+          drawBackground(0, maxOrder);
+        }
         drawForeground();
       });
       worker.addEventListener("message", (e) => {
@@ -56,8 +59,6 @@ export default function execute() {
       worker.addEventListener("message", (e) => {
         if (e.data.id !== "b") return;
         const resolution = e.data.resolution;
-        if (resolution <= background.width)
-          return;
         background = p.createImage(resolution, resolution);
         const buffer = e.data.buffer;
         background.loadPixels();
@@ -65,6 +66,7 @@ export default function execute() {
         background.updatePixels();
         p.redraw();
       });
+      drawBackground(0, maxOrder);
       p.noLoop();
     }
 
@@ -72,19 +74,25 @@ export default function execute() {
       const { width, height } = getParentSize(parent, canvas);
       p.resizeCanvas(width, height);
       dimension = Math.max(p.width, p.height);
+      drawBackground(maxOrder, Math.ceil(Math.log2(dimension)));
       maxOrder = Math.ceil(Math.log2(dimension));
       foreground = p.createGraphics(p.width, p.height);
-      drawBackground(0, maxOrder, 1000);
       drawForeground();
     }
 
-    function drawBackground(from, to, time = 0) {
-      for (let order = from; order <= to; order++)
+    function drawBackground(from, to, time = 2000) {
+      for (let order = from; order < to; order++) {
         setTimeout(() => worker?.postMessage?.({
           order,
           buffer: true,
           id: "b"
-        }), time * (order - from) / to);
+        }), time * (1 - 1 / Math.pow(2, order - from)));
+      }
+      setTimeout(() => worker?.postMessage?.({
+        order: to,
+        buffer: true,
+        id: "b"
+      }), time);
     }
     function drawForeground() {
       worker?.postMessage?.({ order, d: true, id: "f" });

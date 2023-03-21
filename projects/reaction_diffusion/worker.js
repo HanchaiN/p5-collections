@@ -22,7 +22,7 @@ self.addEventListener("message", function (e) {
             }
         }
         buffer = new Uint8ClampedArray(size.height * size.width * 4);
-        buffer.fill(255);
+        buffer.fill(0);
     }
     if (!buffer) {
         this.postMessage(null);
@@ -48,10 +48,8 @@ self.addEventListener("message", function (e) {
                 );
             });
         }
-        const color = constrain(_[0] - _[1], 0, 1) * 255;
-        buffer[j * (size.width * 4) + i * 4 + 0] = color;
-        buffer[j * (size.width * 4) + i * 4 + 1] = color;
-        buffer[j * (size.width * 4) + i * 4 + 2] = color;
+        const color = 255 - constrain(_[0] - _[1], 0, 1) * 255;
+        buffer[j * (size.width * 4) + i * 4 + 3] = color;
         return _;
     }));
     this.postMessage(buffer);

@@ -14,7 +14,7 @@ export default function execute() {
     function init(node) {
         ended = false;
         const states = [
-            { coeff: { re: 1 }, psi: { n: 5, l: 1, m: +1 } },
+            { coeff: { re: 1 }, psi: { n: 3, l: 1, m: +1 } },
         ];
         worker?.postMessage?.({
             states,

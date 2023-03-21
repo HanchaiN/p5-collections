@@ -42,9 +42,10 @@ export default function execute() {
             resizeObserver = new ResizeObserver(parentResized).observe(parent);
         };
         p.draw = function () {
-            p.background(0);
-            p.noStroke();
-            p.fill(255);
+            p.clear();
+            p.strokeWeight(1);
+            p.stroke(0);
+            p.noFill();
             p.circle(Ox, Oy, 2 * r);
             p.strokeWeight(5);
             p.stroke(0);

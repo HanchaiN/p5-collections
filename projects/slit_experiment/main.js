@@ -1,5 +1,5 @@
 import "p5";
-import { getParentSize, Vector, d3 } from "../utils/index.js";
+import { getParentSize, Vector, d3, map, constrain } from "../utils/index.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
@@ -32,7 +32,7 @@ export default function execute() {
         const PATH_OPACITY = 0.5;
         const SINK_PIXEL_DENSITY = 3;
         const LAYER_HEIGHT = 1;
-        let background, preview, mag_plot, mag_plot_line, foreground;
+        let preview, foreground, background, mag_plot, mag_plot_col, mag_plot_line;
         let max_mag = 0;
         let iteration = 0;
         let scan_x = 0;
@@ -49,25 +49,25 @@ export default function execute() {
             const gamma = 1;
             brightness = Math.pow(brightness, gamma);
 
-            const hue = p.map(phasor.heading(), -Math.PI, +Math.PI, 0, 360);
+            const hue = map(phasor.heading(), -Math.PI, +Math.PI, 0, 360);
             const saturation = 1;
             const lightness = brightness * (1 - saturation / 2);
             const saturation_l = lightness === 0 || lightness === 1 ? 0 : (brightness - lightness) / Math.min(lightness, 1 - lightness);
             const chroma = saturation * brightness;
             const hsv = [
-                p.constrain(hue, 0, 360),
-                p.constrain(saturation, 0, 1),
-                p.constrain(brightness, 0, 1),
+                constrain(hue, 0, 360),
+                constrain(saturation, 0, 1),
+                constrain(brightness, 0, 1),
             ];
             const hsl = [
-                p.constrain(hue, 0, 360),
-                p.constrain(saturation_l, 0, 1),
-                p.constrain(lightness, 0, 1),
+                constrain(hue, 0, 360),
+                constrain(saturation_l, 0, 1),
+                constrain(lightness, 0, 1),
             ]
             const hcl = [
-                p.constrain(hue, 0, 360),
-                p.constrain(chroma * 100, 0, 230),
-                p.constrain(brightness * 100, 0, 100),
+                constrain(hue, 0, 360),
+                constrain(chroma * 100, 0, 230),
+                constrain(brightness * 100, 0, 100),
             ];
             const c = p.color(d3.hcl(...hcl).formatHex());
             c.setAlpha(opacity * 255)
@@ -79,10 +79,10 @@ export default function execute() {
                 const nextLayer = computeLayer(phasors.map(e => e.position), LAYER);
                 const phasors_ = [];
                 background.line(
-                    0 * p.width,
-                    LAYER.LAYER_POSITION * p.height,
-                    1 * p.width,
-                    LAYER.LAYER_POSITION * p.height
+                    0 * scaler.x,
+                    LAYER.LAYER_POSITION * scaler.y,
+                    1 * scaler.x,
+                    LAYER.LAYER_POSITION * scaler.y,
                 );
                 nextLayer.forEach(({ phaseShifts, position }, slitIndex) => {
                     phasors_.push({ phasor: new Vector(0, 0), position });
@@ -100,10 +100,10 @@ export default function execute() {
                     background.push();
                     background.stroke(0);
                     background.line(
-                        SLIT_BEGIN * p.width,
-                        LAYER.LAYER_POSITION * p.height,
-                        SLIT_END * p.width,
-                        LAYER.LAYER_POSITION * p.height
+                        SLIT_BEGIN * scaler.x,
+                        LAYER.LAYER_POSITION * scaler.y,
+                        SLIT_END * scaler.x,
+                        LAYER.LAYER_POSITION * scaler.y,
                     );
                     phaseShifts.forEach((phaseShift, prevIndex) => {
                         const phasor = Vector.rotate(phasors[prevIndex].phasor, phaseShift);
@@ -192,13 +192,14 @@ export default function execute() {
         p.setup = function () {
             const { width, height } = getParentSize(parent, canvas);
             p.createCanvas(width, height);
-            scaler.set(p.width, p.height);
+            preview = p.createGraphics(width, PREVIEW_RATIO * height);
+            foreground = p.createGraphics(preview.width, preview.height);
+            background = p.createGraphics(preview.width, preview.height);
+            mag_plot = p.createGraphics(width, (1 - PREVIEW_RATIO) * height);
+            mag_plot_col = p.createGraphics(mag_plot.width, mag_plot.height);
+            mag_plot_line = p.createGraphics(mag_plot.width, mag_plot.height);
+            scaler.set(preview.width, preview.height);
             WAVENUMBER = 2 * Math.PI / (WAVELENGTH_REL * scaler.x);
-            foreground = p.createGraphics(p.width, PREVIEW_RATIO * p.height);
-            background = p.createGraphics(p.width, PREVIEW_RATIO * p.height);
-            preview = p.createGraphics(p.width, PREVIEW_RATIO * p.height);
-            mag_plot = p.createGraphics(p.width, (1 - PREVIEW_RATIO) * p.height);
-            mag_plot_line = p.createGraphics(p.width, (1 - PREVIEW_RATIO) * p.height);
             p.angleMode(p.RADIANS);
             background.strokeWeight(LAYER_HEIGHT);
             background.stroke(255);
@@ -206,12 +207,13 @@ export default function execute() {
             background.strokeWeight(10);
             background.point(Vector.mult(SOURCE_POSITION, scaler));
             preview.strokeWeight(1);
-            mag_plot.background(0);
+            mag_plot_col.clear();
             mag_plot_line.strokeWeight(2);
             mag_plot_line.stroke(255, 0, 0);
         }
         p.draw = function () {
-            preview.background(0);
+            p.clear();
+            preview.clear();
             preview.image(background, 0, 0);
             preview.image(foreground, 0, 0);
             foreground.clear();
@@ -223,18 +225,19 @@ export default function execute() {
             preview.strokeWeight(10);
             preview.strokeWeight(5);
             preview.stroke(255);
-            preview.point(scan_x * p.width, PREVIEW_RATIO * p.height);
+            preview.point(scan_x * preview.width, preview.height);
             preview.pop();
             if (iteration < 2) {
-                mag_plot.stroke(strokeColor);
-                mag_plot.line(scan_x * p.width, 0, scan_x * p.width, mag_plot.height);
+                mag_plot_col.stroke(strokeColor);
+                mag_plot_col.line(scan_x * mag_plot_col.width, 0, scan_x * mag_plot_col.width, mag_plot_col.height);
                 if (iteration === 1)
-                    mag_plot_line.point(scan_x * p.width, p.map(normalized_phasor.magSq(), 0, 1, mag_plot_line.height, 0));
+                    mag_plot_line.point(scan_x * mag_plot_line.width, map(normalized_phasor.magSq(), 0, 1, mag_plot_line.height, 0));
             }
-            p.image(foreground, 0, 0);
+            mag_plot.clear();
+            mag_plot.image(mag_plot_col, 0, 0);
+            mag_plot.image(mag_plot_line, 0, 0);
             p.image(preview, 0, 0);
             p.image(mag_plot, 0, PREVIEW_RATIO * p.height);
-            p.image(mag_plot_line, 0, PREVIEW_RATIO * p.height);
             if (iteration === 0) {
                 scan_x += 1 / p.width;
             } else {

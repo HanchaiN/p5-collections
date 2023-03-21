@@ -58,14 +58,12 @@ nav #menu_toggle~ul ul {
 }
 
 nav #menu_toggle~ul {
-    color: #fff;
     margin: 0;
     padding: 0;
     position: absolute;
     right: 100%;
     top: 0;
     width: 100%;
-    z-index: 1;
 }
 
 nav #menu_toggle:checked~ul {
@@ -119,11 +117,11 @@ nav #menu_toggle~ul a:after {
     z-index: 2;
 }
 
-nav #menu_toggle~ul a:hover:after {
+nav #menu_toggle~ul li:hover:not(:has(li:hover))>a:after {
     transform: scaleX(1);
 }
 
 nav #menu_toggle~ul li li {
     transform: translateX(-150%);
-    transition-duration: inherit;
+    /* transition-duration: inherit; */
 }

@@ -23,11 +23,11 @@ export class Branch {
   branch() {
     let branch = [];
     for (let i = 0; i < this.init[this.type].length; i++) {
-      let newEnd = Vector.sub(this.end, this.begin)
+      const newEnd = Vector.sub(this.end, this.begin)
         .rotate(this.init[this.type][i][0])
         .mult(this.init[this.type][i][1])
         .add(this.end);
-      let child = new this.constructor(
+      const child = new this.constructor(
         this.end,
         newEnd,
         this.init[this.type][i][2],

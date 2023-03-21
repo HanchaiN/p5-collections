@@ -1,6 +1,6 @@
 import "p5";
 import { Branch } from "./branch.js";
-import { getParentSize, Vector } from "../utils/index.js";
+import { constrain, getParentSize, Vector } from "../utils/index.js";
 export default function execute() {
   let parent = null;
   let canvas = null;
@@ -22,6 +22,7 @@ export default function execute() {
     let branch = [];
 
     const strokemultillier = 0.5;
+    const LEAVES_COUNT = 100;
 
     // let alpha, beta1, beta2, resetButton;
     let tree_layer;
@@ -36,24 +37,24 @@ export default function execute() {
       updateTreeLayer();
     }
     p.setup = function () {
-      resetButton.addEventListener("click", reset);
       const { width, height } = getParentSize(parent, canvas);
       const c = p.createCanvas(width, height);
       tree_layer = p.createGraphics(p.width, p.height);
       c.mouseClicked(grow);
       reset();
+      resetButton.addEventListener("click", reset);
       resizeObserver = new ResizeObserver(parentResized).observe(parent);
     };
 
     p.draw = function () {
-      p.background(51);
+      p.clear();
       p.image(tree_layer, 0, 0);
       updateLeaves();
-      addLeaves();
+      let count = addLeaves();
+      p.noStroke();
       p.translate(p.width / 2, p.height / 2);
       for (let i = 0; i < leaves.length; i++) {
-        p.fill(255, 0, 100, 25);
-        p.noStroke();
+        p.fill(255, 0, 100, constrain(128 * count / leaves.length, 1, 128));
         p.ellipse(leaves[i].x, leaves[i].y, 8, 8);
       }
     };
@@ -62,9 +63,9 @@ export default function execute() {
       tree = [];
       leaves = [];
       branch = [];
-      let a = p.createVector(0, 0);
-      let b = p.createVector(0, -100);
-      let root = new Branch(a, b, 0, [
+      const a = new Vector(0, 0);
+      const b = new Vector(0, -100);
+      const root = new Branch(a, b, 0, [
         [[Number.parseFloat(alpha.value) * Math.PI, 0.67, 1]],
         [
           [Number.parseFloat(beta1.value) * Math.PI, 0.67, 0],
@@ -80,7 +81,7 @@ export default function execute() {
     function grow() {
       for (let i = tree.length - 1; i >= 0; i--) {
         if (!tree[i].finished) {
-          let branches = tree[i].branch();
+          const branches = tree[i].branch();
           for (let j = 0; j < branches.length; j++) {
             tree.push(branches[j]);
             branch[i].push(tree.length - 1);
@@ -106,18 +107,22 @@ export default function execute() {
       tree_layer.pop();
     }
     function addLeaves() {
+      let count = 0;
+      let leaves_count = leaves.length;
       for (let i = 0; i < tree.length; i++) {
-        if (!tree[i].finished && Math.random() > leaves.length / 1000) {
-          let leaf = tree[i].end.copy();
-          leaves.push(leaf);
+        if (!tree[i].finished) {
+          if (Math.random() > leaves_count / LEAVES_COUNT)
+            leaves.push(tree[i].end.copy());
+          count++;
         }
       }
+      return count;
     }
     function updateLeaves() {
       leaves.forEach((leaf) => {
         leaf.add(Vector.random2D());
       });
-      leaves = leaves.filter(() => Math.random() > leaves.length / 1000);
+      leaves = leaves.filter(() => Math.random() > leaves.length / LEAVES_COUNT);
     }
   };
 
