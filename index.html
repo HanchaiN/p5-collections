@@ -1,31 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-  </head>
-  <body>
-    <nav>
-      <ol>
-        <li>
-          <a href="./elementary_cellular_automata"
-            >Elementary Cellular Automata</a
-          >
-        </li>
-        <li><a href="./fractal_trees">Fractal Trees</a></li>
-        <li><a href="./dtmf">DTMF</a></li>
-        <li><a href="./turing_machine">Turing Machine</a></li>
-        <li><a href="./hilbert">Hilbert Curve</a></li>
-        <li><a href="./ray_tracing">Ray Tracing</a></li>
-        <li><a href="./hydrogen_cloud">Hydrogen Cloud</a></li>
-        <li><a href="./poincare_disk">Poincare disk</a></li>
-        <li><a href="./reaction_diffusion">Reaction-diffusion</a></li>
-        <li><a href="./complex_function">Complex function</a></li>
-        <li><a href="./slit_experiment">Slit Experiment</a></li>
-        <li><a href="./brainf_ck">Brainf_ck</a></li>
-        <li><a href="./boids">Boids</a></li>
-        <li><a href="./spectral_graph">Spectral Graph</a></li>
-        <li><a href="./hydrogen_pilot">Hydrogen Pilot Wave</a></li>
-      </ol>
-    </nav>
-  </body>
+
+<head>
+  <title>Miniprojects</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="importmap">
+    {
+      "imports": {
+        "math": "https://unpkg.com/mathjs@11.6.0/lib/esm/index.js", // Issue
+        "d3-color": "https://cdn.skypack.dev/d3-color@3",
+        "p5": "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js",
+        "p5/sound": "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js",
+        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+      }
+    }
+  </script>
+  <link rel="stylesheet" type="text/css" href="static/css/style.css">
+  <script src="static/js/config.js"></script>
+  <script src="static/js/router.js"></script>
+  <script src="static/js/component.js"></script>
+  <script src="static/js/main.js"></script>
+</head>
+
+<body>
+  <nav>
+    <link rel="stylesheet" type="text/css" href="static/css/nav-menu.css">
+    <input id="menu_toggle" type="checkbox">
+    <label for="menu_toggle">
+      <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
+        <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
+      </svg>
+      <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
+        <path
+          d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z">
+        </path>
+      </svg>
+    </label>
+    <ul>
+      <li style="--color:lch(70% 75 0); --delay:0.225s;">
+        <a href="#elementary_cellular_automata">Elementary Cellular Automata</a>
+      </li>
+      <li style="--color:lch(70% 75 24); --delay:0.258333s;">
+        <a href="#fractal_trees">Fractal Trees</a>
+      </li>
+      <li style="--color:lch(70% 75 48); --delay:0.291667s;">
+        <a href="#dtmf">DTMF</a>
+      </li>
+      <li style="--color:lch(70% 75 72); --delay:0.325s;">
+        <a href="#turing_machine">Turing Machine</a>
+      </li>
+      <li style="--color:lch(70% 75 96); --delay:0.358333s;">
+        <a href="#hilbert">Hilbert Curve</a>
+      </li>
+      <li style="--color:lch(70% 75 120); --delay:0.391667s;">
+        <a href="#ray_tracing">Ray Tracing</a>
+      </li>
+      <li style="--color:lch(70% 75 144); --delay:0.425s;">
+        <a href="#hydrogen_cloud">Hydrogen Cloud</a>
+      </li>
+      <li style="--color:lch(70% 75 168); --delay:0.458333s;">
+        <a href="#poincare_disk">Poincare disk</a>
+      </li>
+      <li style="--color:lch(70% 75 192); --delay:0.491667s;">
+        <a href="#reaction_diffusion">Reaction-diffusion</a>
+      </li>
+      <li style="--color:lch(70% 75 216); --delay:0.525s;">
+        <a href="#complex_function">Complex function</a>
+      </li>
+      <li style="--color:lch(70% 75 240); --delay:0.558333s;">
+        <a href="#slit_experiment">Slit Experiment</a>
+      </li>
+      <li style="--color:lch(70% 75 264); --delay:0.591667s;">
+        <a href="#brainf_ck">Brainf_ck</a>
+      </li>
+      <li style="--color:lch(70% 75 288); --delay:0.625s;">
+        <a href="#boids">Boids</a>
+      </li>
+      <li style="--color:lch(70% 75 312); --delay:0.658333s;">
+        <a href="#spectral_graph">Spectral Graph</a>
+      </li>
+      <li style="--color:lch(70% 75 336); --delay:0.691667s;">
+        <a href="#hydrogen_pilot">Hydrogen Pilot Wave</a>
+      </li>
+    </ul>
+  </nav>
+  <template>
+    <link rel="stylesheet" type="text/css" href="static/css/project-preview.css">
+    <article>
+      <h1>
+        <slot name="title"></slot>
+      </h1>
+      <main class="sketch">
+        <slot name="content"></slot>
+      </main>
+    </article>
+  </template>
+</body>
+
 </html>

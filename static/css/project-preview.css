@@ -1,0 +1,35 @@
+:host,
+article {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+article>h1 {
+    display: none;
+}
+
+article>main {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+
+article>main>slot[name=content] {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+slot[name=content]::slotted(*) {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
