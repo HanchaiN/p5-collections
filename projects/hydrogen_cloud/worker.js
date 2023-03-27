@@ -1,5 +1,5 @@
 import { Complex, constrainMap, d3, Vector } from "../utils/index.js";
-import { superposition, wave_function } from "./psi.js";
+import { WaveFunction } from "./psi.js";
 
 let width, height, buffer;
 let psi;
@@ -12,10 +12,10 @@ self.addEventListener("message", function (e) {
         buffer = new Uint8ClampedArray(height * width * 4).fill(255);
     }
     if (e.data.states) {
-        psi = superposition(e.data.states.map(({ coeff: { re, im }, psi: { n, l, m } }) => {
+        psi = WaveFunction.superposition(e.data.states.map(({ coeff: { re, im }, psi: { n, l, m } }) => {
             return {
                 coeff: Complex.fromCartesian(re ?? 0, im ?? 0),
-                psi: wave_function(n, l, m),
+                psi: WaveFunction.fromOrbital(n, l, m),
             };
         }));
     }
@@ -29,7 +29,7 @@ self.addEventListener("message", function (e) {
                 const y = height * scale * 2 * (iy / height - 1 / 2);
                 const z = z_depth;
                 const pos = new Vector(x, y, z);
-                const p = psi(pos);
+                const p = psi.psi(pos);
                 const prob = 1000 * p.absSq();
                 const phase = p.theta;
                 const brightness = Math.pow(prob / (prob + 1), 0.5);

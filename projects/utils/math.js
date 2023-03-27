@@ -61,6 +61,9 @@ export class Vector {
     copy() {
         return new Vector(this.x, this.y, this.z);
     }
+    static copy(v) {
+        return v.copy()
+    }
     dot(v) {
         return this.x * v.x + this.y * v.y + this.z * v.z;
     }
@@ -91,8 +94,10 @@ export class Vector {
         }
         return this;
     }
-    static add(a, b) {
-        return a.copy().add(b);
+    static add(a, ...args) {
+        const vec = Vector.copy(a);
+        for (let v of args) vec.add(v);
+        return vec;
     }
     sub(v) {
         if (v instanceof Vector) {
@@ -104,7 +109,7 @@ export class Vector {
         return this;
     }
     static sub(a, b) {
-        return a.copy().sub(b);
+        return Vector.copy(a).sub(b);
     }
     mult(v) {
         if (v instanceof Vector) {
@@ -114,10 +119,11 @@ export class Vector {
             this.set(this.x * v, this.y * v, this.z * v);
         }
         return this;
-        return this;
     }
-    static mult(a, b) {
-        return a.copy().mult(b);
+    static mult(a, ...args) {
+        const vec = Vector.copy(a);
+        for (let v of args) vec.mult(v);
+        return vec;
     }
     div(v) {
         if (v instanceof Vector) {
@@ -127,16 +133,15 @@ export class Vector {
             this.set(this.x / v, this.y / v, this.z / v);
         }
         return this;
-        return this;
     }
     static div(a, b) {
-        return a.copy().div(b);
+        return Vector.copy(a).div(b);
     }
     normalize() {
         return this.div(this.mag());
     }
     static normalize(vector) {
-        return vector.copy().normalize();
+        return Vector.copy(vector).normalize();
     }
     setMag(len) {
         return this.normalize().mult(len);
@@ -158,7 +163,7 @@ export class Vector {
         );
     }
     static rotate(v, theta) {
-        return v.copy().rotate(theta);
+        return Vector.copy(v).rotate(theta);
     }
     toPolar() {
         const r = this.mag();
@@ -200,11 +205,9 @@ export class Complex {
     get re() { return this.isPolar ? Math.cos(this.theta) * this.r : this._re; }
     get im() { return this.isPolar ? Math.sin(this.theta) * this.r : this._im; }
     get r() {
-        this._fixPolar();
         return this.isPolar ? this._r : this.abs();
     }
     get theta() {
-        this._fixPolar();
         return this.isPolar ? this._theta : Math.atan2(this.im, this.re);
     }
     set(re = 0, im = 0) {
@@ -218,6 +221,7 @@ export class Complex {
         return new Complex().set(re, im);
     }
     setPolar(r = 0, theta = 0) {
+        this._fixPolar();
         this._re = null;
         this._im = null;
         this._r = r;
@@ -236,8 +240,19 @@ export class Complex {
     copy() {
         return this.isPolar ? Complex.fromPolar(this.r, this.theta) : Complex.fromCartesian(this.re, this.im);
     }
+    static copy(v) {
+        if (v instanceof Complex) {
+            return v.copy();
+        }
+        if (typeof v === "number") {
+            return Complex.fromCartesian(v);
+        }
+    }
     conj() {
         return this.isPolar ? Complex.fromPolar(this.r, -this.theta) : Complex.fromCartesian(this.re, -this.im);
+    }
+    static conj(v) {
+        return Complex.copy(v).conj();
     }
     absSq() {
         return this.isPolar ? Math.pow(this.r, 2) : this.conj().mult(this).re;
@@ -254,8 +269,10 @@ export class Complex {
         }
         return this;
     }
-    static add(a, b) {
-        return a.copy().add(b);
+    static add(a, ...args) {
+        const z = Complex.copy(a);
+        for (let v of args) z.add(v);
+        return z;
     }
     sub(v) {
         if (v instanceof Complex) {
@@ -267,7 +284,7 @@ export class Complex {
         return this;
     }
     static sub(a, b) {
-        return a.copy().sub(b);
+        return Complex.copy(a).sub(b);
     }
     mult(v) {
         if (v instanceof Complex) {
@@ -284,8 +301,10 @@ export class Complex {
         }
         return this;
     }
-    static mult(a, b) {
-        return a.copy().mult(b);
+    static mult(a, ...args) {
+        const z = Complex.copy(a);
+        for (let v of args) z.mult(v);
+        return z;
     }
     div(v) {
         if (v instanceof Complex) {
@@ -303,12 +322,124 @@ export class Complex {
         return this;
     }
     static div(a, b) {
-        return a.copy().div(b);
+        return Complex.copy(a).div(b);
     }
     exp() {
         return Complex.fromPolar(Math.exp(this.re), this.im);
     }
     pow(v) {
         return Complex.fromPolar(pow(this.r, v), this.theta * v);
+    }
+}
+export class ComplexVector {
+    constructor(x = 0, y = 0, z = 0) {
+        this.set(x, y, z);
+    }
+    get x() { return Complex.copy(this._x); }
+    get y() { return Complex.copy(this._y); }
+    get z() { return Complex.copy(this._z); }
+    get re() { return new Vector(this._x.re, this._y.re, this._z.re); }
+    get im() { return new Vector(this._x.im, this._y.im, this._z.im); }
+    set(x = 0, y = 0, z = 0) {
+        this._x = Complex.copy(x);
+        this._y = Complex.copy(y);
+        this._z = Complex.copy(z);
+        return this;
+    }
+    copy() {
+        return new ComplexVector(this.x, this.y, this.z);
+    }
+    conj() {
+        this.set(this._x.conj(), this._y.conj(), this._z.conj())
+    }
+    static copy(v) {
+        return v.copy()
+    }
+    dot(v) {
+        return Complex.add(
+            Complex.mult(this._x, Complex.conj(v._x)),
+            Complex.mult(this._y, Complex.conj(v._y)),
+            Complex.mult(this._z, Complex.conj(v._z))
+        );
+    }
+    static dot(a, b) {
+        return a.dot(b);
+    }
+    cross(v) {
+        return new ComplexVector(
+            Complex.sub(Complex.mult(this._y, v._z), Complex.mult(this._z, v._y)).conj(),
+            Complex.sub(Complex.mult(this._z, v._x), Complex.mult(this._x, v._z)).conj(),
+            Complex.sub(Complex.mult(this._x, v._y), Complex.mult(this._y, v._x)).conj()
+        );
+    }
+    magSq() {
+        return this.dot(this).re;
+    }
+    mag() {
+        return Math.sqrt(this.magSq());
+    }
+    dist(v) {
+        return ComplexVector.sub(v, this).mag();
+    }
+    add(v) {
+        if (v instanceof Vector || v instanceof ComplexVector) {
+            this.set(Complex.add(this._x, v._x), Complex.add(this._y, v._y), Complex.add(this._z, v._z));
+        }
+        if (typeof v === "number" || v instanceof Complex) {
+            this.add(new ComplexVector(v, v, v));
+        }
+        return this;
+    }
+    static add(a, ...args) {
+        const vec = ComplexVector.copy(a);
+        for (let v of args) vec.add(v);
+        return vec;
+    }
+    sub(v) {
+        if (v instanceof Vector || v instanceof ComplexVector) {
+            this.set(Complex.sub(this._x, v._x), Complex.sub(this._y, v._y), Complex.sub(this._z, v._z));
+        }
+        if (typeof v === "number" || v instanceof Complex) {
+            this.sub(new ComplexVector(v, v, v));
+        }
+        return this;
+    }
+    static sub(a, b) {
+        return ComplexVector.copy(a).sub(b);
+    }
+    mult(v) {
+        if (v instanceof Vector || v instanceof ComplexVector) {
+            this.set(Complex.mult(this._x, v._x), Complex.mult(this._y, v._y), Complex.mult(this._z, v._z));
+        }
+        if (typeof v === "number" || v instanceof Complex) {
+            this.mult(new ComplexVector(v, v, v));
+        }
+        return this;
+    }
+    static mult(a, ...args) {
+        const vec = ComplexVector.copy(a);
+        for (let v of args) vec.mult(v);
+        return vec;
+    }
+    div(v) {
+        if (v instanceof Vector || v instanceof ComplexVector) {
+            this.set(Complex.div(this._x, v._x), Complex.div(this._y, v._y), Complex.div(this._z, v._z));
+        }
+        if (typeof v === "number" || v instanceof Complex) {
+            this.div(new ComplexVector(v, v, v));
+        }
+        return this;
+    }
+    static div(a, b) {
+        return ComplexVector.copy(a).div(b);
+    }
+    normalize() {
+        return this.div(this.mag());
+    }
+    static normalize(vector) {
+        return ComplexVector.copy(vector).normalize();
+    }
+    setMag(len) {
+        return this.normalize().mult(len);
     }
 }

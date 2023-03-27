@@ -1,7 +1,7 @@
 import "p5";
 import { Draggable } from "./draggable.js";
 import { Gyrovector } from "./gyrovector.js";
-import { getParentSize, Vector } from "../utils/index.js";
+import { getParentSize, Complex } from "../utils/index.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
@@ -55,7 +55,6 @@ export default function execute() {
             A.update();
             B.over();
             B.update();
-
             operate();
             A.show();
             B.show();
@@ -63,10 +62,8 @@ export default function execute() {
 
         function operate() {
             p.push();
-            let a = calculateposition(A.x, A.y);
-            a = new Gyrovector(new Vector(a[0], a[1]));
-            let b = calculateposition(B.x, B.y);
-            b = new Gyrovector(new Vector(b[0], b[1]));
+            const a = new Gyrovector(Complex.fromCartesian(...calculateposition(A.x, A.y)));
+            const b = new Gyrovector(Complex.fromCartesian(...calculateposition(B.x, B.y)));
             p.strokeWeight(2.5);
             p.stroke(220, 0, 0);
             p.line(Ox, Oy, A.x, A.y);
@@ -77,42 +74,31 @@ export default function execute() {
                 p.strokeWeight(3.75);
                 p.stroke(255, 100, 125);
                 p.noFill();
-                p.beginShape();
-                let t = 0;
-                for (let t = -100; t < 100; t += 0.1) {
-                    let s = a.add(b.mult(t));
-                    s = canvasposition(s.vec.x, s.vec.y);
-                    p.curveVertex(s[0], s[1]);
-                    p.strokeWeight(5);
-                    p.point(s[0], s[1]);
-                    p.strokeWeight(3.75);
+                const l = Gyrovector.geodesic(a, a.add(b));
+                switch (l[0]) {
+                    case "circle":
+                        p.circle(...canvasposition(l[1], l[2]), 2 * r * l[3]);
+                        break;
                 }
-                p.endShape();
             }
             {
                 // Add vectors
                 let s = a.add(b);
-                s = canvasposition(s.vec.x, s.vec.y);
+                s = canvasposition(s.z.re, s.z.im);
                 p.strokeWeight(7.5);
                 p.stroke(0, 155, 130);
                 p.point(s[0], s[1]);
             }
             {
-                // Draw line connect points
                 p.strokeWeight(3.75);
                 p.stroke(255, 255, 100);
                 p.noFill();
-                p.beginShape();
-                let t = 0;
-                for (let t = -100; t < 100; t += 0.1) {
-                    let s = a.add(a.neg().add(b).mult(t));
-                    s = canvasposition(s.vec.x, s.vec.y);
-                    p.curveVertex(s[0], s[1]);
-                    p.strokeWeight(5);
-                    p.point(s[0], s[1]);
-                    p.strokeWeight(3.75);
+                const l = Gyrovector.geodesic(a, b);
+                switch (l[0]) {
+                    case "circle":
+                        p.circle(...canvasposition(l[1], l[2]), 2 * r * l[3]);
+                        break;
                 }
-                p.endShape();
             }
             p.pop();
         }

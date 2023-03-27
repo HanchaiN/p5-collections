@@ -54,7 +54,7 @@ export default function execute() {
 
         {
             const nucleus = new THREE.Mesh(
-                new THREE.SphereGeometry(unit / 50, 32, 16),
+                new THREE.SphereGeometry(unit / 500, 32, 16),
                 new THREE.MeshPhongMaterial({
                     color: 0x804040,
                     emissive: 0x302020,
