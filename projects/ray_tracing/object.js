@@ -1,128 +1,215 @@
-import { Light, OMEGA } from "./ray.js";
-import { map, Vector } from "../utils/index.js";
-export class Dye {
-    constructor(r, g, b) {
-        this.color = { r: r, g: g, b: b };
-    }
-    rgb() {
-        return Light.white.apply(this).rgb();
-    }
-    clone() {
-        return new Dye(this.color.r, this.color.g, this.color.b);
-    }
-    lightMix(other) {
-        this.color.r += other.color.r;
-        this.color.g += other.color.g;
-        this.color.b += other.color.b;
-        return this;
-    }
-    lightMult(fac) {
-        this.color.r *= fac;
-        this.color.g *= fac;
-        this.color.b *= fac;
-        return this;
-    }
-    mix(other) {
-        this.color.r *= other.color.r;
-        this.color.g *= other.color.g;
-        this.color.b *= other.color.b;
-        return this;
-    }
-    mult(fac) {
-        this.color.r = Math.pow(this.color.r, fac);
-        this.color.g = Math.pow(this.color.g, fac);
-        this.color.b = Math.pow(this.color.b, fac);
-        return this;
-    }
-    static get black() {
-        return new Dye(0, 0, 0);
-    }
-    static get white() {
-        return new Dye(1, 1, 1);
-    }
-}
-export class Material {
-    constructor(
-        emittance = (toViewer, norm) => Light.black,
-        brdf = phongBRDF(Dye.white, Dye.white, 1),
-    ) {
-        this.emittance = emittance; // light
-        this.brdf = brdf;
-    }
-    at(pos) {
-        return this;
-    }
-}
-
-function phongBRDF(diffuse, specular, shininess) {
-    return (toViewer, norm, nextDir) => {
-        const diffuse_ref = norm;
-        const specular_ref = Vector.mult(norm, 2 * toViewer.dot(norm)).sub(toViewer);
-        const factor = Dye.black;
-        if (
-            norm.dot(toViewer) * norm.dot(nextDir) < 0
-        ) {
-            // BRTF
-            return factor;
-        }
-        const diffuse_rate = Math.max(diffuse_ref.dot(nextDir), 0);
-        const specular_rate = Math.pow(Math.max(specular_ref.dot(nextDir), 0), shininess);
-        factor.lightMix(diffuse.clone().lightMult(diffuse_rate));
-        factor.lightMix(specular.clone().lightMult(specular_rate));
-        return factor;
-    }
-}
-export class PhongMaterial extends Material {
-    constructor(
-        emittance = (toViewer, norm) => Light.black(),
-        diffuse = Dye.white, specular = Dye.white, shininess = 1,
-    ) {
-        super(emittance, phongBRDF(diffuse, specular, shininess))
-    }
-}
+import { constrain, Vector } from "../utils/math.js";
+import { MAX_DIST, MIN_DIST } from "./const.js";
+import { Material } from "./material.js";
 
 export class Object {
     constructor(
-        distance = (pos) => OMEGA,
-        normal = (pos) => Vector.normalize(pos).mult(-1),
+        distance = (pos) => MAX_DIST,
+        normal = null,
         material = new Material()
     ) {
         this.distance = distance;
+        if (normal === null)
+            normal = (pos) => {
+                const vec = new Vector(
+                    distance(new Vector(+MIN_DIST, 0, 0).add(pos)) - distance(new Vector(-MIN_DIST, 0, 0).add(pos)),
+                    distance(new Vector(0, +MIN_DIST, 0).add(pos)) - distance(new Vector(0, -MIN_DIST, 0).add(pos)),
+                    distance(new Vector(0, 0, +MIN_DIST).add(pos)) - distance(new Vector(0, 0, -MIN_DIST).add(pos)),
+                );
+                if (vec.magSq() === 0) return Vector.normalize(pos).mult(-1);
+                return vec.normalize();
+            }
         this.normal = normal;
         if (material instanceof Material)
-            this.materialAt = material.at.bind(material);
+            this.materialAt = (pos) => material;
         else
             this.materialAt = material;
     }
     static union(...objects) {
-        let distance = (pos) => Math.min(...objects.map(o => o.distance(pos)));
-        let normal = (pos) => {
+        const distance = (pos) => Math.min(...objects.map(o => o.distance(pos)));
+        const normal = (pos) => {
             const dist = distance(pos);
             const object = objects.find(o => o.distance(pos) === dist);
             return object.normal(pos);
         }
-        let materialAt = (pos) => {
+        const materialAt = (pos) => {
             const dist = distance(pos);
             const object = objects.find(o => o.distance(pos) === dist);
             return object.materialAt(pos);
         }
         return new Object(distance, normal, materialAt);
     }
+    static intersect(...objects) {
+        const distance = (pos) => Math.max(...objects.map(o => o.distance(pos)));
+        const normal = (pos) => {
+            const dist = distance(pos);
+            const object = objects.find(o => o.distance(pos) === dist);
+            return object.normal(pos);
+        }
+        return new Object(distance, normal, null);
+    }
+    static subtract(main, operator) {
+        const obj = Object.intersect(main, Object.negate(operator));
+        obj.materialAt = main.materialAt;
+        return obj;
+    }
+    static negate(object) {
+        const distance = (pos) => -object.distance(pos);
+        const normal = (pos) => object.normal(pos).mult(-1);
+        return new Object(distance, normal, object.materialAt);
+    }
+    translate(displacement) {
+        const inv_transformation = (pos) => pos.copy().sub(displacement);
+        const distance = (pos) => {
+            return this.distance(inv_transformation(pos));
+        };
+        const normal = (pos) => {
+            return this.normal(inv_transformation(pos));
+        }
+        const materialAt = (pos) => {
+            return this.materialAt(inv_transformation(pos));
+        }
+        return new Object(distance, normal, materialAt);
+    }
+    rotate(x, y, z) {
+        const x_ = x.normalize(), y_ = y.normalize(), z_ = z.normalize();
+        if (Math.abs(x_.dot(y_.cross(z_))) !== 1)
+            console.warn("The transformation might contains skewing (not pure rotation).");
+        const inv_transformation = (pos) =>
+            new Vector(
+                pos.x * x_.x + pos.y * x_.y + pos.z * x_.z,
+                pos.x * y_.x + pos.y * y_.y + pos.z * y_.z,
+                pos.x * z_.x + pos.y * z_.y + pos.z * z_.z,
+            );
+        const distance = (pos) => {
+            return this.distance(inv_transformation(pos));
+        };
+        const normal = (pos) => {
+            return this.normal(inv_transformation(pos));
+        }
+        const materialAt = (pos) => {
+            return this.materialAt(inv_transformation(pos));
+        }
+        return new Object(distance, normal, materialAt);
+    }
 }
 
-export class Sphere extends Object {
-    constructor(center, radius, mat = new Material()) {
-        let distance = (pos) => center.dist(pos) - radius;
-        let normal = (pos) => Vector.sub(pos, center).normalize();
+// https://iquilezles.org/articles/distfunctions/
+class Sphere extends Object {
+    constructor(radius, mat) {
+        const distance = (pos) => pos.mag() - radius;
+        const normal = (pos) => pos.copy().normalize();
         super(distance, normal, mat);
     }
 }
-export class Horizon extends Object {
-    constructor(up = new Vector(0, 1, 0)) {
-        let up_ = up.normalize();
-        let distance = (pos) => OMEGA - pos.mag();
-        let normal = (pos) => Vector.normalize(pos).mult(-1);
-        let emittance = (inp, norm) => Light.white.mult(.1).mult(map(Math.atan(inp.dot(up_) * 1000), +Math.PI / 2, -Math.PI / 2, 0, 1));
-        super(distance, normal, new Material(emittance, null));
+export function sphere(center, radius, mat = new Material()) {
+    return new Sphere(radius, mat).translate(center);
+}
+class Box extends Object {
+    constructor(dimension, mat) {
+        const distance = (pos) => {
+            const pos_ = new Vector(Math.abs(pos.x), Math.abs(pos.y), Math.abs(pos.z)).sub(dimension);
+            const v = Math.max(pos_.x, pos_.y, pos_.z);
+            if (v < 0) return v;
+            return new Vector(Math.max(pos_.x, 0), Math.max(pos_.y, 0), Math.max(pos_.z, 0)).mag();
+        }
+        super(distance, null, mat);
     }
+}
+export function box(origin, sx, sy, sz, mat = new Material()) {
+    const dx = sx.copy().mult(0.5);
+    const dy = sy.copy().mult(0.5);
+    const dz = sz.copy().mult(0.5);
+    return new Box(new Vector(dx.mag(), dy.mag(), dz.mag()), mat).rotate(dx, dy, dz).translate(Vector.add(origin, dx, dy, dz));
+}
+class Plane extends Object {
+    constructor(norm, mat) {
+        const distance = (pos) => norm.dot(pos);
+        const normal = (pos) => norm.copy();
+        super(distance, normal, mat);
+    }
+}
+export function plane(norm = new Vector(0, 1, 0), pivot = new Vector(0, 0, 0), mat = new Material()) {
+    return new Plane(norm.normalize(), mat).translate(pivot);
+}
+class Triangle extends Object {
+    constructor(a, b, c, mat) {
+        const ba = Vector.sub(b, a).normalize();
+        const cb = Vector.sub(c, b).normalize();
+        const ac = Vector.sub(at, c).normalize();
+        const norm = Vector.cross(ba, ac);
+        const ba_ = Vector.cross(ba, norm);
+        const cb_ = Vector.cross(cb, norm);
+        const distance = (p) => {
+            const pa = Vector.sub(p, a);
+            const pb = Vector.sub(p, b);
+            const pc = Vector.sub(p, c);
+            const sa = Math.sign(ba_.dot(pa));
+            const sb = Math.sign(cb_.dot(pb));
+            const sc = Math.sign(ac_.dot(pc));
+            if (sa + sb + sc >= 2) return Math.abs(norm.dot(pa));
+            const va = constrain(ba.dot(pa), 0, 1);
+            const vb = constrain(cb.dot(pb), 0, 1);
+            const vc = constrain(ac.dot(pc), 0, 1);
+            return Math.sqrt(Math.min(
+                Vector.mult(ba, va).sub(pa).magSq(),
+                Vector.mult(cb, vb).sub(pb).magSq(),
+                Vector.mult(ac, vc).sub(pc).magSq(),
+            ));
+        };
+        const normal = (pos) => norm;
+        super(distance, normal, mat);
+    }
+}
+export function triangle(a, b, c, mat = new Material()) {
+    return new Triangle(a, b, c, mat);
+}
+class Quad extends Object {
+    constructor(a, b, c, d, mat) {
+        const ba = Vector.sub(b, a).normalize();
+        const cb = Vector.sub(c, b).normalize();
+        const dc = Vector.sub(d, c).normalize();
+        const ad = Vector.sub(a, d).normalize();
+        const norm = Vector.cross(ba, ad);
+        const ba_ = Vector.cross(ba, norm);
+        const cb_ = Vector.cross(cb, norm);
+        const dc_ = Vector.cross(dc, norm);
+        const ad_ = Vector.cross(ad, norm);
+        const distance = (p) => {
+            const pa = Vector.sub(p, a);
+            const pb = Vector.sub(p, b);
+            const pc = Vector.sub(p, c);
+            const pd = Vector.sub(p, d);
+            const sa = Math.sign(ba_.dot(pa));
+            const sb = Math.sign(cb_.dot(pb));
+            const sc = Math.sign(dc_.dot(pc));
+            const sd = Math.sign(ad_.dot(pd));
+            if (sa + sb + sc + sd >= 3) return Math.abs(norm.dot(pa));
+            const va = ba.dot(pa);
+            const vb = cb.dot(pb);
+            const vc = dc.dot(pc);
+            const vd = ad.dot(pd);
+            return Math.sqrt(Math.min(
+                Vector.mult(ba, va).sub(pa).magSq(),
+                Vector.mult(cb, vb).sub(pb).magSq(),
+                Vector.mult(dc, vc).sub(pc).magSq(),
+                Vector.mult(ad, vd).sub(pd).magSq(),
+            ));
+        };
+        const normal = (pos) => norm.copy();
+        super(distance, normal, mat);
+    }
+}
+export function quad(a, b, c, d, mat = new Material()) {
+    return new Quad(a, b, c, d, mat);
+}
+class Horizon extends Object {
+    constructor(mat) {
+        const distance = (pos) => Math.max(MAX_DIST - pos.mag(), 0);
+        const normal = (pos) => Vector.normalize(pos).mult(-1);
+        super(distance, normal, mat);
+    }
+}
+export function horizon(mat = new Material()) {
+    return new Horizon(mat);
 }

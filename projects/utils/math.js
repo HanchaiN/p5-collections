@@ -1,6 +1,8 @@
 export function constrain(v, l, h) { return Math.min(h, Math.max(l, v)); }
 export function map(v, l, h, l_, h_) { return l_ + (v - l) * (h_ - l_) / (h - l); }
+export function lerp(v, l, h) { return map(v, 0, 1, l, h); }
 export function constrainMap(v, l, h, l_, h_) { return constrain(map(v, l, h, l_, h_), l_, h_); }
+export function constrainLerp(v, l, h) { return constrainMap(v, 0, 1, l, h); }
 export function sigm(x) { return 1 / (1 + Math.exp(-x)); }
 export function randomGaussian(mu = 0, sigma = 1) {
     const U1 = Math.random(),
@@ -59,10 +61,15 @@ export class Vector {
         return this;
     }
     copy() {
-        return new Vector(this.x, this.y, this.z);
+        return Vector.copy(this);
     }
     static copy(v) {
-        return v.copy()
+        if (v instanceof Vector) {
+            return new Vector(v.x, v.y, v.z);
+        }
+        if (typeof v === "number") {
+            return new Vector(v, v, v);
+        }
     }
     dot(v) {
         return this.x * v.x + this.y * v.y + this.z * v.z;
@@ -75,6 +82,9 @@ export class Vector {
         const y = this.z * v.x - this.x * v.z;
         const z = this.x * v.y - this.y * v.x;
         return new Vector(x, y, z);
+    }
+    static cross(a, b) {
+        return a.cross(b);
     }
     magSq() {
         return this.dot(this);
@@ -347,13 +357,18 @@ export class ComplexVector {
         return this;
     }
     copy() {
-        return new ComplexVector(this.x, this.y, this.z);
+        return ComplexVector.copy(this);
     }
     conj() {
         this.set(this._x.conj(), this._y.conj(), this._z.conj())
     }
     static copy(v) {
-        return v.copy()
+        if (v instanceof Vector || v instanceof ComplexVector) {
+            return new ComplexVector(v.x, v.y, v.z);
+        }
+        if (typeof v === "number" || v instanceof Complex) {
+            return new Vector(v, v, v);
+        }
     }
     dot(v) {
         return Complex.add(
