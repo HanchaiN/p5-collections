@@ -12,10 +12,10 @@ const white_balance = ({ r, g, b }) => {
     const x0 = 0.49000 * r + 0.31000 * g + 0.20000 * b;
     const y0 = 0.19697 * r + 0.81240 * g + 0.01063 * b;
     const z0 = 0.00000 * r + 0.01000 * g + 0.99000 * b;
-    return (color) => {
-        const x = (0.49000 * color.r + 0.31000 * color.g + 0.20000 * color.b) * 0.95047 / x0;
-        const y = (0.19697 * color.r + 0.81240 * color.g + 0.01063 * color.b) * 1.00 / y0;
-        const z = (0.00000 * color.r + 0.01000 * color.g + 0.99000 * color.b) * 1.088883 / z0;
+    return ({ r, g, b }) => {
+        const x = (0.49000 * r + 0.31000 * g + 0.20000 * b) * 0.95047 / x0;
+        const y = (0.19697 * r + 0.81240 * g + 0.01063 * b) * 1.00 / y0;
+        const z = (0.00000 * r + 0.01000 * g + 0.99000 * b) * 1.088883 / z0;
         return {
             r: (8041697 * x - 3049000 * y - 1591847 * z) / 3400850,
             g: (-1752003 * x + 4851000 * y + 301853 * z) / 3400850,
@@ -185,7 +185,25 @@ export const postProcessorGen = (
         const tonemapper_ = TONEMAPPER(saturate_(brightness_(contrast_(white_balance_(exposture_(bright))))));
         const gamma_ = gamma(GAMMA);
         return ({ r, g, b }) => {
-            const c = linear2sRGB(gamma_(clamp(tonemapper_(saturate_(brightness_(contrast_(white_balance_(exposture_({ r, g, b })))))))));
+            const c = linear2sRGB(
+                gamma_(
+                    clamp(
+                        tonemapper_(
+                            saturate_(
+                                brightness_(
+                                    contrast_(
+                                        white_balance_(
+                                            exposture_(
+                                                { r, g, b }
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
             return c;
         };
     }

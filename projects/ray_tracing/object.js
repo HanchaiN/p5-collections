@@ -185,10 +185,10 @@ class Quad extends Object {
             const sc = Math.sign(dc_.dot(pc));
             const sd = Math.sign(ad_.dot(pd));
             if (sa + sb + sc + sd >= 3) return Math.abs(norm.dot(pa));
-            const va = ba.dot(pa);
-            const vb = cb.dot(pb);
-            const vc = dc.dot(pc);
-            const vd = ad.dot(pd);
+            const va = Math.max(ba.dot(pa), 0);
+            const vb = Math.max(cb.dot(pb), 0);
+            const vc = Math.max(dc.dot(pc), 0);
+            const vd = Math.max(ad.dot(pd), 0);
             return Math.sqrt(Math.min(
                 Vector.mult(ba, va).sub(pa).magSq(),
                 Vector.mult(cb, vb).sub(pb).magSq(),
