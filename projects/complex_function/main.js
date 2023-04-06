@@ -1,81 +1,75 @@
-import "p5";
-import { getParentSize, Complex, map, d3 } from "../utils/index.js";
+import { getParentSize } from "../utils/utils.js";
+
 export default function execute() {
     let parent = null;
     let canvas = null;
     let resizeObserver = null;
+    let workers;
 
-    const sketch = (p) => {
-        const rescale = (z) => Complex.mult(z, 2);
-        const f = (z) => Complex.div(
-            Complex.mult(
-                Complex.add(Complex.mult(z, z), Complex.fromCartesian(-1, 0)),
-                Complex.add(z, Complex.fromCartesian(-2, 1)).pow(2),
-            ),
-            Complex.add(z.pow(2), Complex.fromCartesian(2, 2)),
-        );
-        const func = (z) => f(rescale(z));
-
-        function plot(func) {
-            p.push();
-            p.colorMode(p.HSB, 360, 100, 100, 255);
-            p.loadPixels();
-            let d = p.pixelDensity();
-            for (let i = 0; i <= p.width * d; i += 1) {
-                for (let j = 0; j <= p.height * d; j += 1) {
-                    const z = func(Complex.fromCartesian(
-                        map(i, 0, p.width * d, -1, +1),
-                        map(j, 0, p.height * d, +1, -1)
-                    ));
-                    const hue = map(z.theta, -Math.PI, +Math.PI, 0, 360);
-                    const lum = map(Math.sqrt(Math.exp(-Math.sqrt(
-                        [Math.log(z.r)].reduce(
-                            (acc, curr) => acc * Math.pow(curr - Math.floor(curr), 2),
-                            1
-                        )
-                    ))), 0, 1, .5, 1);
-                    const sat = Math.sqrt(1 - Math.exp(-Math.sqrt(
-                        [z.theta * 6 / Math.PI].reduce(
-                            (acc, curr) => acc * (1 - Math.pow(map(curr - Math.floor(curr), 0, 1, -1, 1), 2)),
-                            1
-                        )
-                    )));
-                    const color = d3.hcl(hue, sat * 75, lum * 75);
-                    const c = p.color(color.hex());
-                    const ind = (j * p.width * d + i) * 4;
-                    p.pixels[ind + 0] = p.red(c);
-                    p.pixels[ind + 1] = p.green(c);
-                    p.pixels[ind + 2] = p.blue(c);
-                    p.pixels[ind + 3] = p.alpha(c);
-                }
+    function parentResized() {
+        if (!canvas) return;
+        const { width, height } = getParentSize(parent, canvas);
+        canvas.width = width;
+        canvas.height = height;
+        draw(canvas.width, canvas.height);
+    }
+    function draw(width, height) {
+        const draw_batch = (worker) => (e) => {
+            if (!e.data.buffer) return;
+            const { buffer, size } = e.data;
+            const width = canvas.width, height = canvas.height;
+            if (size.sx === width && size.sy === height) {
+                const ctx = canvas.getContext("2d", { alpha: false });
+                const image = new ImageData(buffer, size.w, size.h);
+                ctx.putImageData(image, size.dx, size.dy);
+            } else {
+                worker?.terminate();
             }
-            p.updatePixels();
-            p.pop();
+            if (e.data.done) worker?.terminate();
         }
-
-        p.setup = function () {
-            p.createCanvas(500, 500);
-            p.noLoop();
-        }
-
-        p.draw = function () {
-            p.background(220);
-            plot(func);
-        }
+        workers?.forEach(worker => worker.terminate());
+        const maxWorkers = window.navigator.hardwareConcurrency || 4;
+        const aspect = height / width;
+        const subdivide = [
+            Math.floor(Math.sqrt(maxWorkers / aspect)),
+            Math.floor(Math.sqrt(maxWorkers / aspect) * aspect),
+        ];
+        workers = new Array(subdivide[0] * subdivide[1]).fill(0).map(_ =>
+            new Worker(import.meta.resolve("./worker.js"), { type: "module" })
+        );
+        workers.forEach(worker => worker.addEventListener("message", draw_batch(worker)));
+        for (let i = 0; i < subdivide[0]; i++)
+            for (let j = 0; j < subdivide[1]; j++)
+                workers[i * subdivide[1] + j].postMessage({
+                    size: {
+                        width: Math.ceil(width / subdivide[0]),
+                        height: Math.ceil(height / subdivide[1]),
+                        dx: Math.floor(i * width / subdivide[0]),
+                        dy: Math.floor(j * height / subdivide[1]),
+                        sx: width,
+                        sy: height,
+                        y: 20,
+                    },
+                    render: true,
+                });
     }
 
-    let instance;
     return {
         start: (node) => {
             parent = node;
-            instance = new p5(sketch, node);
-            canvas = instance.canvas;
+            resizeObserver = new ResizeObserver(parentResized).observe(parent);
+            canvas = document.createElement("canvas");
+            const { width, height } = getParentSize(parent, canvas);
+            canvas.width = width;
+            canvas.height = height;
+            parent.appendChild(canvas);
+            draw(canvas.width, canvas.height);
         },
         stop: () => {
-            instance?.remove();
             canvas?.remove();
             resizeObserver?.disconnect();
-            parent = canvas = instance = resizeObserver = null;
+            workers?.forEach(worker => worker.terminate());
+            workers = parent = canvas = resizeObserver = null;
         },
     };
 }

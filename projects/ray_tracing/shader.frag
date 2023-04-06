@@ -1,11 +1,13 @@
 #define PI 3.1415926
+#define PHI 1.61803398874989484820459
 precision highp float;
-varying vec2 texCoords;
 uniform sampler2D tex;
 uniform int frameCount;
+uniform vec2 textureSize;
+uniform float u_seed;
 
-float rand(in vec2 co) {
-    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+float rand(in vec2 xy, in float seed) {
+    return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
 }
 float random(inout int state) {
     state += 1041;
@@ -181,19 +183,18 @@ vec3 render(in vec3 p, in vec3 d, inout int state) {
 }
 
 void main() {
-    int seed = int(rand(texCoords.xy) * 2147483647.0) + frameCount;
+    int seed = int(rand(gl_FragCoord.xy / textureSize, u_seed) * 2147483647.0);
     const vec3 camera_pos = vec3(278.0, 273.0, -800.0);
     const vec2 frame_size = vec2(0.025, 0.025);
     const float focal_length = 0.035;
     const int pass = 1;
-    const float scaler = 20.0;
     setScene();
     vec3 color = vec3(0.0);
     for(int i = 0; i < pass; i++) {
         vec3 c = render(
             camera_pos,
             normalize(vec3(
-                (0.5-texCoords + vec2(randomGaussian(seed), randomGaussian(seed)) / 2048.0) * frame_size * vec2(1.0, -1.0),
+                (0.5 - (gl_FragCoord.xy + 0.25 * vec2(randomGaussian(seed), randomGaussian(seed))) / textureSize) * frame_size * vec2(1.0, -1.0),
                 focal_length
             )),
             seed
@@ -201,7 +202,7 @@ void main() {
         color += c;
     }
     color /= float(pass);
-    color += texture2D(tex, texCoords).xyz * scaler * float(frameCount);
+    color += texture2D(tex, gl_FragCoord.xy / textureSize).xyz * float(frameCount);
     color /= float(frameCount) + 1.0;
-    gl_FragColor = vec4(color.xyz / scaler, 1.0);
+    gl_FragColor = vec4(color.xyz, 1.0);
 }

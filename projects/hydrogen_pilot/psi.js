@@ -33,7 +33,7 @@ function legendre(m, l) {
         factor * combination(l, ind + m) * combination((l + ind + m - 1) / 2, l) * permutation(ind + m, m)
     );
     return (x) =>
-        coeff.reduceRight((prev, curr) => prev * x + curr, 0) * Math.sqrt(pow(1 - x * x, m));
+        coeff.reduceRight((prev, curr) => prev * x + curr, 0) * pow(1 - x * x, m / 2);
 }
 function legendre_der(m, l, order = 1) {
     if (order === 0) return legendre(m, l);
@@ -185,7 +185,7 @@ export class WaveFunction {
             return Complex.fromCartesian(0, -factor_t * time).exp();
         }
         const _r_max = RADIUS_REDUCED * Math.pow(n + 5, 2);
-        const _sampleAngular = (r) => {
+        const _sampleAngular = () => {
             const MAX_SEED = 1;
             const seed = Math.random() * MAX_SEED;
             let total_prob = 0;
@@ -226,7 +226,7 @@ export class WaveFunction {
         }
         psi.sample = (time = 0) => {
             const r = _sampleRadial();
-            const { theta, phi } = _sampleAngular(10);
+            const { theta, phi } = _sampleAngular();
             const v = Vector.fromSphere(r, theta, phi);
             return v;
         }

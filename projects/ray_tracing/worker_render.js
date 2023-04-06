@@ -36,8 +36,8 @@ self.addEventListener("message", function (e) {
                             new Ray(
                                 CAMERA_POSITION,
                                 new Vector(
-                                    ((size.sx - 1) / 2 - i - size.dx + (Math.random() - 0.5)) / size.s * FRAME_SIZE[0],
-                                    ((size.sy - 1) / 2 - j - size.dy + (Math.random() - 0.5)) / size.s * FRAME_SIZE[1],
+                                    (size.sx / 2 - i - size.dx + (Math.random() - 0.5)) / size.s * FRAME_SIZE[0],
+                                    (size.sy / 2 - j - size.dy + (Math.random() - 0.5)) / size.s * FRAME_SIZE[1],
                                     FOCAL_LENGTH,
                                 )
                             ),

@@ -51,7 +51,10 @@ export default function execute() {
     start: (node) => {
       parent = node;
       instance = new p5(sketch, node);
-      canvas ??= instance.canvas;
+      canvas = instance.canvas;
+      parent.style.display = "flex";
+      parent.style.justifyContent = "center";
+      parent.style.alignItems = "center";
     },
     stop: () => {
       instance?.remove();

@@ -1,4 +1,4 @@
-import { Complex, constrainMap, d3, Vector } from "../utils/index.js";
+import { constrainMap, d3, Vector } from "../utils/index.js";
 import { WaveFunction } from "./psi.js";
 
 let width, height, buffer;
@@ -11,18 +11,12 @@ self.addEventListener("message", function (e) {
     if (e.data.width || e.data.height) {
         buffer = new Uint8ClampedArray(height * width * 4).fill(255);
     }
-    if (e.data.states) {
-        psi = WaveFunction.superposition(e.data.states.map(({ coeff: { re, im }, psi: { n, l, m } }) => {
-            return {
-                coeff: Complex.fromCartesian(re ?? 0, im ?? 0),
-                psi: WaveFunction.fromOrbital(n, l, m),
-            };
-        }));
+    if (e.data.state) {
+        psi = WaveFunction.fromOrbital(e.data.state.n, e.data.state.l, e.data.state.m);
     }
     response.scale = scale = e.data.scale ?? scale;
     response.z_depth = z_depth = e.data.z_depth ?? z_depth;
     if (e.data.render) {
-        let a = { r: 1, theta: 0, phi: 0 };
         for (let ix = 0; ix < width; ix++) {
             const x = width * scale * 2 * (ix / width - 1 / 2);
             for (let iy = 0; iy < height; iy++) {

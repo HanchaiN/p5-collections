@@ -1,8 +1,8 @@
 precision highp float;
-varying vec2 texCoords;
 uniform vec3 white;
 uniform vec3 bright;
 uniform sampler2D tex;
+uniform vec2 textureSize;
 
 vec3 toRGB(in vec3 c) {
     return vec3(
@@ -24,7 +24,7 @@ vec3 whitebalance(in vec3 c, in vec3 w) {
         +17697.0, -49000.0, +3432153.0
     ) / 3400850.0;
     const vec3 d65 = vec3(0.95047, 1.00, 1.088883);
-    return ((c * rgb2xyz) * d65 / (w * rgb2xyz)) * xyz2rgb;
+    return c * rgb2xyz * d65 / (w * rgb2xyz) * xyz2rgb;
 }
 float luminance(in vec3 c) {
     return dot(c, vec3(0.229, 0.587, 0.114));
@@ -47,8 +47,7 @@ vec3 linear2sRGB(vec3 linearRGB)
 }
 
 void main() {
-    const float scaler = 20.0;
-    vec3 color = toRGB(texture2D(tex, texCoords).xyz * scaler);
+    vec3 color = toRGB(texture2D(tex, gl_FragCoord.xy / textureSize).xyz);
     color = linear2sRGB(
         clamp(
             tonemapper(

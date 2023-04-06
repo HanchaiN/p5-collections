@@ -1,6 +1,11 @@
 /* https: //codepen.io/jh3y/pen/QxYMJa */
 
-nav #menu_toggle {
+nav {
+    z-index: 100;
+}
+
+nav #menu_toggle,
+nav .submenu_toggle {
     opacity: 0;
     position: fixed;
     display: none;
@@ -32,7 +37,7 @@ nav #menu_toggle~label[for="menu_toggle"] svg {
     height: 44px;
     width: 44px;
     transition: transform 0.15s;
-    z-index: 2;
+    z-index: 101;
 }
 
 nav #menu_toggle~label[for="menu_toggle"] svg path {
@@ -51,10 +56,71 @@ nav #menu_toggle:checked~label[for="menu_toggle"] svg:nth-of-type(2) {
     transform: scale(1);
 }
 
+nav .submenu_toggle~label {
+    display: inline;
+    position: absolute;
+    margin: 5.5px 10px;
+    width: 33px;
+    height: 33px;
+    cursor: pointer;
+}
+
+nav .submenu_toggle~label:before,
+nav .submenu_toggle~label:after {
+    transition: all 150ms ease-out;
+    content: "";
+    display: block;
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 3px;
+    height: 15px;
+    background: var(--color);
+    border-radius: 3px;
+}
+
+nav .submenu_toggle~label:before,
+nav .submenu_toggle~label:after {
+    transform-origin: center 13.5px;
+}
+
+nav .submenu_toggle~label:before {
+    transform: translateY(calc(-13.5px * 3/4)) rotate(-45deg);
+}
+
+nav .submenu_toggle~label:after {
+    transform: translateY(calc(-13.5px * 3/4)) rotate(45deg);
+}
+
+nav .submenu_toggle:checked~label:before {
+    transform: translateY(calc(-13.5px * 5/4)) rotate(-135deg);
+}
+
+nav .submenu_toggle:checked~label:after {
+    transform: translateY(calc(-13.5px * 5/4)) rotate(135deg);
+}
+
 nav #menu_toggle~ul,
-nav #menu_toggle~ul ul {
+nav #menu_toggle~ul li>.scroll>ul {
     list-style-type: none;
     padding: 0;
+    overflow-x: hidden;
+    transition-duration: var(--delay);
+}
+
+nav #menu_toggle~ul,
+nav #menu_toggle~ul li>.scroll {
+    list-style-type: none;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    transition-duration: var(--delay);
+}
+
+nav #menu_toggle~ul::-webkit-scrollbar,
+nav #menu_toggle~ul li>.scroll::-webkit-scrollbar {
+    display: none;
 }
 
 nav #menu_toggle~ul {
@@ -64,6 +130,13 @@ nav #menu_toggle~ul {
     right: 100%;
     top: 0;
     width: 100%;
+    height: 100%;
+}
+
+nav #menu_toggle~ul li>.scroll {
+    max-height: 0;
+    --max-height: 220px;
+    transition: max-height var(--delay) ease-out;
 }
 
 nav #menu_toggle:checked~ul {
@@ -81,8 +154,14 @@ nav #menu_toggle~ul li {
     --color-under: var(--color, inherit);
 }
 
-nav #menu_toggle:checked~ul li {
+nav #menu_toggle:checked~ul>li,
+nav #menu_toggle:checked~ul li>.submenu_toggle:checked~.scroll>ul>li.active {
     transform: translateX(0);
+}
+
+nav #menu_toggle:checked~ul li>.submenu_toggle:checked~.scroll {
+    max-height: var(--max-height);
+    transition: max-height var(--delay) ease-in;
 }
 
 nav #menu_toggle~ul li a {
@@ -110,7 +189,7 @@ nav #menu_toggle~ul a:after {
     right: 0;
     bottom: 0;
     height: 4px;
-    transition: transform 0.15s;
+    transition: transform 0.2s;
     transform-origin: left;
     transform: scaleX(0);
     background-color: var(--color-under);
@@ -119,9 +198,4 @@ nav #menu_toggle~ul a:after {
 
 nav #menu_toggle~ul li:hover:not(:has(li:hover))>a:after {
     transform: scaleX(1);
-}
-
-nav #menu_toggle~ul li li {
-    transform: translateX(-150%);
-    /* transition-duration: inherit; */
 }

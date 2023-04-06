@@ -4,6 +4,7 @@ export function lerp(v, l, h) { return map(v, 0, 1, l, h); }
 export function constrainMap(v, l, h, l_, h_) { return constrain(map(v, l, h, l_, h_), l_, h_); }
 export function constrainLerp(v, l, h) { return constrainMap(v, 0, 1, l, h); }
 export function sigm(x) { return 1 / (1 + Math.exp(-x)); }
+export function fract(x) { return x - Math.floor(x); }
 export function randomGaussian(mu = 0, sigma = 1) {
     const U1 = Math.random(),
         U2 = Math.random();
@@ -211,44 +212,36 @@ export class Vector {
 }
 export class Complex {
     constructor() { }
-    get isPolar() { return this._re === null; }
-    get re() { return this.isPolar ? Math.cos(this.theta) * this.r : this._re; }
-    get im() { return this.isPolar ? Math.sin(this.theta) * this.r : this._im; }
+    get re() {
+        return this._re;
+    }
+    get im() {
+        return this._im;
+    }
     get r() {
-        return this.isPolar ? this._r : this.abs();
+        return this.abs();
     }
     get theta() {
-        return this.isPolar ? this._theta : Math.atan2(this.im, this.re);
+        return Math.atan2(this.im, this.re);
     }
     set(re = 0, im = 0) {
         this._re = re;
         this._im = im;
-        this._r = null;
-        this._theta = null;
         return this;
     }
     static fromCartesian(re = 0, im = 0) {
         return new Complex().set(re, im);
     }
     setPolar(r = 0, theta = 0) {
-        this._fixPolar();
-        this._re = null;
-        this._im = null;
-        this._r = r;
-        this._theta = theta;
+        this._re = r * Math.cos(theta);
+        this._im = r * Math.sin(theta);
         return this;
     }
     static fromPolar(r = 0, theta = 0) {
         return new Complex().setPolar(r, theta);
     }
-    _fixPolar() {
-        if (!this.isPolar) return;
-        this._r = Math.abs(this._r);
-        this._theta = this._r > 0 ? this._theta : this._theta + Math.PI;
-        this._theta %= 2 * Math.PI;
-    }
-    copy() {
-        return this.isPolar ? Complex.fromPolar(this.r, this.theta) : Complex.fromCartesian(this.re, this.im);
+    copy(polar = null) {
+        return Complex.fromCartesian(this.re, this.im);
     }
     static copy(v) {
         if (v instanceof Complex) {
@@ -259,16 +252,16 @@ export class Complex {
         }
     }
     conj() {
-        return this.isPolar ? Complex.fromPolar(this.r, -this.theta) : Complex.fromCartesian(this.re, -this.im);
+        return Complex.fromCartesian(this.re, -this.im);
     }
     static conj(v) {
         return Complex.copy(v).conj();
     }
     absSq() {
-        return this.isPolar ? Math.pow(this.r, 2) : this.conj().mult(this).re;
+        return this.conj().mult(this).re;
     }
     abs() {
-        return this.isPolar ? this.r : Math.sqrt(this.absSq());
+        return Math.sqrt(this.absSq());
     }
     add(v) {
         if (v instanceof Complex) {
@@ -298,16 +291,10 @@ export class Complex {
     }
     mult(v) {
         if (v instanceof Complex) {
-            if (this.isPolar && v.isPolar)
-                this.setPolar(this.r * v.r, this.theta + v.theta);
-            else
-                this.set(this.re * v.re - this.im * v.im, this.re * v.im + this.im * v.re);
+            this.set(this.re * v.re - this.im * v.im, this.re * v.im + this.im * v.re);
         }
         if (typeof v === "number") {
-            if (this.isPolar)
-                this.setPolar(this.r * v, this.theta);
-            else
-                this.set(this.re * v, this.im * v);
+            this.set(this.re * v, this.im * v);
         }
         return this;
     }
@@ -318,16 +305,10 @@ export class Complex {
     }
     div(v) {
         if (v instanceof Complex) {
-            if (this.isPolar && v.isPolar)
-                this.setPolar(this.r / v.r, this.theta - v.theta);
-            else
-                this.mult(v.conj()).div(v.absSq());
+            this.mult(v.conj()).div(v.absSq());
         }
         if (typeof v === "number") {
-            if (this.isPolar)
-                this.setPolar(this.r / v, this.theta);
-            else
-                this.set(this.re / v, this.im / v);
+            this.set(this.re / v, this.im / v);
         }
         return this;
     }
@@ -337,9 +318,320 @@ export class Complex {
     exp() {
         return Complex.fromPolar(Math.exp(this.re), this.im);
     }
+    static exp(z) {
+        return Complex.copy(z).exp();
+    }
+    log() {
+        return Complex.fromCartesian(Math.log(this.r), this.theta);
+    }
+    static log(z) {
+        return Complex.copy(z).log();
+    }
     pow(v) {
         return Complex.fromPolar(pow(this.r, v), this.theta * v);
     }
+    static pow(a, b) {
+        if (a instanceof Complex) {
+            if (b instanceof Complex)
+                return Complex.mult(b, a.log()).exp();
+            if (typeof b === "number")
+                return a.pow(b);
+        }
+        if (typeof a === "number") {
+            if (b instanceof Complex)
+                return Complex.mult(b, Math.log(a)).exp();
+            if (typeof b === "number")
+                return Complex.fromPolar(pow(a, b));
+        }
+    }
+    sinh() {
+        return Complex.fromCartesian(
+            Math.sinh(this.re) * Math.cos(this.im),
+            Math.cosh(this.re) * Math.sin(this.im),
+        );
+    }
+    cosh() {
+        return Complex.fromCartesian(
+            Math.cosh(this.re) * Math.cos(this.im),
+            Math.sinh(this.re) * Math.sin(this.im),
+        );
+    }
+    sin() {
+        return Complex.fromCartesian(
+            Math.sin(this.re) * Math.cosh(this.im),
+            Math.cos(this.re) * Math.sinh(this.im),
+        );
+    }
+    static sin(z) {
+        return Complex.copy(z).sin();
+    }
+    cos() {
+        return Complex.fromCartesian(
+            Math.cos(this.re) * Math.cosh(this.im),
+            Math.sin(this.re) * Math.sinh(this.im),
+        );
+    }
+}
+export class ComplexPolar extends Complex {
+    constructor() { }
+    get re() {
+        return this._r * Math.cos(this._theta);
+    }
+    get im() {
+        return this._r * Math.sin(this._theta);
+    }
+    get r() {
+        return Math.abs(this._r);
+    }
+    get theta() {
+        return (this._r > 0 ? this._theta : this._theta + Math.PI) % (2 * Math.PI);
+    }
+    set(re = 0, im = 0) {
+        this._r = Math.sqrt(re * re + im * im);
+        this._theta = Math.atan2(im, re);
+        return this;
+    }
+    static fromCartesian(re = 0, im = 0) {
+        return new Complex().set(re, im);
+    }
+    setPolar(r = 0, theta = 0) {
+        this._r = Math.abs(this._r);
+        this._theta = (r > 0 ? theta : theta + Math.PI) % (2 * Math.PI);
+        return this;
+    }
+    static fromPolar(r = 0, theta = 0) {
+        return new Complex().setPolar(r, theta);
+    }
+    copy() {
+        return ComplexPolar.fromPolar(this.r, this.theta);
+    }
+    static copy(v) {
+        if (v instanceof Complex) {
+            return v.copy();
+        }
+        if (typeof v === "number") {
+            return ComplexPolar.fromPolar(v);
+        }
+    }
+    conj() {
+        return ComplexPolar.fromPolar(this.r, -this.theta);
+    }
+    static conj(v) {
+        return ComplexPolar.copy(v).conj();
+    }
+    absSq() {
+        return pow(this.r, 2);
+    }
+    abs() {
+        return this.r;
+    }
+    add(v) {
+        if (v instanceof Complex) {
+            this.set(this.re + v.re, this.im + v.im);
+        }
+        if (typeof v === "number") {
+            this.set(this.re + v, this.im);
+        }
+        return this;
+    }
+    static add(a, ...args) {
+        const z = ComplexPolar.copy(a);
+        for (let v of args) z.add(v);
+        return z;
+    }
+    sub(v) {
+        if (v instanceof Complex) {
+            this.set(this.re - v.re, this.im - v.im);
+        }
+        if (typeof v === "number") {
+            this.set(this.re - v, this.im);
+        }
+        return this;
+    }
+    static sub(a, b) {
+        return ComplexPolar.copy(a).sub(b);
+    }
+    mult(v) {
+        if (v instanceof Complex) {
+            this.setPolar(this.r * v.r, this.theta + v.theta);
+        }
+        if (typeof v === "number") {
+            this.setPolar(this.r * v, this.theta);
+        }
+        return this;
+    }
+    static mult(a, ...args) {
+        const z = ComplexPolar.copy(a);
+        for (let v of args) z.mult(v);
+        return z;
+    }
+    div(v) {
+        if (v instanceof Complex) {
+            this.mult(v.conj()).div(v.absSq());
+        }
+        if (typeof v === "number") {
+            this.setPolar(this.r / v, this.theta);
+        }
+        return this;
+    }
+    static div(a, b) {
+        return ComplexPolar.copy(a).div(b);
+    }
+    exp() {
+        return ComplexPolar.fromPolar(Math.exp(this.re), this.im);
+    }
+    static exp(z) {
+        return ComplexPolar.copy(z).exp();
+    }
+    log() {
+        return ComplexPolar.fromCartesian(Math.log(this.r), this.theta);
+    }
+    static log(z) {
+        return ComplexPolar.copy(z).log();
+    }
+    pow(v) {
+        return ComplexPolar.fromPolar(pow(this.r, v), this.theta * v);
+    }
+    static pow(a, b) {
+        if (b instanceof Complex)
+            return ComplexPolar.mult(b, ComplexPolar.log(a)).exp();
+        if (a instanceof Complex)
+            return a.pow(b);
+        if (typeof a === "number")
+            return ComplexPolar.fromPolar(pow(a, b));
+    }
+    sinh() {
+        return ComplexPolar.fromCartesian(
+            Math.sinh(this.re) * Math.cos(this.im),
+            Math.cosh(this.re) * Math.sin(this.im),
+        );
+    }
+    cosh() {
+        return ComplexPolar.fromCartesian(
+            Math.cosh(this.re) * Math.cos(this.im),
+            Math.sinh(this.re) * Math.sin(this.im),
+        );
+    }
+    sin() {
+        return ComplexPolar.fromCartesian(
+            Math.sin(this.re) * Math.cosh(this.im),
+            Math.cos(this.re) * Math.sinh(this.im),
+        );
+    }
+    static sin(z) {
+        return ComplexPolar.copy(z).sin();
+    }
+    cos() {
+        return ComplexPolar.fromCartesian(
+            Math.cos(this.re) * Math.cosh(this.im),
+            Math.sin(this.re) * Math.sinh(this.im),
+        );
+    }
+}
+
+export function gamma(n) {
+    const gammaP = [
+        0.99999999999999709182,
+        57.156235665862923517,
+        -59.597960355475491248,
+        14.136097974741747174,
+        -0.49191381609762019978,
+        0.33994649984811888699e-4,
+        0.46523628927048575665e-4,
+        -0.98374475304879564677e-4,
+        0.15808870322491248884e-3,
+        -0.21026444172410488319e-3,
+        0.21743961811521264320e-3,
+        -0.16431810653676389022e-3,
+        0.84418223983852743293e-4,
+        -0.26190838401581408670e-4,
+        0.36899182659531622704e-5
+    ];
+    const gammaG = 4.7421875;
+    if (typeof n === "number") {
+        if (Number.isInteger(n)) {
+            if (n <= 0) return Number.isFinite(n) ? Infinity : NaN;
+            if (n > 171) return Infinity;
+            return factorial(n - 1);
+        }
+        if (n < 0.5)
+            return Math.PI / (Math.sin(Math.PI * n) * gamma(1 - n));
+        if (n > 171.35) return Infinity;
+        if (n > 85.0)
+            return Math.sqrt(2 * Math.PI / n)
+                * Math.pow((n / Math.E), n)
+                * (
+                    1
+                    + 1 / (12 * pow(n, 1))
+                    + 1 / (288 * pow(n, 2))
+                    - 139 / (51840 * pow(n, 3))
+                    - 571 / (2488320 * pow(n, 4))
+                    + 163879 / (209018880 * pow(n, 5))
+                    + 5246819 / (75246796800 * pow(n, 6))
+                );
+        n--;
+        let x = gammaP[0];
+        for (let i = 1; i < gammaP.length; i++)
+            x += gammaP[i] / (n + i);
+        const t = n + gammaG + 0.5;
+        return x
+            * Math.sqrt(2 * Math.PI)
+            * Math.pow(t, n + 0.5)
+            * Math.exp(-t);
+    }
+    if (n instanceof Complex) {
+        if (n.im === 0)
+            return Complex.copy(gamma(n.re));
+        if (n.re < 0.5)
+            return Complex.copy(Math.PI)
+                .div(Complex.mult(n, Math.PI).sin())
+                .div(gamma(Complex.sub(1.0, n)));
+        const z = n.copy().sub(1);
+        const x = Complex.fromCartesian(gammaP[0]);
+        for (let i = 1; i < gammaP.length; i++)
+            x.add(Complex.div(gammaP[i], Complex.add(z, i)));
+        const t = Complex.add(z, gammaG, 0.5);
+        return x.copy(true)
+            .mult(Complex.copy(Math.sqrt(2 * Math.PI)))
+            .mult(Complex.pow(t, Complex.add(z, 0.5)))
+            .div(Complex.exp(t));
+    }
+}
+
+export function zeta(s, prec = 1e-3, only = false) {
+    let z = Complex.copy(s);
+    if (z.absSq() === 0) return -0.5;
+    let dec = -Math.round(Math.log(prec * 0.1) / Math.log(10))
+    let n = Math.min(Math.round(1.3 * dec + 0.9 * Math.abs(z.im)), 60);
+
+    function d(k) {
+        let S = 0
+        for (let j = k; j <= n; j++) {
+            S += (product(n - j + 1, n + j - 1) * (4 ** j) / factorial(2 * j));
+        }
+        return n * S;
+    }
+    function f(z) {
+        let S = Complex.copy(0);
+        for (let k = 1; k <= n; k++) {
+            S.add(
+                Complex.div(pow(-1, k - 1) * d(k), Complex.pow(k, z))
+            );
+        }
+        return S.div(
+            Complex.pow(2, Complex.sub(1, z))
+                .sub(1)
+                .mult(-d(0))
+        )
+    }
+    if (z.re > 1 || z.re == 0 || only) {
+        return f(z)
+    }
+    return Complex.pow(2, z)
+        .mult(Complex.pow(Math.PI, Complex.sub(z, 1)))
+        .mult(Complex.mult(z, Math.PI / 2).sin().copy(true))
+        .mult(gamma(Complex.sub(1, z)))
+        .mult(zeta(Complex.sub(1, z), prec, true));
 }
 export class ComplexVector {
     constructor(x = 0, y = 0, z = 0) {

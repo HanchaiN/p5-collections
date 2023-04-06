@@ -1,273 +1,339 @@
-import "p5";
-import { getParentSize, Vector, d3, map, constrain } from "../utils/index.js";
+import { d3 } from "../utils/color.js";
+import { getParentSize } from "../utils/utils.js";
+import { Vector, map, constrain, lerp, fract, pow } from "../utils/math.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
     let resizeObserver = null;
 
-    const sketch = (p) => {
-        const SOURCE_POSITION = new Vector(.5, 0);
-        const PREVIEW_RATIO = 1 - 1 / 16;
-        const SINK_POSITION = PREVIEW_RATIO;
-        function _getLayerPosition(layerIndex, LAYER_COUNT, LAYER_BEGIN, LAYER_END) {
-            return p.lerp(LAYER_BEGIN, LAYER_END, (layerIndex + 1) / (LAYER_COUNT + 1));
-        }
-        function _getSlitPosition(slitIndex, SLIT_COUNT, SLIT_BEGIN, SLIT_END) {
-            if (SLIT_COUNT === 1)
-                return 0.5
-            return p.lerp(SLIT_BEGIN, SLIT_END, (slitIndex) / (SLIT_COUNT - 1));
-        }
-        const TOTAL_SLIT_WIDTH = .1 / 2;
-        const SLIT_COUNTS = [10000];
-        const SLIT_BEGIN = SOURCE_POSITION.x - TOTAL_SLIT_WIDTH / 2;
-        const SLIT_END = SOURCE_POSITION.x + TOTAL_SLIT_WIDTH / 2;
-        const LAYERS = SLIT_COUNTS.map((slitCount, i) => ({
+    const SOURCE_POSITION = new Vector(.5, 0);
+    const PLOT_RATIO = 1 / 2;
+    const SINK_POSITION = 1;
+    function _getLayerPosition(layerIndex, LAYER_COUNT, LAYER_BEGIN, LAYER_END) {
+        return lerp((layerIndex + 1) / (LAYER_COUNT + 1), LAYER_BEGIN, LAYER_END);
+    }
+    function _getSlitPosition(slitIndex, SLIT_COUNT, SLIT_BEGIN, SLIT_END) {
+        if (SLIT_COUNT === 1)
+            return 0.5
+        return lerp((slitIndex) / (SLIT_COUNT - 1), SLIT_BEGIN, SLIT_END);
+    }
+    const TOTAL_SLIT_WIDTH = 1 / 64;
+    const TOTAL_SLIT_HEIGHT = 1 / 2;
+    const LAYER_COUNT = 1;
+    const TOTAL_SLIT_COUNT = 128;
+    const ORDER = 0;
+    const SLIT_COUNTS = new Array(LAYER_COUNT).fill(0).map((_, i) => Math.round(map(pow(i + 1, ORDER), 0, pow(LAYER_COUNT, ORDER), 1, TOTAL_SLIT_COUNT)));
+    const LAYERS = SLIT_COUNTS.map((slitCount, i) => {
+        const SLIT_WIDTH = map(pow(i + 1, ORDER), 0, pow(LAYER_COUNT, ORDER), 0, TOTAL_SLIT_WIDTH);
+        const SLIT_BEGIN = SOURCE_POSITION.x - SLIT_WIDTH / 2;
+        const SLIT_END = SOURCE_POSITION.x + SLIT_WIDTH / 2;
+        return {
             SLIT_POSITION: new Array(slitCount).fill(0).map((_, i) => _getSlitPosition(i, slitCount, SLIT_BEGIN, SLIT_END)),
-            LAYER_POSITION: _getLayerPosition(i, SLIT_COUNTS.length, SOURCE_POSITION.y, SINK_POSITION),
+            LAYER_POSITION: _getLayerPosition(i, LAYER_COUNT, SOURCE_POSITION.y, (TOTAL_SLIT_HEIGHT) * SINK_POSITION + (1 - TOTAL_SLIT_HEIGHT) * SOURCE_POSITION.y),
             REFRACTIVE_INDEX: 1,
-        }));
-        const REFRACTIVE_INDEX_SINK = 1;
-        const WAVELENGTH_REL = .01 / 2;
-        let WAVENUMBER;
-        const PATH_OPACITY = 0.5;
-        const SINK_PIXEL_DENSITY = 3;
-        const LAYER_HEIGHT = 1;
-        let preview, foreground, background, mag_plot, mag_plot_col, mag_plot_line;
-        let max_mag = 0;
-        let iteration = 0;
-        let scan_x = 0;
-        let precomputed_phasors;
-        let scaler = new Vector(0, 0);
-
-        function getColor(phasor, opacity = 1, normalized = false) {
-            let brightness = phasor.magSq();
-            if (!normalized) {
-                brightness *= 1 / (1 + brightness);
-                // brightness = (2 / Math.PI) * Math.atan(brightness);
-                // brightness = 1 - Math.pow(.5, brightness);
-            }
-            const gamma = 1;
-            brightness = Math.pow(brightness, gamma);
-
-            const hue = map(phasor.heading(), -Math.PI, +Math.PI, 0, 360);
-            const saturation = 1;
-            const lightness = brightness * (1 - saturation / 2);
-            const saturation_l = lightness === 0 || lightness === 1 ? 0 : (brightness - lightness) / Math.min(lightness, 1 - lightness);
-            const chroma = saturation * brightness;
-            const hsv = [
-                constrain(hue, 0, 360),
-                constrain(saturation, 0, 1),
-                constrain(brightness, 0, 1),
-            ];
-            const hsl = [
-                constrain(hue, 0, 360),
-                constrain(saturation_l, 0, 1),
-                constrain(lightness, 0, 1),
-            ]
-            const hcl = [
-                constrain(hue, 0, 360),
-                constrain(chroma * 100, 0, 230),
-                constrain(brightness * 100, 0, 100),
-            ];
-            const c = p.color(d3.hcl(...hcl).formatHex());
-            c.setAlpha(opacity * 255)
-            return c;
         }
-        function getPhasor(draw = false) {
-            let phasors = [{ phasor: Vector.fromPolar(1, 0), position: Vector.mult(SOURCE_POSITION, scaler) }];
-            for (let LAYER of LAYERS) {
-                const nextLayer = computeLayer(phasors.map(e => e.position), LAYER);
-                const phasors_ = [];
-                background.line(
-                    0 * scaler.x,
-                    LAYER.LAYER_POSITION * scaler.y,
-                    1 * scaler.x,
+    });
+    const REFRACTIVE_INDEX_SINK = 1;
+    const WAVELENGTH_REL = .005;
+    let WAVENUMBER;
+    const PATH_OPACITY = 0.5;
+    const FULL_WIDTH_DURATION = 30;
+    const LAYER_HEIGHT = 1;
+    const SLIT_WIDTH_RATIO = 0.75;
+    let max_mag = 0;
+    let precomputed_phasors;
+    let scaler = new Vector(0, 0);
+
+    function getColor(phasor, opacity = 1, normalized = false) {
+        let brightness = phasor.magSq();
+        if (!normalized) {
+            brightness *= 1 / (0.5 + brightness);
+            brightness = constrain(brightness, 0, 1);
+        }
+        const gamma = 1;
+        brightness = Math.pow(brightness, gamma);
+
+        const hue = map(phasor.heading(), -Math.PI, +Math.PI, 0, 360);
+        const saturation = 1;
+        const chroma = saturation * brightness;
+        const c = d3.hcl(
+            constrain(hue, 0, 360),
+            constrain(chroma * 100, 0, 230),
+            constrain(brightness * 100, 0, 100),
+            opacity
+        ).formatHex8();
+        return c;
+    }
+    function getPhasor(bg_ctx = null, mg_ctx = null) {
+        let phasors = [{ phasor: Vector.fromPolar(1, 0), position: Vector.mult(SOURCE_POSITION, scaler) }];
+        for (let LAYER of LAYERS) {
+            const nextLayer = computeLayer(phasors.map(e => e.position), LAYER);
+            const phasors_ = [];
+            if (bg_ctx) bg_ctx.strokeStyle = "#FFFFFF";
+            if (bg_ctx) bg_ctx.lineWidth = LAYER_HEIGHT;
+            bg_ctx?.beginPath();
+            bg_ctx?.moveTo(
+                0 * scaler.x,
+                LAYER.LAYER_POSITION * scaler.y
+            );
+            bg_ctx?.lineTo(
+                1 * scaler.x,
+                LAYER.LAYER_POSITION * scaler.y
+            );
+            bg_ctx?.stroke();
+            nextLayer.forEach(({ phaseShifts, position }, slitIndex) => {
+                phasors_.push({ phasor: new Vector(0, 0), position });
+                let SLIT_WIDTH, SLIT_BEGIN, SLIT_END;
+                if (LAYER.SLIT_POSITION.length === 1)
+                    SLIT_WIDTH = .05;
+                else if (slitIndex === LAYER.SLIT_POSITION.length - 1)
+                    SLIT_WIDTH = (LAYER.SLIT_POSITION[slitIndex] - LAYER.SLIT_POSITION[slitIndex - 1]) * SLIT_WIDTH_RATIO;
+                else if (slitIndex === 0)
+                    SLIT_WIDTH = (LAYER.SLIT_POSITION[slitIndex + 1] - LAYER.SLIT_POSITION[slitIndex]) * SLIT_WIDTH_RATIO;
+                else
+                    SLIT_WIDTH = (LAYER.SLIT_POSITION[slitIndex + 1] - LAYER.SLIT_POSITION[slitIndex - 1]) / 2 * SLIT_WIDTH_RATIO;
+                SLIT_BEGIN = LAYER.SLIT_POSITION[slitIndex] - SLIT_WIDTH / 2;
+                SLIT_END = LAYER.SLIT_POSITION[slitIndex] + SLIT_WIDTH / 2;
+                if (bg_ctx) bg_ctx.strokeStyle = "#000000";
+                if (bg_ctx) bg_ctx.lineWidth = LAYER_HEIGHT;
+                bg_ctx?.beginPath();
+                bg_ctx?.moveTo(
+                    SLIT_BEGIN * scaler.x,
                     LAYER.LAYER_POSITION * scaler.y,
                 );
-                nextLayer.forEach(({ phaseShifts, position }, slitIndex) => {
-                    phasors_.push({ phasor: new Vector(0, 0), position });
-                    let SLIT_WIDTH, SLIT_BEGIN, SLIT_END;
-                    if (LAYER.SLIT_POSITION.length === 1)
-                        SLIT_WIDTH = .05;
-                    else if (slitIndex === LAYER.SLIT_POSITION.length - 1)
-                        SLIT_WIDTH = (LAYER.SLIT_POSITION[slitIndex] - LAYER.SLIT_POSITION[slitIndex - 1]) / 3;
-                    else if (slitIndex === 0)
-                        SLIT_WIDTH = (LAYER.SLIT_POSITION[slitIndex + 1] - LAYER.SLIT_POSITION[slitIndex]) / 3;
-                    else
-                        SLIT_WIDTH = (LAYER.SLIT_POSITION[slitIndex + 1] - LAYER.SLIT_POSITION[slitIndex - 1]) / 6;
-                    SLIT_BEGIN = LAYER.SLIT_POSITION[slitIndex] - SLIT_WIDTH / 2;
-                    SLIT_END = LAYER.SLIT_POSITION[slitIndex] + SLIT_WIDTH / 2;
-                    background.push();
-                    background.stroke(0);
-                    background.line(
-                        SLIT_BEGIN * scaler.x,
-                        LAYER.LAYER_POSITION * scaler.y,
-                        SLIT_END * scaler.x,
-                        LAYER.LAYER_POSITION * scaler.y,
-                    );
-                    phaseShifts.forEach((phaseShift, prevIndex) => {
-                        const phasor = Vector.rotate(phasors[prevIndex].phasor, phaseShift);
-                        const prev_pos = phasors[prevIndex].position;
-                        phasors_.at(-1).phasor.add(phasor);
-                        if (draw) background.stroke(getColor(phasor, PATH_OPACITY));
-                        if (draw) background.line(prev_pos.x, prev_pos.y, position.x, position.y);
-                    });
-                    background.stroke(getColor(phasors_.at(-1).phasor));
-                    background.strokeWeight(Math.max(LAYER_HEIGHT, SLIT_WIDTH * scaler.x));
-                    background.point(position.x, position.y)
-                    background.pop();
-                })
-                phasors = phasors_;
-            }
-            return phasors;
-        }
-        function computeLayer(prev_positions, LAYER) {
-            return new Array(LAYER.SLIT_POSITION.length).fill(0).map((_, nextSlitIndex) => {
-                const position = new Vector(
-                    LAYER.SLIT_POSITION[nextSlitIndex],
-                    LAYER.LAYER_POSITION,
-                ).mult(scaler);
-                const phaseShifts = prev_positions.map((prev_pos) => {
-                    return position.dist(prev_pos) * WAVENUMBER * LAYER.REFRACTIVE_INDEX;
+                bg_ctx?.lineTo(
+                    SLIT_END * scaler.x,
+                    LAYER.LAYER_POSITION * scaler.y,
+                );
+                bg_ctx?.stroke();
+                phaseShifts.forEach((phaseShift, prevIndex) => {
+                    const phasor = Vector.rotate(phasors[prevIndex].phasor, phaseShift);
+                    const prev_pos = phasors[prevIndex].position;
+                    phasors_.at(-1).phasor.add(phasor);
+                    if (mg_ctx) mg_ctx.strokeStyle = getColor(phasor, PATH_OPACITY);
+                    mg_ctx?.beginPath();
+                    mg_ctx?.moveTo(prev_pos.x, prev_pos.y);
+                    mg_ctx?.lineTo(position.x, position.y);
+                    mg_ctx?.stroke();
                 });
-                return { phaseShifts, position };
-            });
-        }
-        function compute(precomputed_phasors, sink_x, draw = false, normalizer = 0) {
-            const sink = new Vector(sink_x, SINK_POSITION).mult(scaler);
-            if (draw) preview.push();
-            const phasors = precomputed_phasors.map(({ phasor, position }) => {
-                const phaseShift = position.dist(sink) * WAVENUMBER * REFRACTIVE_INDEX_SINK;
-                const phasor_ = Vector.rotate(phasor, phaseShift);
-                if (draw) preview.stroke(getColor(phasor_, PATH_OPACITY));
-                if (draw) preview.line(position.x, position.y, sink.x, sink.y);
-                return phasor_;
+                if (bg_ctx) bg_ctx.fillStyle = getColor(phasors_.at(-1).phasor);
+                bg_ctx?.beginPath();
+                bg_ctx?.arc(position.x, position.y, Math.min(LAYER_HEIGHT, SLIT_WIDTH * scaler.x), 0, 2 * Math.PI);
+                bg_ctx?.fill();
             })
-            const phasor = phasors.reduce(
-                (acc, phasor) => {
-                    const sum = Vector.add(acc, phasor);
-                    return sum;
+            phasors = phasors_;
+        }
+        return phasors;
+    }
+    function computeLayer(prev_positions, LAYER) {
+        return new Array(LAYER.SLIT_POSITION.length).fill(0).map((_, nextSlitIndex) => {
+            const position = new Vector(
+                LAYER.SLIT_POSITION[nextSlitIndex],
+                LAYER.LAYER_POSITION,
+            ).mult(scaler);
+            const phaseShifts = prev_positions.map((prev_pos) => {
+                return position.dist(prev_pos) * WAVENUMBER * LAYER.REFRACTIVE_INDEX;
+            });
+            return { phaseShifts, position };
+        });
+    }
+    function compute(precomputed_phasors, sink_x, fg_ctx = null, normalizer = 0, mg_ctx = null) {
+        const sink = new Vector(sink_x, SINK_POSITION).mult(scaler);
+        const phasors = precomputed_phasors.map(({ phasor, position }) => {
+            const phaseShift = position.dist(sink) * WAVENUMBER * REFRACTIVE_INDEX_SINK;
+            const phasor_ = Vector.rotate(phasor, phaseShift);
+            if (mg_ctx) mg_ctx.strokeStyle = getColor(phasor_, PATH_OPACITY);
+            if (mg_ctx) mg_ctx.lineWidth = 1;
+            mg_ctx?.beginPath();
+            mg_ctx?.moveTo(position.x, position.y);
+            mg_ctx?.lineTo(sink.x, sink.y);
+            mg_ctx?.stroke();
+            return phasor_;
+        })
+        const phasor = phasors.reduce(
+            (acc, phasor) => {
+                const sum = Vector.add(acc, phasor);
+                return sum;
+            },
+            new Vector(0, 0)
+        );
+        if (fg_ctx && normalizer != 0) {
+            const factor = Math.min(fg_ctx.canvas.width, fg_ctx.canvas.height) / 3 / normalizer;
+            const angle = Vector.angleBetween(phasor, new Vector(1, 0));
+            const normalize = (v) => Vector.mult(v, factor).rotate(angle);
+            const origin = new Vector(fg_ctx.canvas.width / 2, fg_ctx.canvas.height / 2);
+            const avg_phasor = getAvgPhasor(sink_x);
+            const avg_phasor_ = normalize(avg_phasor.copy().setMag(phasor.mag()));
+            const phasor_ = normalize(phasor);
+            fg_ctx.lineWidth = 3;
+            fg_ctx.strokeStyle = getColor(avg_phasor, 1, false);
+            fg_ctx.beginPath();
+            fg_ctx.moveTo(origin.x - avg_phasor_.x, origin.y - avg_phasor_.y);
+            fg_ctx.lineTo(origin.x + avg_phasor_.x, origin.y + avg_phasor_.y);
+            fg_ctx.stroke();
+            fg_ctx.strokeStyle = getColor(phasor.copy().div(normalizer), 1, true);
+            fg_ctx.beginPath();
+            fg_ctx.moveTo(origin.x - phasor_.x, origin.y - phasor_.y);
+            fg_ctx.lineTo(origin.x + phasor_.x, origin.y + phasor_.y);
+            fg_ctx.stroke();
+            fg_ctx.lineWidth = 1;
+            const pos = phasors.reduce(
+                (sum, phasor) => {
+                    const sum_ = Vector.add(sum, normalize(phasor));
+                    fg_ctx.strokeStyle = getColor(phasor, 1, false);
+                    fg_ctx.beginPath();
+                    fg_ctx.moveTo(sum.x, sum.y);
+                    fg_ctx.lineTo(sum_.x, sum_.y);
+                    fg_ctx.stroke();
+                    return sum_;
                 },
-                new Vector(0, 0)
-            );
-            if (normalizer != 0) {
-                const factor = Math.min(foreground.width, foreground.height) / 3 / normalizer;
-                let ref = new Vector(0, 1);
-                const angle = Vector.angleBetween(phasor, ref);
-                const origin = new Vector(foreground.width / 2, foreground.height / 2);
-                const avg_phasor = Vector.mult(getAvgPhasor(sink_x), factor).rotate(angle);
-                foreground.strokeWeight(1);
-                const [pos, neg] = phasors.reduce(
-                    ([sum, diff], phasor) => {
-                        const phasor_ = Vector.mult(phasor, factor).rotate(angle);
-                        const sum_ = Vector.add(sum, phasor_);
-                        const diff_ = Vector.sub(diff, phasor_);
-                        foreground.stroke(getColor(phasor, 1, false));
-                        foreground.line(sum.x, sum.y, sum_.x, sum_.y);
-                        foreground.line(diff.x, diff.y, diff_.x, diff_.y);
-                        return [sum_, diff_];
-                    },
-                    [origin.copy(), origin.copy()]
-                )
-                foreground.line(origin.x, origin.y, origin.x + avg_phasor.x, origin.y + avg_phasor.y);
-                foreground.strokeWeight(3);
-                foreground.stroke(255);
-                foreground.line(neg.x, neg.y, pos.x, pos.y);
-            }
-            if (draw) preview.pop();
-            return phasor;
+                origin.copy()
+            )
+            const neg = phasors.reduce(
+                (sum, phasor) => {
+                    const sum_ = Vector.sub(sum, normalize(phasor));
+                    fg_ctx.strokeStyle = getColor(phasor, 1, false);
+                    fg_ctx.beginPath();
+                    fg_ctx.moveTo(sum.x, sum.y);
+                    fg_ctx.lineTo(sum_.x, sum_.y);
+                    fg_ctx.stroke();
+                    return sum_;
+                },
+                origin.copy()
+            )
         }
-        function getAvgPhasor(sink_x) {
-            let phaseShift = 0;
-            let prevPosition = Vector.mult(SOURCE_POSITION, scaler);
-            for (let LAYER of LAYERS) {
-                const position = new Vector(LAYER.SLIT_POSITION.reduce((sum, curr) => sum + curr, 0) / LAYER.SLIT_POSITION.length, LAYER.LAYER_POSITION).mult(scaler);
-                phaseShift += position.dist(prevPosition) * WAVENUMBER * LAYER.REFRACTIVE_INDEX;
-                prevPosition = position;
-            }
-            phaseShift += new Vector(sink_x, SINK_POSITION).mult(scaler).dist(prevPosition) * WAVENUMBER * REFRACTIVE_INDEX_SINK;
-            return Vector.fromPolar(1, phaseShift);
+        return phasor;
+    }
+    function getAvgPhasor(sink_x) {
+        let phaseShift = 0;
+        let prevPosition = Vector.mult(SOURCE_POSITION, scaler);
+        for (let LAYER of LAYERS) {
+            const position = new Vector(LAYER.SLIT_POSITION.reduce((sum, curr) => sum + curr, 0) / LAYER.SLIT_POSITION.length, LAYER.LAYER_POSITION).mult(scaler);
+            phaseShift += position.dist(prevPosition) * WAVENUMBER * LAYER.REFRACTIVE_INDEX;
+            prevPosition = position;
         }
+        phaseShift += new Vector(sink_x, SINK_POSITION).mult(scaler).dist(prevPosition) * WAVENUMBER * REFRACTIVE_INDEX_SINK;
+        return Vector.fromPolar(1, phaseShift);
+    }
+    function draw(t) {
+        if (!canvas) return;
+        const foreground_ctx = canvas.querySelector("#foreground").getContext("2d");
+        const middleground_ctx = canvas.querySelector("#middleground").getContext("2d");
+        const mag_plot_ctx = canvas.querySelector("#mag_plot").getContext("2d");
+        const t_ = fract(t / (2 * FULL_WIDTH_DURATION * 1000));
+        const forward = t_ < 0.5;
+        const x_ = forward ? map(t_, 0, 0.5, -1, 1) : map(t_, 0.5, 1, 1, -1);
+        const scan_x = map(x_, -1, 1, 0, 1);
+        foreground_ctx.clearRect(0, 0, canvas.width, canvas.height);
+        middleground_ctx.clearRect(0, LAYERS.at(-1).LAYER_POSITION * scaler.y, canvas.width, canvas.height - LAYERS.at(-1).LAYER_POSITION * scaler.y);
+        mag_plot_ctx.clearRect(scan_x * canvas.width, 0, forward ? +10 : -10, canvas.height);
+        const phasor = compute(precomputed_phasors, scan_x, foreground_ctx, max_mag, middleground_ctx);
+        max_mag = Math.max(max_mag, phasor.mag());
+        const normalized_phasor = Vector.div(phasor, max_mag);
+        foreground_ctx.fillStyle = "#000000";
+        foreground_ctx.beginPath();
+        foreground_ctx.arc(scan_x * canvas.width, canvas.height, 2.5, 0, 2 * Math.PI);
+        foreground_ctx.fill();
+        mag_plot_ctx.strokeStyle = getColor(phasor, 1, false);
+        mag_plot_ctx.beginPath();
+        mag_plot_ctx.moveTo(scan_x * canvas.width, map(normalized_phasor.magSq(), 0, 1, PLOT_RATIO * canvas.height, 0));
+        mag_plot_ctx.lineTo(scan_x * canvas.width, PLOT_RATIO * canvas.height);
+        mag_plot_ctx.stroke();
+        requestAnimationFrame(draw);
+    }
+    function parentResized() {
+        if (!canvas) return;
+        const { width, height } = getParentSize(parent, canvas);
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.minWidth = `${canvas.width}px`;
+        canvas.style.minHeight = `${canvas.height}px`;
+        const background = canvas.querySelector("#background");
+        background.width = canvas.width;
+        background.height = canvas.height;
+        const middleground = canvas.querySelector("#middleground");
+        middleground.width = canvas.width;
+        middleground.height = canvas.height;
+        const foreground = canvas.querySelector("#foreground");
+        foreground.width = canvas.width;
+        foreground.height = canvas.height;
+        const mag_plot = canvas.querySelector("#mag_plot");
+        mag_plot.width = canvas.width;
+        mag_plot.height = canvas.height * PLOT_RATIO;
+        scaler.set(canvas.width, canvas.height);
+        WAVENUMBER = 2 * Math.PI / (WAVELENGTH_REL * scaler.x);
 
-        p.setup = function () {
-            const { width, height } = getParentSize(parent, canvas);
-            p.createCanvas(width, height);
-            preview = p.createGraphics(width, PREVIEW_RATIO * height);
-            foreground = p.createGraphics(preview.width, preview.height);
-            background = p.createGraphics(preview.width, preview.height);
-            mag_plot = p.createGraphics(width, (1 - PREVIEW_RATIO) * height);
-            mag_plot_col = p.createGraphics(mag_plot.width, mag_plot.height);
-            mag_plot_line = p.createGraphics(mag_plot.width, mag_plot.height);
-            scaler.set(preview.width, preview.height);
-            WAVENUMBER = 2 * Math.PI / (WAVELENGTH_REL * scaler.x);
-            p.angleMode(p.RADIANS);
-            background.strokeWeight(LAYER_HEIGHT);
-            background.stroke(255);
-            precomputed_phasors = getPhasor();
-            background.strokeWeight(10);
-            background.point(Vector.mult(SOURCE_POSITION, scaler));
-            preview.strokeWeight(1);
-            mag_plot_col.clear();
-            mag_plot_line.strokeWeight(2);
-            mag_plot_line.stroke(255, 0, 0);
-        }
-        p.draw = function () {
-            p.clear();
-            preview.clear();
-            preview.image(background, 0, 0);
-            preview.image(foreground, 0, 0);
-            foreground.clear();
-            const phasor = compute(precomputed_phasors, scan_x, false, max_mag);
-            if (iteration === 0) max_mag = Math.max(max_mag, phasor.mag());
-            const normalized_phasor = Vector.div(phasor, max_mag);
-            const strokeColor = getColor(normalized_phasor, 1, true);
-            preview.push();
-            preview.strokeWeight(10);
-            preview.strokeWeight(5);
-            preview.stroke(255);
-            preview.point(scan_x * preview.width, preview.height);
-            preview.pop();
-            if (iteration < 2) {
-                mag_plot_col.stroke(strokeColor);
-                mag_plot_col.line(scan_x * mag_plot_col.width, 0, scan_x * mag_plot_col.width, mag_plot_col.height);
-                if (iteration === 1)
-                    mag_plot_line.point(scan_x * mag_plot_line.width, map(normalized_phasor.magSq(), 0, 1, mag_plot_line.height, 0));
-            }
-            mag_plot.clear();
-            mag_plot.image(mag_plot_col, 0, 0);
-            mag_plot.image(mag_plot_line, 0, 0);
-            p.image(preview, 0, 0);
-            p.image(mag_plot, 0, PREVIEW_RATIO * p.height);
-            if (iteration === 0) {
-                scan_x += 1 / p.width;
-            } else {
-                if (iteration % 2 === 0)
-                    scan_x += 1 / (p.width * SINK_PIXEL_DENSITY);
-                if (iteration % 2 === 1)
-                    scan_x -= 1 / (p.width * SINK_PIXEL_DENSITY);
-            }
-            if (
-                scan_x > 1 && iteration % 2 === 0
-                || scan_x < 0 && iteration % 2 === 1
-            ) {
-                iteration += 1;
-            }
-        }
+        const background_ctx = background.getContext("2d");
+        const middleground_ctx = middleground.getContext("2d");
+        precomputed_phasors = getPhasor(background_ctx, middleground_ctx);
+        background_ctx.fillStyle = "white";
+        background_ctx.beginPath();
+        background_ctx.arc(SOURCE_POSITION.x * scaler.x, SOURCE_POSITION.y * scaler.y, 5, 0, 2 * Math.PI);
+        background_ctx.fill();
     }
 
 
-    let instance;
     return {
         start: (node) => {
             parent = node;
-            instance = new p5(sketch, node);
-            canvas ??= instance.canvas;
+            resizeObserver = new ResizeObserver(parentResized).observe(parent);
+
+            const { width, height } = getParentSize(parent, canvas);
+            canvas = document.createElement("div");
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.minWidth = `${canvas.width}px`;
+            canvas.style.minHeight = `${canvas.height}px`;
+            const background = document.createElement("canvas");
+            background.id = "background";
+            background.style.position = "absolute";
+            background.style.zIndex = 1;
+            background.width = canvas.width;
+            background.height = canvas.height;
+            const middleground = document.createElement("canvas");
+            middleground.id = "middleground";
+            middleground.style.display = "none";
+            middleground.style.position = "absolute";
+            middleground.style.zIndex = 2;
+            middleground.width = canvas.width;
+            middleground.height = canvas.height;
+            const foreground = document.createElement("canvas");
+            foreground.id = "foreground";
+            foreground.style.position = "absolute";
+            foreground.style.zIndex = 3;
+            foreground.width = canvas.width;
+            foreground.height = canvas.height;
+            const mag_plot = document.createElement("canvas");
+            mag_plot.id = "mag_plot";
+            mag_plot.style.position = "absolute";
+            mag_plot.style.bottom = 0;
+            mag_plot.style.zIndex = 0;
+            mag_plot.width = canvas.width;
+            mag_plot.height = canvas.height * PLOT_RATIO;
+            canvas.append(foreground, middleground, background, mag_plot);
+            parent.appendChild(canvas);
+            parent.style.display = "flex";
+            parent.style.justifyContent = "center";
+            parent.style.alignItems = "center";
+            canvas.style.display = "block";
+
+            scaler.set(canvas.width, canvas.height);
+            WAVENUMBER = 2 * Math.PI / (WAVELENGTH_REL * scaler.x);
+
+            const background_ctx = background.getContext("2d");
+            const middleground_ctx = middleground.getContext("2d");
+            precomputed_phasors = getPhasor(background_ctx, middleground_ctx);
+            background_ctx.fillStyle = "white";
+            background_ctx.beginPath();
+            background_ctx.arc(SOURCE_POSITION.x * scaler.x, SOURCE_POSITION.y * scaler.y, 5, 0, 2 * Math.PI);
+            background_ctx.fill();
+
+            requestAnimationFrame(draw);
         },
         stop: () => {
-            instance?.remove();
             canvas?.remove();
             resizeObserver?.disconnect();
-            parent = canvas = instance = resizeObserver = null;
+            parent = canvas = resizeObserver = null;
         },
     };
 }
