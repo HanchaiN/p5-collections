@@ -1,11 +1,9 @@
 import "p5";
 import { CA } from "./ca.js";
 import "./ca.rule.js";
-import { getParentSize } from "../utils/index.js";
 export default function execute() {
   let parent = null;
   let canvas = null;
-  let resizeObserver = null;
 
   const sketch = (p) => {
     const forward = 1;
@@ -59,8 +57,7 @@ export default function execute() {
     stop: () => {
       instance?.remove();
       canvas?.remove();
-      resizeObserver?.disconnect();
-      parent = canvas = instance = resizeObserver = null;
+      parent = canvas = instance = null;
     },
   };
 }

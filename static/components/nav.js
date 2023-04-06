@@ -1,5 +1,4 @@
-window.addEventListener("load", () => {
-
+document.querySelector("nav").addEventListener("htmlLoaded", () => {
     const navbar = document.querySelector('nav');
 
     const parents = navbar.querySelectorAll("#menu_toggle~ul li:has(.scroll)");

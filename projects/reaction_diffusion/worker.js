@@ -1,4 +1,4 @@
-import { constrain } from "../utils/index.js";
+import { constrain } from "../utils/math.js";
 const DIFFUSION_RATE = [1, 0.5];
 const ADDER = 0.0545;
 const REMOVER = 0.0620;

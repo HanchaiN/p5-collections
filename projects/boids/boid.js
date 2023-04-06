@@ -12,7 +12,8 @@
 // Angle -> lim * sigmoid(wt)
 // Speed -> lim * sigmoid(wt)
 
-import { sigm, Vector, map, randomGaussian, d3 } from "../utils/index.js";
+import { sigm, Vector, map, randomGaussian } from "../utils/math.js";
+import { d3 } from "../utils/color.js";
 export const lim = {
     range: 100,
     steer: .1,

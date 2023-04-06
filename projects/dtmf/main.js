@@ -1,10 +1,6 @@
 import "p5";
 import "p5/sound";
-import { getParentSize } from "../utils/index.js";
 export default function execute() {
-  let parent = null;
-  let canvas = null;
-  let resizeObserver = null;
 
   const sketch = (p) => {
     let oscl = new p5.Oscillator("sine");
@@ -48,15 +44,11 @@ export default function execute() {
   let instance;
   return {
     start: (node) => {
-      parent = node;
       instance = new p5(sketch, node);
-      canvas ??= instance.canvas;
     },
     stop: () => {
       instance?.remove();
-      canvas?.remove();
-      resizeObserver?.disconnect();
-      parent = canvas = instance = resizeObserver = null;
+      instance = null;
     },
   };
 }

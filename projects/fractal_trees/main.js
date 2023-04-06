@@ -1,8 +1,9 @@
 import "p5";
 import { Branch } from "./branch.js";
-import { constrain, getParentSize, Vector } from "../utils/index.js";
+import { constrain, Vector } from "../utils/math.js";
+import { getParentSize } from "../utils/dom.js";
 export default function execute() {
-  let parent = null;
+  let parent = null, wrapper = null;
   let canvas = null;
   let resizeObserver = null;
   let alpha = document.createElement("input"),
@@ -31,19 +32,19 @@ export default function execute() {
 
 
     function parentResized() {
-      const { width, height } = getParentSize(parent, canvas);
+      const { width, height } = getParentSize(wrapper, canvas);
       p.resizeCanvas(width, height);
       tree_layer = p.createGraphics(p.width, p.height);
       updateTreeLayer();
     }
     p.setup = function () {
-      const { width, height } = getParentSize(parent, canvas);
+      const { width, height } = getParentSize(wrapper, canvas);
       const c = p.createCanvas(width, height);
       tree_layer = p.createGraphics(p.width, p.height);
       c.mouseClicked(grow);
       reset();
       resetButton.addEventListener("click", reset);
-      resizeObserver = new ResizeObserver(parentResized).observe(parent);
+      resizeObserver = new ResizeObserver(parentResized).observe(wrapper);
     };
 
     p.draw = function () {
@@ -129,16 +130,21 @@ export default function execute() {
   let instance;
   return {
     start: (node) => {
-      node.append(alpha, beta1, beta2, resetButton);
-      parent = node.appendChild(document.createElement("div"));
+      parent = node;
+      parent.append(alpha, beta1, beta2, resetButton);
+      wrapper = node.appendChild(document.createElement("div"));
       instance = new p5(sketch, node);
       canvas ??= instance.canvas;
     },
     stop: () => {
+      parent.removeChild(alpha);
+      parent.removeChild(beta1);
+      parent.removeChild(beta2);
+      parent.removeChild(resetButton);
       instance?.remove();
       canvas?.remove();
       resizeObserver?.disconnect();
-      parent = canvas = instance = resizeObserver = null;
+      wrapper = canvas = instance = resizeObserver = null;
     },
   };
 }

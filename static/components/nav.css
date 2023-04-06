@@ -135,7 +135,6 @@ nav #menu_toggle~ul {
 
 nav #menu_toggle~ul li>.scroll {
     max-height: 0;
-    --max-height: 220px;
     transition: max-height var(--delay) ease-out;
 }
 
@@ -160,7 +159,7 @@ nav #menu_toggle:checked~ul li>.submenu_toggle:checked~.scroll>ul>li.active {
 }
 
 nav #menu_toggle:checked~ul li>.submenu_toggle:checked~.scroll {
-    max-height: var(--max-height);
+    max-height: var(--max-height, unset);
     transition: max-height var(--delay) ease-in;
 }
 

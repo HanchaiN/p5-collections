@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { getParentSize } from "../utils/index.js";
+import { getParentSize } from "../utils/dom.js";
 export default function execute() {
     let camera, scene, renderer, controls, electron_mesh, clock;
     let ended = true;

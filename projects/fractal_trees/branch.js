@@ -1,4 +1,4 @@
-import { Vector } from "../utils/index.js";
+import { Vector } from "../utils/math.js";
 export class Branch {
   constructor(begin, end, type, rule) {
     this.init = rule;

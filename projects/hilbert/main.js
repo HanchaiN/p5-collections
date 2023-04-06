@@ -1,5 +1,6 @@
 import "p5";
-import { getParentSize, Vector } from "../utils/index.js";
+import { getParentSize } from "../utils/dom.js";
+import { Vector } from "../utils/math.js";
 export default function execute() {
   let parent = null;
   let canvas = null;

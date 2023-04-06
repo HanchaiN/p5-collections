@@ -1,4 +1,4 @@
-import { combination, Complex, factorial, permutation, pow, product, Vector, ComplexVector } from "../utils/index.js";
+import { combination, Complex, factorial, permutation, pow, product, Vector, ComplexVector } from "../utils/math.js";
 export const RADIUS_REDUCED = 1;
 export const MASS_REDUCED = 9.109e-31;
 export const H_BAR = 1.054e-34;

@@ -1,4 +1,4 @@
-import { Complex } from "../utils/index.js";
+import { Complex } from "../utils/math.js";
 export class Gyrovector {
     // https://www.researchgate.net/publication/242146667_What_is_a_vector_in_hyperbolic_geometry_And_what_is_a_hyperbolic_linear_transformation
     // https://www.researchgate.net/publication/268710591_Gyrovector_spaces_and_their_differential_geometry

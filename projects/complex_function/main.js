@@ -1,4 +1,4 @@
-import { getParentSize } from "../utils/utils.js";
+import { getParentSize } from "../utils/dom.js";
 
 export default function execute() {
     let parent = null;

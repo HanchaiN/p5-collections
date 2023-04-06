@@ -1,5 +1,5 @@
-import "p5";
-import { getParentSize } from "../utils/utils.js";
+import { getParentSize } from "../utils/dom.js";
+import { createAndLinkProgram, createShader } from "../utils/webgl.js";
 const VERTEX_SHADER = await fetch(import.meta.resolve("./shader.vert")).then(r => r.text());
 const FRAGMENT_SHADER_P = await fetch(import.meta.resolve("./shader.frag")).then(r => r.text());
 const FRAGMENT_SHADER_R = await fetch(import.meta.resolve("./render.frag")).then(r => r.text());
@@ -25,28 +25,6 @@ export default function execute() {
                 gl.getExtension("OES_texture_float");
 
                 gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-
-                function createAndLinkProgram(gl, vertex_shader, fragment_shader) {
-                    var prog = gl.createProgram();
-                    gl.attachShader(prog, vertex_shader);
-                    gl.attachShader(prog, fragment_shader);
-                    gl.linkProgram(prog);
-                    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-                        console.warn("Failed to link program: " + gl.getProgramInfoLog(prog));
-                    }
-                    return prog;
-                }
-
-                function createShader(gl, shader_type, shader_code) {
-                    const shader = gl.createShader(shader_type);
-                    gl.shaderSource(shader, shader_code);
-                    gl.compileShader(shader);
-                    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                        const err = gl.getShaderInfoLog(shader);
-                        console.warn("Failed to compile shader: " + err);
-                    }
-                    return shader
-                }
 
                 const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
                 const fragmentShader_p = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER_P);

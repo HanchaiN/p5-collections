@@ -1,4 +1,5 @@
-import { constrainMap, d3, Vector } from "../utils/index.js";
+import { constrainMap, Vector } from "../utils/math.js";
+import { d3 } from "../utils/color.js";
 import { WaveFunction } from "./psi.js";
 
 let width, height, buffer;
