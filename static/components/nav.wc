@@ -1,4 +1,4 @@
-<input id="menu_toggle" type="checkbox" />
+<input id="menu_toggle" class="menu_toggle" type="checkbox" />
 <label for="menu_toggle">
     <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
         <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
@@ -12,99 +12,69 @@
 <ul style="--delay: 0.1s">
     <li style="--color: lch(70 0 0); --delay: 0.1s">
         <a href="/">Home</a>
-        <input id="home" class="submenu_toggle" type="checkbox" />
-        <label for="home"></label>
-        <div class="scroll">
-            <ul style="--delay: 0.1s">
-                <li style="--color: lch(100 100 0)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 30)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 60)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 90)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 120)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 150)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 180)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 210)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 240)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 270)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 300)">
-                    <a>Hi</a>
-                </li>
-                <li style="--color: lch(100 100 330)">
-                    <a>Hi</a>
-                </li>
-            </ul>
-        </div>
     </li>
     <li style="--color: lch(70 0 0); --delay: 0.2s">
         <a href="/projects/">Creative Coding</a>
         <input id="creative_coding" class="submenu_toggle" type="checkbox" />
-        <label for="creative_coding"></label>
+        <label for="creative_coding">
+            <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
+                <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
+            </svg>
+            <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
+                <path
+                    d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z">
+                </path>
+            </svg>
+        </label>
         <div class="scroll" style="--max-height: 220px;">
             <ul style="--delay: 0.1s">
-                <li style="--color: lch(70 75 0);">
-                    <a href="/projects/#elementary_cellular_automata">Elementary Cellular Automata</a>
-                </li>
-                <li style="--color: lch(70 75 24);">
-                    <a href="/projects/#fractal_trees">Fractal Trees</a>
-                </li>
-                <li style="--color: lch(70 75 48);">
-                    <a href="/projects/#dtmf">DTMF</a>
-                </li>
-                <li style="--color: lch(70 75 72);">
-                    <a href="/projects/#turing_machine">Turing Machine</a>
-                </li>
-                <li style="--color: lch(70 75 96);">
-                    <a href="/projects/#hilbert">Hilbert Curve</a>
-                </li>
-                <li style="--color: lch(70 75 120);">
-                    <a href="/projects/#ray_tracing">Ray Tracing</a>
-                </li>
-                <li style="--color: lch(70 75 144);">
-                    <a href="/projects/#hydrogen_cloud">Hydrogen Cloud</a>
-                </li>
-                <li style="--color: lch(70 75 168);">
-                    <a href="/projects/#poincare_disk">Poincare disk</a>
-                </li>
-                <li style="--color: lch(70 75 192);">
-                    <a href="/projects/#reaction_diffusion">Reaction-diffusion</a>
-                </li>
-                <li style="--color: lch(70 75 216);">
-                    <a href="/projects/#complex_function">Complex function</a>
-                </li>
-                <li style="--color: lch(70 75 240);">
-                    <a href="/projects/#slit_experiment">Slit Experiment</a>
-                </li>
-                <li style="--color: lch(70 75 264);">
-                    <a href="/projects/#brainf_ck">Brainf_ck</a>
-                </li>
-                <li style="--color: lch(70 75 288);">
+                <li>
                     <a href="/projects/#boids">Boids</a>
                 </li>
-                <li style="--color: lch(70 75 312);">
+                <li>
+                    <a href="/projects/#brainf_ck">Brainf_ck</a>
+                </li>
+                <li>
+                    <a href="/projects/#complex_function">Complex function</a>
+                </li>
+                <li>
+                    <a href="/projects/#dtmf">DTMF</a>
+                </li>
+                <li>
+                    <a href="/projects/#dungeon">Dungeon Generation</a>
+                </li>
+                <li>
+                    <a href="/projects/#elementary_cellular_automata">Elementary Cellular Automata</a>
+                </li>
+                <li>
+                    <a href="/projects/#fractal_trees">Fractal Trees</a>
+                </li>
+                <li>
+                    <a href="/projects/#hilbert">Hilbert Curve</a>
+                </li>
+                <li>
+                    <a href="/projects/#hydrogen_cloud">Hydrogen Cloud</a>
+                </li>
+                <li>
+                    <a href="/projects/#hydrogen_pilot">Hydrogen Pilot Wave</a>
+                </li>
+                <li>
+                    <a href="/projects/#poincare_disk">Poincare disk</a>
+                </li>
+                <li>
+                    <a href="/projects/#ray_tracing">Ray Tracing</a>
+                </li>
+                <li>
+                    <a href="/projects/#reaction_diffusion">Reaction-diffusion</a>
+                </li>
+                <li>
+                    <a href="/projects/#slit_experiment">Slit Experiment</a>
+                </li>
+                <li>
                     <a href="/projects/#spectral_graph">Spectral Graph</a>
                 </li>
-                <li style="--color: lch(70 75 336);">
-                    <a href="/projects/#hydrogen_pilot">Hydrogen Pilot Wave</a>
+                <li>
+                    <a href="/projects/#turing_machine">Turing Machine</a>
                 </li>
             </ul>
         </div>

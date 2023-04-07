@@ -86,6 +86,7 @@
         projects.querySelectorAll(":scope>li>a").forEach((item_link) => {
             const path = item_link.getAttribute("href");
             const id = path.split("#").slice(-1)[0];
+            item_link.setAttribute("href", `#${id}`);
             if (id === "") return;
             const title = item_link.innerText;
             item_link.addEventListener("click", (e) => {

@@ -1,7 +1,12 @@
 document.querySelector("nav").addEventListener("htmlLoaded", () => {
     const navbar = document.querySelector('nav');
 
-    const parents = navbar.querySelectorAll("#menu_toggle~ul li:has(.scroll)");
+    const creative_coding = navbar.querySelectorAll(".submenu_toggle#creative_coding~.scroll>ul li")
+    creative_coding.forEach((e, i) => {
+        e.style.setProperty("--color", `lch(75 75 ${360 * i / creative_coding.length})`);
+    });
+
+    const parents = navbar.querySelectorAll(".menu_toggle~ul li:has(.scroll)");
 
     parents.forEach(parent => {
         const submenu = parent.querySelector(".scroll");
