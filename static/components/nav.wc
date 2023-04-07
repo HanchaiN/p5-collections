@@ -14,7 +14,7 @@
         <a href="/">Home</a>
     </li>
     <li style="--color: lch(70 0 0); --delay: 0.2s">
-        <a href="/projects/">Creative Coding</a>
+        <a href="/creative_coding/">Creative Coding</a>
         <input id="creative_coding" class="submenu_toggle" type="checkbox" />
         <label for="creative_coding">
             <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
@@ -29,52 +29,52 @@
         <div class="scroll" style="--max-height: 220px;">
             <ul style="--delay: 0.1s">
                 <li>
-                    <a href="/projects/#boids">Boids</a>
+                    <a href="/creative_coding/#boids">Boids</a>
                 </li>
                 <li>
-                    <a href="/projects/#brainf_ck">Brainf_ck</a>
+                    <a href="/creative_coding/#brainf_ck">Brainf_ck</a>
                 </li>
                 <li>
-                    <a href="/projects/#complex_function">Complex function</a>
+                    <a href="/creative_coding/#complex_function">Complex function</a>
                 </li>
                 <li>
-                    <a href="/projects/#dtmf">DTMF</a>
+                    <a href="/creative_coding/#dtmf">DTMF</a>
                 </li>
                 <li>
-                    <a href="/projects/#dungeon">Dungeon Generation</a>
+                    <a href="/creative_coding/#dungeon">Dungeon Generation</a>
                 </li>
                 <li>
-                    <a href="/projects/#elementary_cellular_automata">Elementary Cellular Automata</a>
+                    <a href="/creative_coding/#elementary_cellular_automata">Elementary Cellular Automata</a>
                 </li>
                 <li>
-                    <a href="/projects/#fractal_trees">Fractal Trees</a>
+                    <a href="/creative_coding/#fractal_trees">Fractal Trees</a>
                 </li>
                 <li>
-                    <a href="/projects/#hilbert">Hilbert Curve</a>
+                    <a href="/creative_coding/#hilbert">Hilbert Curve</a>
                 </li>
                 <li>
-                    <a href="/projects/#hydrogen_cloud">Hydrogen Cloud</a>
+                    <a href="/creative_coding/#hydrogen_cloud">Hydrogen Cloud</a>
                 </li>
                 <li>
-                    <a href="/projects/#hydrogen_pilot">Hydrogen Pilot Wave</a>
+                    <a href="/creative_coding/#hydrogen_pilot">Hydrogen Pilot Wave</a>
                 </li>
                 <li>
-                    <a href="/projects/#poincare_disk">Poincare disk</a>
+                    <a href="/creative_coding/#poincare_disk">Poincare disk</a>
                 </li>
                 <li>
-                    <a href="/projects/#ray_tracing">Ray Tracing</a>
+                    <a href="/creative_coding/#ray_tracing">Ray Tracing</a>
                 </li>
                 <li>
-                    <a href="/projects/#reaction_diffusion">Reaction-diffusion</a>
+                    <a href="/creative_coding/#reaction_diffusion">Reaction-diffusion</a>
                 </li>
                 <li>
-                    <a href="/projects/#slit_experiment">Slit Experiment</a>
+                    <a href="/creative_coding/#slit_experiment">Slit Experiment</a>
                 </li>
                 <li>
-                    <a href="/projects/#spectral_graph">Spectral Graph</a>
+                    <a href="/creative_coding/#spectral_graph">Spectral Graph</a>
                 </li>
                 <li>
-                    <a href="/projects/#turing_machine">Turing Machine</a>
+                    <a href="/creative_coding/#turing_machine">Turing Machine</a>
                 </li>
             </ul>
         </div>

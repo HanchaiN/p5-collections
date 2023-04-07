@@ -2,7 +2,7 @@ import { getParentSize } from "../utils/dom.js";
 import { drawDungeon } from "./generator.js";
 export default function execute() {
     let parent = null;
-    let canvas = document.createElement("canvas");
+    let canvas = null;
     let resizeObserver = null;
     const unit = { x: 4, y: 4 };
     let size;
