@@ -1,5 +1,5 @@
 import { constrainMap, Vector } from "../utils/math.js";
-import { d3 } from "../utils/color.js";
+import * as d3 from "../utils/color.js";
 import { WaveFunction } from "./psi.js";
 
 let width, height, buffer;
@@ -28,10 +28,10 @@ self.addEventListener("message", function (e) {
                 const prob = 1000 * p.absSq();
                 const phase = p.theta;
                 const brightness = Math.pow(prob / (prob + 1), 0.5);
-                const color = d3.lch(
-                    constrainMap(brightness, 0, 1, 0, 100),
-                    constrainMap(brightness, 0, 1, 0, 100),
+                const color = d3.hcl(
                     constrainMap(phase, -Math.PI, +Math.PI, 0, 360),
+                    constrainMap(brightness, 0, 1, 0, 100),
+                    constrainMap(brightness, 0, 1, 0, 100),
                 ).rgb();
                 buffer[iy * (width * 4) + ix * 4 + 0] = color.r;
                 buffer[iy * (width * 4) + ix * 4 + 1] = color.g;

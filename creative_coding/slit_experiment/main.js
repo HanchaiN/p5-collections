@@ -1,4 +1,4 @@
-import { d3 } from "../utils/color.js";
+import * as d3 from "../utils/color.js";
 import { getParentSize } from "../utils/dom.js";
 import { Vector, map, constrain, lerp, fract, pow } from "../utils/math.js";
 export default function execute() {
@@ -37,7 +37,7 @@ export default function execute() {
     const WAVELENGTH_REL = .005;
     let WAVENUMBER;
     const PATH_OPACITY = 0.5;
-    const FULL_WIDTH_DURATION = 30;
+    const FULL_WIDTH_DURATION = 60;
     const LAYER_HEIGHT = 1;
     const SLIT_WIDTH_RATIO = 0.75;
     let max_mag = 0;
@@ -177,7 +177,7 @@ export default function execute() {
             fg_ctx.lineTo(origin.x + phasor_.x, origin.y + phasor_.y);
             fg_ctx.stroke();
             fg_ctx.lineWidth = 1;
-            const pos = phasors.reduce(
+            phasors.reduce(
                 (sum, phasor) => {
                     const sum_ = Vector.add(sum, normalize(phasor));
                     fg_ctx.strokeStyle = getColor(phasor, 1, false);
@@ -189,7 +189,7 @@ export default function execute() {
                 },
                 origin.copy()
             )
-            const neg = phasors.reduce(
+            phasors.reduce(
                 (sum, phasor) => {
                     const sum_ = Vector.sub(sum, normalize(phasor));
                     fg_ctx.strokeStyle = getColor(phasor, 1, false);
@@ -234,7 +234,7 @@ export default function execute() {
         foreground_ctx.beginPath();
         foreground_ctx.arc(scan_x * canvas.width, canvas.height, 2.5, 0, 2 * Math.PI);
         foreground_ctx.fill();
-        mag_plot_ctx.strokeStyle = getColor(phasor, 1, false);
+        mag_plot_ctx.strokeStyle = getColor(normalized_phasor, 1, true);
         mag_plot_ctx.beginPath();
         mag_plot_ctx.moveTo(scan_x * canvas.width, map(normalized_phasor.magSq(), 0, 1, PLOT_RATIO * canvas.height, 0));
         mag_plot_ctx.lineTo(scan_x * canvas.width, PLOT_RATIO * canvas.height);
@@ -277,39 +277,28 @@ export default function execute() {
         start: (node) => {
             parent = node;
             resizeObserver = new ResizeObserver(parentResized).observe(parent);
-
             const { width, height } = getParentSize(parent, canvas);
             canvas = document.createElement("div");
             canvas.width = width;
             canvas.height = height;
-            canvas.style.minWidth = `${canvas.width}px`;
-            canvas.style.minHeight = `${canvas.height}px`;
             const background = document.createElement("canvas");
             background.id = "background";
             background.style.position = "absolute";
-            background.style.zIndex = 1;
-            background.width = canvas.width;
-            background.height = canvas.height;
+            background.style.zIndex = -3;
             const middleground = document.createElement("canvas");
             middleground.id = "middleground";
             middleground.style.display = "none";
             middleground.style.position = "absolute";
-            middleground.style.zIndex = 2;
-            middleground.width = canvas.width;
-            middleground.height = canvas.height;
+            middleground.style.zIndex = -2;
             const foreground = document.createElement("canvas");
             foreground.id = "foreground";
             foreground.style.position = "absolute";
-            foreground.style.zIndex = 3;
-            foreground.width = canvas.width;
-            foreground.height = canvas.height;
+            foreground.style.zIndex = -1;
             const mag_plot = document.createElement("canvas");
             mag_plot.id = "mag_plot";
             mag_plot.style.position = "absolute";
             mag_plot.style.bottom = 0;
-            mag_plot.style.zIndex = 0;
-            mag_plot.width = canvas.width;
-            mag_plot.height = canvas.height * PLOT_RATIO;
+            mag_plot.style.zIndex = -4;
             canvas.append(foreground, middleground, background, mag_plot);
             parent.appendChild(canvas);
             parent.style.display = "flex";

@@ -9,20 +9,20 @@ export default function execute() {
     let resizeObserver = null;
     let worker;
 
-    const counts = 1000;
+    const counts = 8192;
 
     function init(node) {
         ended = false;
-        const states = [
-            { coeff: { re: 1 }, psi: { n: 3, l: 1, m: +1 } },
+        const superposition = [
+            { coeff: { re: 1 }, quantum_number: { n: 3, l: 1, m: +1 } },
         ];
         worker?.postMessage?.({
-            states,
-            counts,
-            time_scale: 5e3,
+            superposition,
+            resetState: true,
+            time_scale: 1e4,
         });
-        const n_max = states.reduce(
-            (n_max, { psi: { n } }) => Math.max(n_max, n),
+        const n_max = superposition.reduce(
+            (n_max, { quantum_number: { n } }) => Math.max(n_max, n),
             0
         );
         const unit = Math.pow(n_max, 2);
@@ -85,10 +85,12 @@ export default function execute() {
         }
         const axesHelper = new THREE.AxesHelper(5);
         scene.add(axesHelper);
-        worker.addEventListener("message", function (e) {
+        worker.addEventListener("message", function listener(e) {
             if (ended) return;
-            const time = clock.getElapsedTime();
-            worker?.postMessage?.({ time });
+            worker.postMessage({
+                time: clock.getElapsedTime(),
+                addStates: e.data.states.length < counts ? Math.min(counts - e.data.states.length, 500) : 0,
+            });
             e.data.states.forEach(({ x, y, z, c }, index) => {
                 const matrix = new THREE.Matrix4();
                 matrix.setPosition(x, y, z);
@@ -97,12 +99,13 @@ export default function execute() {
             });
             electron_mesh.instanceMatrix.needsUpdate = true;
             electron_mesh.instanceColor.needsUpdate = true;
-        });
+        })
     }
     function animate() {
-        if (!ended) window.requestAnimationFrame(animate);
+        if (ended) return;
         controls.update();
         renderer.render(scene, camera);
+        window.requestAnimationFrame(animate);
     }
     function dispose() {
         ended = true;

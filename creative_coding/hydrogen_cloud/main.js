@@ -16,7 +16,7 @@ export default function execute() {
     const state = { n: 3, l: 2, m: -1 };
     const n_max = state.n + 2;
     let draw_gen = (width, height, scale) => (t) => { };
-    let draw_gen_ = (width, height, scale) => {
+    const draw_gen_ = (width, height, scale) => {
         function draw(t) {
             if (!isAnimating || foreground.width !== width || foreground.height !== height) return;
             const ctx = foreground.getContext("2d");
@@ -47,8 +47,7 @@ export default function execute() {
         foreground.width = canvas.width = width;
         foreground.height = canvas.height = height;
         requestAnimationFrame(draw_gen(width, height, pow(n_max, 2) * RADIUS_REDUCED / width));
-        const d = draw_gen_(width, height, pow(n_max, 2) * RADIUS_REDUCED / width);
-        requestAnimationFrame(d);
+        requestAnimationFrame(draw_gen_(width, height, pow(n_max, 2) * RADIUS_REDUCED / width));
     }
 
     return {
@@ -58,11 +57,11 @@ export default function execute() {
             resizeObserver = new ResizeObserver(parentResized).observe(parent);
             canvas = document.createElement("canvas");
             foreground = document.createElement("canvas");
-            const { width, height } = getParentSize(parent, canvas);
-            foreground.width = canvas.width = width;
-            foreground.height = canvas.height = height;
-            foreground.style.position = "absolute";
             parent.append(foreground, canvas);
+            foreground.style.position = "absolute";
+            canvas.style.position = "absolute";
+            foreground.style.zIndex = -1;
+            canvas.style.zIndex = -2;
             if (document.createElement("canvas").getContext("webgl")) {
                 draw_gen = function (width, height, scale) {
                     const gl = canvas.getContext("webgl");
@@ -123,8 +122,6 @@ export default function execute() {
                     return draw;
                 }
             }
-            requestAnimationFrame(draw_gen(width, height, pow(n_max, 2) * RADIUS_REDUCED / width));
-            requestAnimationFrame(draw_gen_(width, height, pow(n_max, 2) * RADIUS_REDUCED / width));
         },
         stop: () => {
             canvas?.remove();

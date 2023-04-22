@@ -4,7 +4,7 @@ export default function execute() {
     let parent = null;
     let canvas = null;
     let resizeObserver = null;
-    let workers;
+    let workers = null;
 
     function parentResized() {
         if (!canvas) return;
@@ -57,13 +57,9 @@ export default function execute() {
     return {
         start: (node) => {
             parent = node;
-            resizeObserver = new ResizeObserver(parentResized).observe(parent);
             canvas = document.createElement("canvas");
-            const { width, height } = getParentSize(parent, canvas);
-            canvas.width = width;
-            canvas.height = height;
             parent.appendChild(canvas);
-            draw(canvas.width, canvas.height);
+            resizeObserver = new ResizeObserver(parentResized).observe(parent);
         },
         stop: () => {
             canvas?.remove();

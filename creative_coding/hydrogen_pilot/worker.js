@@ -1,9 +1,9 @@
 import { Complex, constrainMap } from "../utils/math.js";
-import { d3 } from "../utils/color.js";
+import * as d3 from "../utils/color.js";
 import { WaveFunction } from "./psi.js";
 
 let psi;
-let states;
+let states = [];
 let pretime, time_scale = 1;
 
 function getColor(pos, t) {
@@ -11,50 +11,47 @@ function getColor(pos, t) {
     const prob = 1000 * p.absSq();
     const phase = p.theta;
     const brightness = Math.pow(prob / (prob + 1), 0.1);
-    return d3.lch(
-        constrainMap(brightness, 0, 1, 0, 100),
-        constrainMap(brightness, 0, 1, 0, 100),
+    return d3.hcl(
         constrainMap(phase, -Math.PI, +Math.PI, 0, 360),
+        constrainMap(brightness, 0, 1, 0, 100),
+        constrainMap(brightness, 0, 1, 0, 100),
     ).formatHex();
 }
 self.addEventListener("message", function (e) {
     const response = {};
-    if (e.data.states) {
-        psi = WaveFunction.superposition(e.data.states.map(({ coeff: { re, im }, psi: { n, l, m } }) => {
+    if (e.data.superposition) {
+        psi = WaveFunction.superposition(e.data.superposition.map(({ coeff: { re, im }, quantum_number: { n, l, m } }) => {
             return {
                 coeff: Complex.fromCartesian(re ?? 0, im ?? 0),
                 psi: WaveFunction.fromOrbital(n, l, m),
             };
         }));
     }
-    if (e.data.counts) {
-        states = (() => {
-            const states = [];
-            while (states.length < e.data.counts) {
-                states.push(psi.sample());
-            }
-            return states;
-        })();
-    }
+    if (e.data.addStates)
+        states.push(...psi.sample(e.data.addStates));
+    if (e.data.resetState)
+        states = [];
     if (e.data.time && pretime) {
-        const deltaTime = e.data.time * time_scale - pretime;
-        const time_subdivide = 10;
-        states.forEach((position) => {
-            for (let i = 0; i < time_subdivide; i++) {
+        const deltaTime = (e.data.time - pretime) * time_scale;
+        const subdivide = Math.ceil(deltaTime / (time_scale * 10)); // 60 fps
+        const stepTime = deltaTime / subdivide;
+        for (let i = 0; i < subdivide; i++) {
+            const time = pretime * time_scale + (i + 0.5) * stepTime;
+            states.forEach((position) => {
                 position.add(psi.getVel(
                     position,
-                    pretime + (i / time_subdivide) * deltaTime
-                ).mult(deltaTime / time_subdivide));
-            }
-        });
+                    pretime + (i / subdivide) * deltaTime
+                ).mult(deltaTime / subdivide));
+            });
+        }
     }
     if (e.data.time_scale) time_scale = e.data.time_scale;
-    if (e.data.time) pretime = e.data.time * time_scale;
-    if (states) response.states = states.map(pos => ({
-        x: pos.x,
-        y: pos.y,
-        z: pos.z,
-        c: getColor(pos, pretime)
+    if (e.data.time) pretime = e.data.time;
+    if (states) response.states = states.map(position => ({
+        x: position.x,
+        y: position.y,
+        z: position.z,
+        c: getColor(position, pretime)
     }));
     this.postMessage(response);
 });

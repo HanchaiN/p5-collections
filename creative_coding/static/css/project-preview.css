@@ -1,35 +1,23 @@
-:host,
 article {
-    margin: 0;
-    padding: 0;
     height: 100%;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+
 }
 
 article>h1 {
+    margin: 0;
+    flex: 0;
     display: none;
+
 }
 
 article>main {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    display: flex;
-}
-
-article>main>slot[name=content] {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
+    flex: 1;
     overflow: hidden;
 }
 
-slot[name=content]::slotted(*) {
-    margin: 0;
-    padding: 0;
-    width: 100%;
+article>main>slot[name=content]::slotted(*) {
     height: 100%;
     overflow: hidden;
 }

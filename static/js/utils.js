@@ -28,3 +28,6 @@ export function importHtml(elem) {
         elem.dispatchEvent(loaded);
     }
 }
+export function importHtmlAll() {
+    document.querySelectorAll("*[import-html]").forEach(importHtml);
+}

@@ -1,7 +1,3 @@
-nav {
-    z-index: 100;
-}
-
 nav .menu_toggle,
 nav .submenu_toggle {
     opacity: 0;

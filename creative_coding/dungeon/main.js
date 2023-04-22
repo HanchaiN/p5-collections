@@ -27,6 +27,9 @@ export default function execute() {
         })
     }
 
+    function redraw() {
+        generate_and_draw(size, canvas.getContext("2d", { alpha: "false" }), unit);
+    }
     function parentResized() {
         if (!canvas) return;
         const { width, height } = getParentSize(parent, canvas);
@@ -36,22 +39,16 @@ export default function execute() {
         };
         canvas.width = size.x * unit.x;
         canvas.height = size.y * unit.y;
-        generate_and_draw(size, canvas.getContext("2d", { alpha: "false" }), unit);
+        redraw();
     }
 
     return {
         start: (node) => {
             parent = node;
-            parent.style.display = "flex";
-            parent.style.justifyContent = "center";
-            parent.style.alignItems = "center";
-            canvas.style.display = "block";
-            resizeObserver = new ResizeObserver(parentResized).observe(parent);
             canvas = document.createElement("canvas");
             parent.append(canvas);
-            canvas.addEventListener("click", () => {
-                generate_and_draw(size, canvas.getContext("2d", { alpha: "false" }), unit);
-            });
+            resizeObserver = new ResizeObserver(parentResized).observe(parent);
+            canvas.addEventListener("click", redraw);
         },
         stop: () => {
             canvas?.remove();

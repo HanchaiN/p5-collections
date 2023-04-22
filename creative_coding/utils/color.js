@@ -1,1 +1,1 @@
-export * as d3 from "https://cdn.skypack.dev/d3-color@3";
+export * from "https://cdn.skypack.dev/d3-color@3";

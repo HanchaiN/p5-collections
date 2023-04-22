@@ -1,5 +1,5 @@
 import { d2xy, xy2d } from "./calc.js";
-import { d3 } from "../utils/color.js";
+import * as d3 from "../utils/color.js";
 const xy_map = new Map(), d_map = new Map(), buffer_map = new Map();
 let xy = false, d = false, buffer = false;
 function generateXY(order) {

@@ -1,5 +1,5 @@
 import { Complex, pow, fract, map, zeta } from "../utils/math.js";
-import { d3 } from "../utils/color.js";
+import * as d3 from "../utils/color.js";
 
 let size = {}, buffer;
 

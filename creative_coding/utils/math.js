@@ -49,42 +49,52 @@ export function combination(a, k) {
     return product(a - k + 1, a) / factorial(k);
 }
 export class Vector {
-    constructor(x = 0, y = 0, z = 0) {
-        this.set(x, y, z);
+    constructor(...val) {
+        this.set(...val);
     }
-    get x() { return this._x; }
-    get y() { return this._y; }
-    get z() { return this._z; }
-    set(x = 0, y = 0, z = 0) {
-        this._x = x;
-        this._y = y;
-        this._z = z;
+    get x() { return this._val[0] ?? 0; }
+    get y() { return this._val[1] ?? 0; }
+    get z() { return this._val[2] ?? 0; }
+    get w() { return this._val[3] ?? 0; }
+    get val() { return this._val.slice(); }
+    get dim() { return this._val.length; }
+    static zero(dim) {
+        return new this(...new Array(dim).fill(0));
+    }
+    set(...val) {
+        if (val.length === 0) val = [0, 0, 0]
+        this._val = val.slice();
         return this;
     }
     copy() {
         return Vector.copy(this);
     }
     static copy(v) {
-        if (v instanceof Vector) {
-            return new Vector(v.x, v.y, v.z);
-        }
-        if (typeof v === "number") {
-            return new Vector(v, v, v);
-        }
+        if (v instanceof this)
+            return new this(...v.val);
+        if (typeof v === "number")
+            return new this(v, v, v);
+        throw new TypeError();
     }
     dot(v) {
-        return this.x * v.x + this.y * v.y + this.z * v.z;
+        if (this.dim !== v.dim) throw new TypeError();
+        return this.val.reduce((acc, _, i) => acc + this._val[i] * v._val[i], 0);
     }
     static dot(a, b) {
+        if (!(a instanceof this) || !(b instanceof this))
+            throw new TypeError();
         return a.dot(b);
     }
     cross(v) {
+        if (this.dim !== 3 || v.dim !== 3) throw new TypeError();
         const x = this.y * v.z - this.z * v.y;
         const y = this.z * v.x - this.x * v.z;
         const z = this.x * v.y - this.y * v.x;
         return new Vector(x, y, z);
     }
     static cross(a, b) {
+        if (!(a instanceof this) || !(b instanceof this))
+            throw new TypeError();
         return a.cross(b);
     }
     magSq() {
@@ -97,104 +107,111 @@ export class Vector {
         return Vector.sub(v, this).mag();
     }
     add(v) {
-        if (v instanceof Vector) {
-            this.set(this.x + v.x, this.y + v.y, this.z + v.z);
-        }
-        if (typeof v === "number") {
-            this.set(this.x + v, this.y + v, this.z + v);
-        }
+        if (typeof v === "number")
+            this.set(...this._val.map(_ => _ + v));
+        if (v instanceof Vector)
+            if (this.dim !== v.dim) throw new TypeError();
+            else this.set(...this._val.map((_, i) => this._val[i] + v._val[i]));
         return this;
     }
     static add(a, ...args) {
-        const vec = Vector.copy(a);
+        const vec = this.copy(a);
         for (let v of args) vec.add(v);
         return vec;
     }
     sub(v) {
-        if (v instanceof Vector) {
-            this.set(this.x - v.x, this.y - v.y, this.z - v.z);
-        }
-        if (typeof v === "number") {
-            this.set(this.x - v, this.y - v, this.z - v);
-        }
+        if (typeof v === "number")
+            this.set(...this._val.map(_ => _ - v));
+        if (v instanceof Vector)
+            if (this.dim !== v.dim) throw new TypeError();
+            else this.set(...this._val.map((_, i) => this._val[i] - v._val[i]));
         return this;
     }
     static sub(a, b) {
-        return Vector.copy(a).sub(b);
+        return this.copy(a).sub(b);
     }
     mult(v) {
-        if (v instanceof Vector) {
-            this.set(this.x * v.x, this.y * v.y, this.z * v.z);
-        }
-        if (typeof v === "number") {
-            this.set(this.x * v, this.y * v, this.z * v);
-        }
+        if (typeof v === "number")
+            this.set(...this._val.map(_ => _ * v));
+        if (v instanceof Vector)
+            if (this.dim !== v.dim) throw new TypeError();
+            else this.set(...this._val.map((_, i) => this._val[i] * v._val[i]));
         return this;
     }
     static mult(a, ...args) {
-        const vec = Vector.copy(a);
+        const vec = this.copy(a);
         for (let v of args) vec.mult(v);
         return vec;
     }
     div(v) {
-        if (v instanceof Vector) {
-            this.set(this.x / v.x, this.y / v.y, this.z / v.z);
-        }
-        if (typeof v === "number") {
-            this.set(this.x / v, this.y / v, this.z / v);
-        }
+        if (typeof v === "number")
+            this.set(...this._val.map(_ => _ / v));
+        if (v instanceof Vector)
+            if (this.dim !== v.dim) throw new TypeError();
+            else this.set(...this._val.map((_, i) => this._val[i] / v._val[i]));
         return this;
     }
     static div(a, b) {
-        return Vector.copy(a).div(b);
+        return this.copy(a).div(b);
     }
     normalize() {
         return this.div(this.mag());
     }
-    static normalize(vector) {
-        return Vector.copy(vector).normalize();
+    static normalize(v) {
+        if (!(v instanceof this))
+            throw new TypeError();
+        return this.copy(v).normalize();
     }
     setMag(len) {
         return this.normalize().mult(len);
     }
     heading() {
+        if (this.dim !== 2) throw new TypeError();
         return Math.atan2(this.y, this.x);
     }
     angleBetween(v) {
+        if (this.dim !== v.dim) throw new TypeError();
         const factor = this.dot(v) / (this.mag() * v.mag());
-        return Math.acos(Math.min(1, Math.max(-1, factor))) * Math.sign(this.cross(v).z || 1);
+        return Math.acos(factor) * Math.sign(this.x * v.y - this.y * v.x);
     }
     static angleBetween(a, b) {
+        if (!(a instanceof this) || !(b instanceof this))
+            throw new TypeError();
         return a.angleBetween(b);
     }
     rotate(theta) {
+        if (this.dim !== 2) throw new TypeError();
         return this.set(
             this.x * Math.cos(theta) - this.y * Math.sin(theta),
             this.x * Math.sin(theta) + this.y * Math.cos(theta),
         );
     }
     static rotate(v, theta) {
-        return Vector.copy(v).rotate(theta);
+        if (!(v instanceof this))
+            throw new TypeError();
+        return this.copy(v).rotate(theta);
     }
     toPolar() {
+        if (this.dim !== 2) throw new TypeError();
         const r = this.mag();
         const theta = this.heading();
         return { r, theta };
     }
     static fromPolar(r = 0, theta = 0) {
-        return new Vector(
+        return new this(
             r * Math.cos(theta),
             r * Math.sin(theta),
         );
     }
     toSphere() {
+        if (this.dim !== 3) throw new TypeError();
         const r = this.mag();
         const theta = r === 0 ? 0 : Math.acos(this.z / r);
         const phi = Math.atan2(this.y, this.x);
         return { r, theta, phi };
     }
     static fromSphere(r = 0, theta = 0, phi = 0) {
-        return new Vector(
+        return new this(
             r * Math.sin(theta) * Math.cos(phi),
             r * Math.sin(theta) * Math.sin(phi),
             r * Math.cos(theta),
@@ -202,12 +219,12 @@ export class Vector {
     }
     static random2D() {
         const angle = Math.random() * Math.PI * 2;
-        return Vector.fromPolar(1, angle);
+        return this.fromPolar(1, angle);
     }
     static random3D() {
         const angle = Math.random() * Math.PI * 2;
         const vz = Math.random() * 2 - 1;
-        return Vector.fromSphere(1, Math.acos(vz), angle);
+        return this.fromSphere(1, Math.acos(vz), angle);
     }
 }
 export class Complex {
@@ -230,7 +247,7 @@ export class Complex {
         return this;
     }
     static fromCartesian(re = 0, im = 0) {
-        return new Complex().set(re, im);
+        return new this().set(re, im);
     }
     setPolar(r = 0, theta = 0) {
         this._re = r * Math.cos(theta);
@@ -238,24 +255,25 @@ export class Complex {
         return this;
     }
     static fromPolar(r = 0, theta = 0) {
-        return new Complex().setPolar(r, theta);
+        return new this().setPolar(r, theta);
     }
-    copy(polar = null) {
-        return Complex.fromCartesian(this.re, this.im);
+    copy() {
+        return Complex.copy(this);
     }
     static copy(v) {
-        if (v instanceof Complex) {
-            return v.copy();
+        if (v instanceof this) {
+            return new this().set(v.re, v.im);
         }
         if (typeof v === "number") {
-            return Complex.fromCartesian(v);
+            return this.fromCartesian(v);
         }
+        throw new TypeError();
     }
     conj() {
         return Complex.fromCartesian(this.re, -this.im);
     }
     static conj(v) {
-        return Complex.copy(v).conj();
+        return this.copy(v).conj();
     }
     absSq() {
         return this.conj().mult(this).re;
@@ -273,7 +291,7 @@ export class Complex {
         return this;
     }
     static add(a, ...args) {
-        const z = Complex.copy(a);
+        const z = this.copy(a);
         for (let v of args) z.add(v);
         return z;
     }
@@ -287,7 +305,7 @@ export class Complex {
         return this;
     }
     static sub(a, b) {
-        return Complex.copy(a).sub(b);
+        return this.copy(a).sub(b);
     }
     mult(v) {
         if (v instanceof Complex) {
@@ -299,7 +317,7 @@ export class Complex {
         return this;
     }
     static mult(a, ...args) {
-        const z = Complex.copy(a);
+        const z = this.copy(a);
         for (let v of args) z.mult(v);
         return z;
     }
@@ -313,36 +331,31 @@ export class Complex {
         return this;
     }
     static div(a, b) {
-        return Complex.copy(a).div(b);
+        return this.copy(a).div(b);
     }
     exp() {
         return Complex.fromPolar(Math.exp(this.re), this.im);
     }
     static exp(z) {
-        return Complex.copy(z).exp();
+        return this.copy(z).exp();
     }
     log() {
         return Complex.fromCartesian(Math.log(this.r), this.theta);
     }
     static log(z) {
-        return Complex.copy(z).log();
+        return this.copy(z).log();
     }
     pow(v) {
         return Complex.fromPolar(pow(this.r, v), this.theta * v);
     }
     static pow(a, b) {
-        if (a instanceof Complex) {
-            if (b instanceof Complex)
-                return Complex.mult(b, a.log()).exp();
-            if (typeof b === "number")
-                return a.pow(b);
-        }
-        if (typeof a === "number") {
-            if (b instanceof Complex)
-                return Complex.mult(b, Math.log(a)).exp();
-            if (typeof b === "number")
-                return Complex.fromPolar(pow(a, b));
-        }
+        if (b instanceof this)
+            return this.mult(b, this.log(a)).exp();
+        if (a instanceof this)
+            return a.pow(b);
+        if (typeof a === "number")
+            return this.copy(pow(a, b));
+        throw new TypeError();
     }
     sinh() {
         return Complex.fromCartesian(
@@ -363,7 +376,7 @@ export class Complex {
         );
     }
     static sin(z) {
-        return Complex.copy(z).sin();
+        return this.copy(z).sin();
     }
     cos() {
         return Complex.fromCartesian(
@@ -391,33 +404,16 @@ export class ComplexPolar extends Complex {
         this._theta = Math.atan2(im, re);
         return this;
     }
-    static fromCartesian(re = 0, im = 0) {
-        return new Complex().set(re, im);
-    }
     setPolar(r = 0, theta = 0) {
         this._r = Math.abs(this._r);
         this._theta = (r > 0 ? theta : theta + Math.PI) % (2 * Math.PI);
         return this;
     }
-    static fromPolar(r = 0, theta = 0) {
-        return new Complex().setPolar(r, theta);
-    }
     copy() {
-        return ComplexPolar.fromPolar(this.r, this.theta);
-    }
-    static copy(v) {
-        if (v instanceof Complex) {
-            return v.copy();
-        }
-        if (typeof v === "number") {
-            return ComplexPolar.fromPolar(v);
-        }
+        return ComplexPolar.copy(this);
     }
     conj() {
         return ComplexPolar.fromPolar(this.r, -this.theta);
-    }
-    static conj(v) {
-        return ComplexPolar.copy(v).conj();
     }
     absSq() {
         return pow(this.r, 2);
@@ -434,11 +430,6 @@ export class ComplexPolar extends Complex {
         }
         return this;
     }
-    static add(a, ...args) {
-        const z = ComplexPolar.copy(a);
-        for (let v of args) z.add(v);
-        return z;
-    }
     sub(v) {
         if (v instanceof Complex) {
             this.set(this.re - v.re, this.im - v.im);
@@ -447,9 +438,6 @@ export class ComplexPolar extends Complex {
             this.set(this.re - v, this.im);
         }
         return this;
-    }
-    static sub(a, b) {
-        return ComplexPolar.copy(a).sub(b);
     }
     mult(v) {
         if (v instanceof Complex) {
@@ -460,11 +448,6 @@ export class ComplexPolar extends Complex {
         }
         return this;
     }
-    static mult(a, ...args) {
-        const z = ComplexPolar.copy(a);
-        for (let v of args) z.mult(v);
-        return z;
-    }
     div(v) {
         if (v instanceof Complex) {
             this.mult(v.conj()).div(v.absSq());
@@ -474,31 +457,14 @@ export class ComplexPolar extends Complex {
         }
         return this;
     }
-    static div(a, b) {
-        return ComplexPolar.copy(a).div(b);
-    }
     exp() {
         return ComplexPolar.fromPolar(Math.exp(this.re), this.im);
-    }
-    static exp(z) {
-        return ComplexPolar.copy(z).exp();
     }
     log() {
         return ComplexPolar.fromCartesian(Math.log(this.r), this.theta);
     }
-    static log(z) {
-        return ComplexPolar.copy(z).log();
-    }
     pow(v) {
         return ComplexPolar.fromPolar(pow(this.r, v), this.theta * v);
-    }
-    static pow(a, b) {
-        if (b instanceof Complex)
-            return ComplexPolar.mult(b, ComplexPolar.log(a)).exp();
-        if (a instanceof Complex)
-            return a.pow(b);
-        if (typeof a === "number")
-            return ComplexPolar.fromPolar(pow(a, b));
     }
     sinh() {
         return ComplexPolar.fromCartesian(
@@ -517,9 +483,6 @@ export class ComplexPolar extends Complex {
             Math.sin(this.re) * Math.cosh(this.im),
             Math.cos(this.re) * Math.sinh(this.im),
         );
-    }
-    static sin(z) {
-        return ComplexPolar.copy(z).sin();
     }
     cos() {
         return ComplexPolar.fromCartesian(
@@ -632,121 +595,4 @@ export function zeta(s, prec = 1e-3, only = false) {
         .mult(Complex.mult(z, Math.PI / 2).sin().copy(true))
         .mult(gamma(Complex.sub(1, z)))
         .mult(zeta(Complex.sub(1, z), prec, true));
-}
-export class ComplexVector {
-    constructor(x = 0, y = 0, z = 0) {
-        this.set(x, y, z);
-    }
-    get x() { return Complex.copy(this._x); }
-    get y() { return Complex.copy(this._y); }
-    get z() { return Complex.copy(this._z); }
-    get re() { return new Vector(this._x.re, this._y.re, this._z.re); }
-    get im() { return new Vector(this._x.im, this._y.im, this._z.im); }
-    set(x = 0, y = 0, z = 0) {
-        this._x = Complex.copy(x);
-        this._y = Complex.copy(y);
-        this._z = Complex.copy(z);
-        return this;
-    }
-    copy() {
-        return ComplexVector.copy(this);
-    }
-    conj() {
-        this.set(this._x.conj(), this._y.conj(), this._z.conj())
-    }
-    static copy(v) {
-        if (v instanceof Vector || v instanceof ComplexVector) {
-            return new ComplexVector(v.x, v.y, v.z);
-        }
-        if (typeof v === "number" || v instanceof Complex) {
-            return new Vector(v, v, v);
-        }
-    }
-    dot(v) {
-        return Complex.add(
-            Complex.mult(this._x, Complex.conj(v._x)),
-            Complex.mult(this._y, Complex.conj(v._y)),
-            Complex.mult(this._z, Complex.conj(v._z))
-        );
-    }
-    static dot(a, b) {
-        return a.dot(b);
-    }
-    cross(v) {
-        return new ComplexVector(
-            Complex.sub(Complex.mult(this._y, v._z), Complex.mult(this._z, v._y)).conj(),
-            Complex.sub(Complex.mult(this._z, v._x), Complex.mult(this._x, v._z)).conj(),
-            Complex.sub(Complex.mult(this._x, v._y), Complex.mult(this._y, v._x)).conj()
-        );
-    }
-    magSq() {
-        return this.dot(this).re;
-    }
-    mag() {
-        return Math.sqrt(this.magSq());
-    }
-    dist(v) {
-        return ComplexVector.sub(v, this).mag();
-    }
-    add(v) {
-        if (v instanceof Vector || v instanceof ComplexVector) {
-            this.set(Complex.add(this._x, v._x), Complex.add(this._y, v._y), Complex.add(this._z, v._z));
-        }
-        if (typeof v === "number" || v instanceof Complex) {
-            this.add(new ComplexVector(v, v, v));
-        }
-        return this;
-    }
-    static add(a, ...args) {
-        const vec = ComplexVector.copy(a);
-        for (let v of args) vec.add(v);
-        return vec;
-    }
-    sub(v) {
-        if (v instanceof Vector || v instanceof ComplexVector) {
-            this.set(Complex.sub(this._x, v._x), Complex.sub(this._y, v._y), Complex.sub(this._z, v._z));
-        }
-        if (typeof v === "number" || v instanceof Complex) {
-            this.sub(new ComplexVector(v, v, v));
-        }
-        return this;
-    }
-    static sub(a, b) {
-        return ComplexVector.copy(a).sub(b);
-    }
-    mult(v) {
-        if (v instanceof Vector || v instanceof ComplexVector) {
-            this.set(Complex.mult(this._x, v._x), Complex.mult(this._y, v._y), Complex.mult(this._z, v._z));
-        }
-        if (typeof v === "number" || v instanceof Complex) {
-            this.mult(new ComplexVector(v, v, v));
-        }
-        return this;
-    }
-    static mult(a, ...args) {
-        const vec = ComplexVector.copy(a);
-        for (let v of args) vec.mult(v);
-        return vec;
-    }
-    div(v) {
-        if (v instanceof Vector || v instanceof ComplexVector) {
-            this.set(Complex.div(this._x, v._x), Complex.div(this._y, v._y), Complex.div(this._z, v._z));
-        }
-        if (typeof v === "number" || v instanceof Complex) {
-            this.div(new ComplexVector(v, v, v));
-        }
-        return this;
-    }
-    static div(a, b) {
-        return ComplexVector.copy(a).div(b);
-    }
-    normalize() {
-        return this.div(this.mag());
-    }
-    static normalize(vector) {
-        return ComplexVector.copy(vector).normalize();
-    }
-    setMag(len) {
-        return this.normalize().mult(len);
-    }
 }

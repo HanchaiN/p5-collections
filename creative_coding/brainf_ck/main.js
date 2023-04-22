@@ -175,7 +175,7 @@ export default function execute() {
     return {
         start: (node) => {
             parent = node;
-            instance = new p5(sketch, node);
+            instance = new p5(sketch, parent);
             canvas ??= instance.canvas;
         },
         stop: () => {

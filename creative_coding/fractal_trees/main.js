@@ -133,7 +133,7 @@ export default function execute() {
       parent = node;
       parent.append(alpha, beta1, beta2, resetButton);
       wrapper = node.appendChild(document.createElement("div"));
-      instance = new p5(sketch, node);
+      instance = new p5(sketch, wrapper);
       canvas ??= instance.canvas;
     },
     stop: () => {

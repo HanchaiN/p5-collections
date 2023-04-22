@@ -1,4 +1,4 @@
-import { combination, Complex, factorial, permutation, pow, product, Vector, ComplexVector } from "../utils/math.js";
+import { combination, Complex, factorial, permutation, pow, product, Vector } from "../utils/math.js";
 export const RADIUS_REDUCED = 1;
 export const MASS_REDUCED = 9.109e-31;
 export const H_BAR = 1.054e-34;
@@ -91,28 +91,24 @@ export class WaveFunction {
     psi(vec, time = 0) {
         throw new Error();
     }
-    sample(time = 0) {
+    sample(counts = 1, time = 0) {
         throw new Error();
     }
     getVel(pos, time = 0) {
         const val = this.psi(pos, time);
-        if (val.absSq() === 0) return new Vector();
-        const der = this._der(pos, time);
-        const vel = der.div(val).im.mult(H_BAR / MASS_REDUCED);
-        return vel;
+        if (val.absSq() === 0) return Vector.zero(pos.dim);
+        return new Vector(...this._der(pos, time).map(z => z.div(val).im * H_BAR / MASS_REDUCED));
     }
     _der(pos, time = 0) {
-        return new ComplexVector(
-            ...new Array(3).fill(0).map((_, i) => {
-                const delta = new Vector(
-                    ...new Array(3).fill(0).map((_, j) => (j === i ? +EPSILON : 0))
-                );
-                const next = pos.copy().add(delta);
-                const prev = pos.copy().sub(delta);
-                const der = Complex.sub(this.psi(next, time), this.psi(prev, time)).div(2 * EPSILON);
-                return der;
-            })
-        );
+        return new Array(3).fill(0).map((_, i) => {
+            const delta = new Vector(
+                ...new Array(3).fill(0).map((_, j) => (j === i ? +EPSILON : 0))
+            );
+            const next = pos.copy().add(delta);
+            const prev = pos.copy().sub(delta);
+            const der = Complex.sub(this.psi(next, time), this.psi(prev, time)).div(2 * EPSILON);
+            return der;
+        });
     }
     static superposition(states_) {
         const psi = new WaveFunction();
@@ -129,26 +125,32 @@ export class WaveFunction {
                 Complex.fromCartesian(),
             );
         }
-        psi.sample = (time = 0) => {
-            const seed = Math.random();
+        psi.sample = (counts = 1, time = 0) => {
+            const seed = new Array(counts).fill(0).map(_ => Math.random());
+            const ind = new Array(counts).fill(null);
+            const count = states.map(_ => 0);
             let total_prob = 0;
-            for (let { coeff, psi } of states) {
+            states.forEach(({ coeff }, i) => {
                 total_prob += coeff.absSq();
-                if (total_prob > seed) {
-                    return psi.sample(time);
-                }
-            }
+                seed.forEach((v, j) => {
+                    if (ind[j] === null && total_prob > v) {
+                        count[i]++;
+                        ind[j] = i;
+                    }
+                });
+            });
+            const samples = states.map(({ psi }, i) => psi.sample(count[i], time));
+            return new Array(counts).fill(null).map((_, i) => samples[ind[i]].pop());
         }
         psi._der = (pos, time = 0) => {
-            const der = states.reduce(
+            return states.reduce(
                 (prev, { coeff, psi }) => {
-                    const v = prev.add(psi._der(pos, time).mult(coeff));
-                    return v;
+                    const der = psi._der(pos, time);
+                    return new Array(3).fill(0).map((_, i) => prev[i].add(Complex.copy(der[i]).mult(coeff)));
                 }
                 ,
-                new ComplexVector(),
+                [Complex.fromCartesian(), Complex.fromCartesian(), Complex.fromCartesian()],
             );
-            return der;
         }
         return psi;
     }
@@ -185,9 +187,10 @@ export class WaveFunction {
             return Complex.fromCartesian(0, -factor_t * time).exp();
         }
         const _r_max = RADIUS_REDUCED * Math.pow(n + 5, 2);
-        const _sampleAngular = () => {
+        const _sampleAngular = (counts = 1) => {
             const MAX_SEED = 1;
-            const seed = Math.random() * MAX_SEED;
+            const seed = new Array(counts).fill(0).map(_ => Math.random() * MAX_SEED);
+            const res = new Array(counts).fill(null);
             let total_prob = 0;
             const d_theta = Math.PI / 180; // SAMPLE_RESOLUTION / r;
             for (let theta = 0; theta <= Math.PI; theta += d_theta) {
@@ -198,25 +201,32 @@ export class WaveFunction {
                     const density = psi.absSq();
                     const probability = density * factor;
                     total_prob += probability;
-                    if (total_prob > seed) {
-                        return { theta, phi };
-                    }
+                    if (seed.reduce((acc, v, i) => {
+                        if (res[i] === null && total_prob > v)
+                            res[i] = { theta, phi };
+                        if (res[i] === null) return false;
+                        return acc;
+                    }, true)) return res;
                 }
             }
             console.warn(`Total angular probability is not 1. Please update max_seed to ${total_prob}.`);
         }
-        const _sampleRadial = () => {
+        const _sampleRadial = (counts = 1) => {
             const MAX_SEED = .99;
-            const seed = Math.random() * MAX_SEED;
+            const seed = new Array(counts).fill(0).map(_ => Math.random() * MAX_SEED);
+            const res = new Array(counts).fill(null);
             let total_prob = 0;
             for (let r = SAMPLE_RESOLUTION / 2; r < _r_max; r += SAMPLE_RESOLUTION) {
                 const psi = _radial(r);
                 const density = psi.absSq();
                 const probability = density * SAMPLE_RESOLUTION * r * r;
                 total_prob += probability;
-                if (total_prob > seed) {
-                    return r;
-                }
+                if (seed.reduce((acc, v, i) => {
+                    if (res[i] === null && total_prob > v)
+                        res[i] = r;
+                    if (res[i] === null) return false;
+                    return acc;
+                }, true)) return res;
             }
             console.warn(`Total radial probability is not 1. Please update max_seed to ${total_prob}.`);
         }
@@ -224,35 +234,11 @@ export class WaveFunction {
             const { r, theta, phi } = vec.toSphere();
             return _radial(r).mult(_angular(theta, phi)).mult(_temporal(time));
         }
-        psi.sample = (time = 0) => {
-            const r = _sampleRadial();
-            const { theta, phi } = _sampleAngular();
-            const v = Vector.fromSphere(r, theta, phi);
-            return v;
+        psi.sample = (counts = 1, time = 0) => {
+            const radial = _sampleRadial(counts);
+            const angular = _sampleAngular(counts);
+            return radial.map((r, i) => Vector.fromSphere(r, angular[i].theta, angular[i].phi));
         }
-        // psi._der = (pos, time = 0) => {
-        //     const { r, theta, phi } = pos.toSphere();
-        //     const _dr = _radial_der(r).mult(_angular(theta, phi)).mult(_temporal(time));
-        //     const _dtheta = _radial(r).mult(_angular_der_theta(theta, phi)).mult(_temporal(time));
-        //     const _dphi = _radial(r).mult(_angular_der_phi(theta, phi)).mult(_temporal(time));
-        //     const der = new ComplexVector(
-        //         Complex.add(
-        //             Complex.mult(_dr, Math.cos(phi) * Math.sin(theta)),
-        //             Complex.mult(_dtheta, Math.cos(phi) * Math.cos(theta) / r),
-        //             Complex.mult(_dphi, - Math.sin(phi) / (r * Math.sin(theta))),
-        //         ),
-        //         Complex.add(
-        //             Complex.mult(_dr, Math.sin(phi) * Math.sin(theta)),
-        //             Complex.mult(_dtheta, Math.sin(phi) * Math.cos(theta) / r),
-        //             Complex.mult(_dphi, + Math.cos(phi) / (r * Math.sin(theta))),
-        //         ),
-        //         Complex.add(
-        //             Complex.mult(_dr, Math.cos(theta)),
-        //             Complex.mult(_dtheta, Math.sin(theta) / r),
-        //         ),
-        //     );
-        //     return der;
-        // }
         return psi;
     }
     static fromRealOrbital(n, l, m) {

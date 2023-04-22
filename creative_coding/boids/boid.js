@@ -13,14 +13,14 @@
 // Speed -> lim * sigmoid(wt)
 
 import { sigm, Vector, map, randomGaussian } from "../utils/math.js";
-import { d3 } from "../utils/color.js";
+import * as d3 from "../utils/color.js";
 export const lim = {
     range: 100,
     steer: .1,
     angularRange: 2 / 3,
     speed: 50,
     mutability: 0.1,
-    size: 10,
+    size: 5,
     wallRange: 50,
     wallRepulsion: 1,
 };
@@ -56,15 +56,16 @@ export class Boid {
     }
     eval() {
         let sumSpeedFactor = 0;
-        const avgSpeed = new Vector();
+        const avgSpeed = Vector.zero(2);
         let sumPositionFactor = 0;
-        const avgPosition = new Vector();
+        const avgPosition = Vector.zero(2);
         let sumDisplacementFactor = 0;
-        const avgDisplacement = new Vector();
+        const avgDisplacement = Vector.zero(2);
         let sumIdFactor = .1;
         const avgId = this.prop_inherit.id.copy().mult(sumIdFactor);
         for (let ind = 0; ind < this.system.boids.length; ind++) {
             const other = this.system.boids[ind];
+            if (other === this) continue;
             const displacement = Vector.sub(other.pos, this.pos);
             const id_phase = this.prop.id.angleBetween(other.prop.id);
             const angle = this.dir.angleBetween(displacement);
@@ -107,7 +108,7 @@ export class Boid {
             }
         }
         {
-            const wt = lim.wallRepulsion * sumDisplacementFactor;
+            const wt = lim.wallRepulsion;
             if (this.pos.x - this.system.wall.left < lim.wallRange) {
                 avgDisplacement.add(new Vector(this.system.wall.left - this.pos.x, 0).mult(wt));
                 sumDisplacementFactor += wt;
@@ -150,29 +151,23 @@ export class Boid {
         this.prop.id.add(this.id_.mult(deltaTime / 1000));
         this.prop.id.setMag(1);
         delete this.id_;
-        if (this.pos.x < this.system.wall.left)
-            this.pos.set(this.system.wall.right, this.pos.y);
-        if (this.pos.x > this.system.wall.right)
-            this.pos.set(this.system.wall.left, this.pos.y);
-        if (this.pos.y < this.system.wall.top)
-            this.pos.set(this.pos.x, this.system.wall.bottom);
-        if (this.pos.y > this.system.wall.bottom)
-            this.pos.set(this.pos.x, this.system.wall.top);
+        while (this.pos.x < this.system.wall.left)
+            this.pos.add(new Vector(this.system.wall.right - this.system.wall.left, 0));
+        while (this.pos.x > this.system.wall.right)
+            this.pos.sub(new Vector(this.system.wall.right - this.system.wall.left, 0));
+        while (this.pos.y < this.system.wall.top)
+            this.pos.add(new Vector(0, this.system.wall.bottom - this.system.wall.top));
+        while (this.pos.y > this.system.wall.bottom)
+            this.pos.sub(new Vector(0, this.system.wall.bottom - this.system.wall.top));
     }
     data() {
-        const c = d3.hcl(
-            map(this.prop.id.heading(), -Math.PI, +Math.PI, 0, 360),
-            50,
-            75,
-            1
-        ).rgb();
         return {
-            c: {
-                r: c.r,
-                g: c.g,
-                b: c.b,
-                a: c.opacity * 255,
-            },
+            c: d3.hcl(
+                map(this.prop.id.heading(), -Math.PI, +Math.PI, 0, 360),
+                50,
+                75,
+                1
+            ).formatHex8(),
             p: {
                 x: this.pos.x,
                 y: this.pos.y,
