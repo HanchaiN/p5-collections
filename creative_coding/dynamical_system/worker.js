@@ -1,30 +1,29 @@
-import { Vector, constrainMap } from "../utils/math.js";
-import * as d3 from "../utils/color.js";
+import { Vector } from "../utils/math.js";
 import { State } from "./dynamic.js";
 
 let states = [];
 let pretime, time_scale = 1;
-const f = (time, state) => {
-    const rho = 28;
-    const sigma = 10;
-    const beta = 8 / 3;
+let param = {
+    rho: 28,
+    sigma: 10,
+    beta: 8 / 3,
+};
+function f(time, state) {
     return new Vector(
-        sigma * (state[0].y - state[0].x),
-        state[0].x * (rho - state[0].z) - state[0].y,
-        state[0].x * state[0].y - beta * state[0].z,
+        param.sigma * (state[0].y - state[0].x),
+        state[0].x * (param.rho - (state[0].z)) - state[0].y,
+        state[0].x * state[0].y - param.beta * (state[0].z),
     );
 }
-const err = 1e-5;
 
 self.addEventListener("message", function (e) {
     const response = {};
-    if (e.data.count)
-        states = new Array(e.data.count).fill(0).map((_, i) => ({
-            state: new State(new Vector(0, 2, 20).add(
-                new Vector(constrainMap(i, 0, e.data.count, -err, +err), 0, 0)
-            )),
-            color: d3.hcl(constrainMap(i, 0, e.data.count, 0, 360), 75, 75).formatHex8()
+    if (e.data.states)
+        states = e.data.states.map(({ state, color }) => ({
+            state: new State(...state.map(_ => new Vector(..._))),
+            color
         }));
+    if (e.data.param) param = { ...param, ...e.data.param };
     if (e.data.time && pretime) {
         const deltaTime = (e.data.time - pretime) * time_scale;
         const subdivide = Math.ceil(deltaTime / (time_scale * 10)); // 60 fps

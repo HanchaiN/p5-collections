@@ -103,7 +103,7 @@ export function generateDungeon(GRID_SIZE) {
     const DIST_WEIGHT = [5, 20, 1, 10];
     const EST = (from, to) => {
         const order = 1;
-        return 5 * Math.pow(Math.pow(Math.abs(to.x - from.x), order) + Math.pow(Math.abs(to.y - from.y), order), 1 / order);
+        return 5 * randomGaussian(1, 2) * Math.pow(Math.pow(Math.abs(to.x - from.x), order) + Math.pow(Math.abs(to.y - from.y), order), 1 / order);
     }
     const rooms = [];
     const nodes = [];
@@ -128,7 +128,7 @@ export function generateDungeon(GRID_SIZE) {
             || (room.bottom > room_.top + 1 || room.top + 1 < room_.bottom)
         )) {
             rooms.push(room);
-            nodes.push(new Vector(Math.round(_node.x), Math.round(_node.y)));
+            nodes.push(new Vector(_node.x, _node.y));
             room_area += (room.right - room.left) * (room.top - room.bottom);
         }
     }
@@ -149,19 +149,10 @@ export function generateDungeon(GRID_SIZE) {
         })
     );
     edges.forEach(([i_begin, i_target]) => {
-        const room_begin = rooms[i_begin], room_target = rooms[i_target];
         const begins = [
-            nodes[i_begin],
-            // ...new Array(room_begin.right - room_begin.left).fill(0).map((_, i) => ({ x: room_begin.left + i, y: room_begin.top })),
-            // ...new Array(room_begin.top - room_begin.bottom).fill(0).map((_, i) => ({ x: room_begin.right, y: room_begin.top - i })),
-            // ...new Array(room_begin.right - room_begin.left).fill(0).map((_, i) => ({ x: room_begin.right - i, y: room_begin.bottom })),
-            // ...new Array(room_begin.top - room_begin.bottom).fill(0).map((_, i) => ({ x: room_begin.left, y: room_begin.bottom + i })),
+            new Vector(Math.round(nodes[i_begin].x), Math.round(nodes[i_begin].y)),
         ], targets = [
-            nodes[i_target],
-            // ...new Array(room_target.right - room_target.left).fill(0).map((_, i) => ({ x: room_target.left + i, y: room_target.top })),
-            // ...new Array(room_target.top - room_target.bottom).fill(0).map((_, i) => ({ x: room_target.right, y: room_target.top - i })),
-            // ...new Array(room_target.right - room_target.left).fill(0).map((_, i) => ({ x: room_target.right - i, y: room_target.bottom })),
-            // ...new Array(room_target.top - room_target.bottom).fill(0).map((_, i) => ({ x: room_target.left, y: room_target.bottom + i })),
+            new Vector(Math.round(nodes[i_target].x), Math.round(nodes[i_target].y)),
         ];
         const target = {
             x: nodes[i_target].x,

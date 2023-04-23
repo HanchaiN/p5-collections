@@ -70,9 +70,9 @@ function sph_harm_der(m, l, order_theta = 0, order_phi = 0) {
                 .conj();
     }
     if (order_phi !== 0) {
-        const factor_phi = Complex.fromPolar(m, Math.PI / 2).pow(order_phi);
+        const factor_phi = Complex.fromCartesian(0, m).pow(order_phi);
         const sph_harm_der_ = sph_harm_der(m, l, order_theta);
-        return (theta, phi) => factor_phi.mult(sph_harm_der_(theta, phi));
+        return (theta, phi) => Complex.mult(factor_phi, sph_harm_der_(theta, phi));
     }
     if (order_theta === 0) return sph_harm(m, l);
     if (order_theta === 1) {
@@ -88,7 +88,7 @@ function sph_harm_der(m, l, order_theta = 0, order_phi = 0) {
 
 export class WaveFunction {
     constructor() { }
-    psi(vec, time = 0) {
+    psi(pos, time = 0) {
         throw new Error();
     }
     sample(counts = 1, time = 0) {
@@ -118,10 +118,10 @@ export class WaveFunction {
             states.forEach((state) => {
                 state.coeff.div(mag);
             });
-        psi.psi = (vec, time = 0) => {
+        psi.psi = (pos, time = 0) => {
             return states.reduce(
                 (prev, { coeff, psi }) =>
-                    prev.add(psi.psi(vec, time).mult(coeff)),
+                    prev.add(psi.psi(pos, time).mult(coeff)),
                 Complex.fromCartesian(),
             );
         }
@@ -192,9 +192,9 @@ export class WaveFunction {
             const seed = new Array(counts).fill(0).map(_ => Math.random() * MAX_SEED);
             const res = new Array(counts).fill(null);
             let total_prob = 0;
-            const d_theta = Math.PI / 180; // SAMPLE_RESOLUTION / r;
+            const d_theta = Math.PI / 180; // Math.PI / Math.round(Math.PI / SAMPLE_RESOLUTION / r)
             for (let theta = 0; theta <= Math.PI; theta += d_theta) {
-                const d_phi = Math.PI / 180; // SAMPLE_RESOLUTION / (r * Math.abs(Math.cos(theta)));
+                const d_phi = Math.PI / 360; // 2 * Math.PI / Math.round(2 * Math.PI / SAMPLE_RESOLUTION / (r * Math.abs(Math.cos(theta))))
                 const factor = Math.sin(theta) * d_theta * d_phi;
                 for (let phi = 0; phi < 2 * Math.PI; phi += d_phi) {
                     const psi = _angular(theta, phi);
@@ -230,14 +230,35 @@ export class WaveFunction {
             }
             console.warn(`Total radial probability is not 1. Please update max_seed to ${total_prob}.`);
         }
-        psi.psi = (vec, time = 0) => {
-            const { r, theta, phi } = vec.toSphere();
+        psi.psi = (pos, time = 0) => {
+            const { r, theta, phi } = pos.toSphere();
             return _radial(r).mult(_angular(theta, phi)).mult(_temporal(time));
         }
         psi.sample = (counts = 1, time = 0) => {
-            const radial = _sampleRadial(counts);
-            const angular = _sampleAngular(counts);
+            const radial = _sampleRadial(counts),
+                angular = _sampleAngular(counts);
             return radial.map((r, i) => Vector.fromSphere(r, angular[i].theta, angular[i].phi));
+        }
+        psi._der = (pos, time = 0) => {
+            const { r, theta, phi } = pos.toSphere(),
+                d_dr = _radial_der(r).mult(_angular(theta, phi)).mult(_temporal(time)),
+                d_dtheta = _radial(r).mult(_angular_der_theta(theta, phi)).mult(_temporal(time)),
+                d_dphi = _radial(r).mult(_angular_der_phi(theta, phi)).mult(_temporal(time)),
+                d_dx = Complex.add(
+                    Complex.mult(+ Math.sin(theta) * Math.cos(phi), d_dr),
+                    Complex.mult(+ Math.cos(theta) * Math.cos(phi) / r, d_dtheta),
+                    Complex.mult(- Math.sin(phi) / (r * Math.sin(theta)), d_dphi),
+                ),
+                d_dy = Complex.add(
+                    Complex.mult(+ Math.sin(theta) * Math.sin(phi), d_dr),
+                    Complex.mult(+ Math.cos(theta) * Math.sin(phi) / r, d_dtheta),
+                    Complex.mult(+ Math.cos(phi) / (r * Math.sin(theta)), d_dphi),
+                ),
+                d_dz = Complex.add(
+                    Complex.mult(+ Math.cos(theta), d_dr),
+                    Complex.mult(- Math.sin(theta) / r, d_dtheta),
+                );
+            return [d_dx, d_dy, d_dz];
         }
         return psi;
     }

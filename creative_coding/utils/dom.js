@@ -12,3 +12,5 @@ export function getParentSize(parent, canvas) {
     if (canvas) canvas.hidden = false;
     return { width, height }
 }
+
+export const maxWorkers = window.navigator.hardwareConcurrency ? Math.floor(window.navigator.hardwareConcurrency / 3) : 1;

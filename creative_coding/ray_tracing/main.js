@@ -1,3 +1,4 @@
+import { maxWorkers } from "../utils/dom.js";
 import { createAndLinkProgram, createShader } from "../utils/webgl.js";
 const VERTEX_SHADER = await fetch(import.meta.resolve("./shader.vert")).then(r => r.text());
 const FRAGMENT_SHADER_R = await fetch(import.meta.resolve("./shader.frag")).then(r => r.text());
@@ -98,7 +99,6 @@ export default function execute() {
                 requestAnimationFrame(draw);
             } else {
                 const ctx = canvas.getContext("2d", { alpha: false });
-                const maxWorkers = window.navigator.hardwareConcurrency || 4;
                 const aspect = size[1] / size[0];
                 const subdivide = [
                     Math.floor(Math.sqrt(maxWorkers / aspect)),

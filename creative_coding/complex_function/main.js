@@ -1,4 +1,4 @@
-import { getParentSize } from "../utils/dom.js";
+import { getParentSize, maxWorkers } from "../utils/dom.js";
 
 export default function execute() {
     let parent = null;
@@ -28,7 +28,6 @@ export default function execute() {
             if (e.data.done) worker?.terminate();
         }
         workers?.forEach(worker => worker.terminate());
-        const maxWorkers = window.navigator.hardwareConcurrency || 4;
         const aspect = height / width;
         const subdivide = [
             Math.floor(Math.sqrt(maxWorkers / aspect)),

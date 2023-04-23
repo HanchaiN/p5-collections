@@ -1,26 +1,22 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { getParentSize } from "../utils/dom.js";
+import { getParentSize, maxWorkers } from "../utils/dom.js";
+import { constrain } from "../utils/math.js";
 export default function execute() {
     let camera, scene, renderer, controls, electron_mesh, clock;
     let ended = true;
     let parent = null;
     let canvas = null;
     let resizeObserver = null;
-    let worker;
+    let workers = null;
 
-    const counts = 8192;
+    const counts = 16384;
 
     function init(node) {
         ended = false;
         const superposition = [
             { coeff: { re: 1 }, quantum_number: { n: 3, l: 1, m: +1 } },
         ];
-        worker?.postMessage?.({
-            superposition,
-            resetState: true,
-            time_scale: 1e4,
-        });
         const n_max = superposition.reduce(
             (n_max, { quantum_number: { n } }) => Math.max(n_max, n),
             0
@@ -85,21 +81,32 @@ export default function execute() {
         }
         const axesHelper = new THREE.AxesHelper(5);
         scene.add(axesHelper);
-        worker.addEventListener("message", function listener(e) {
-            if (ended) return;
-            worker.postMessage({
-                time: clock.getElapsedTime(),
-                addStates: e.data.states.length < counts ? Math.min(counts - e.data.states.length, 500) : 0,
+
+        workers = new Array(maxWorkers).fill(null).map(_ => new Worker(import.meta.resolve("./worker.js"), { type: "module" }));
+        workers.forEach((worker, i) => {
+            const index = i * Math.floor(counts / maxWorkers) + Math.min(i, counts % maxWorkers),
+                target_counts = Math.floor(counts / maxWorkers) + (i < counts % maxWorkers);
+            worker.postMessage?.({
+                superposition,
+                resetState: true,
+                time_scale: 1e4,
             });
-            e.data.states.forEach(({ x, y, z, c }, index) => {
-                const matrix = new THREE.Matrix4();
-                matrix.setPosition(x, y, z);
-                electron_mesh.setMatrixAt(index, matrix);
-                electron_mesh.setColorAt(index, new THREE.Color(c));
+            worker.addEventListener("message", function listener(e) {
+                if (ended) return;
+                worker.postMessage({
+                    time: clock.getElapsedTime(),
+                    addStates: constrain(target_counts - e.data.states.length, 0, 50),
+                });
+                e.data.states.forEach(({ x, y, z, c }, i) => {
+                    const matrix = new THREE.Matrix4();
+                    matrix.setPosition(x, y, z);
+                    electron_mesh.setMatrixAt(index + i, matrix);
+                    electron_mesh.setColorAt(index + i, new THREE.Color(c));
+                });
+                electron_mesh.instanceMatrix.needsUpdate = true;
+                electron_mesh.instanceColor.needsUpdate = true;
             });
-            electron_mesh.instanceMatrix.needsUpdate = true;
-            electron_mesh.instanceColor.needsUpdate = true;
-        })
+        });
     }
     function animate() {
         if (ended) return;
@@ -117,7 +124,6 @@ export default function execute() {
     return {
         start: (node) => {
             parent = node;
-            worker = new Worker(import.meta.resolve("./worker.js"), { type: "module" });
             init(node);
             animate();
         },
@@ -125,7 +131,8 @@ export default function execute() {
             dispose();
             canvas?.remove();
             resizeObserver?.disconnect();
-            worker = parent = canvas = resizeObserver = null;
+            workers?.forEach(worker => worker.terminate());
+            workers = parent = canvas = resizeObserver = null;
         },
     }
 }
