@@ -49,7 +49,7 @@ self.addEventListener("message", function (e) {
         x: state.state[0].x,
         y: state.state[0].y,
         z: state.state[0].z,
-        c: getColor(state.state[0], pretime)
+        c: getColor(state.state[0], pretime * time_scale)
     }));
     this.postMessage(response);
 });
