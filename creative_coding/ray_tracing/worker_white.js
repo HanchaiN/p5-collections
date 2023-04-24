@@ -1,6 +1,6 @@
 import { Light } from "./colors.js";
 import { Ray, trace } from "./ray.js";
-import { SCENE_REF, CAMERA_POSITION, WHITE_DIRECTION, REF_DIRECTION } from "./scene.js";
+import { CAMERA_POSITION, REF_DIRECTION, SCENE_REF, WHITE_DIRECTION } from "./scene.js";
 let white = Light.black, bright = Light.black, iter = 0;
 const white_ray = new Ray(CAMERA_POSITION, WHITE_DIRECTION);
 const ref_ray = new Ray(CAMERA_POSITION, REF_DIRECTION);

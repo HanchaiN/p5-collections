@@ -1,6 +1,6 @@
 import * as d3 from "../utils/color.js";
 import { getParentSize } from "../utils/dom.js";
-import { Vector, map, constrain, lerp, fract, pow } from "../utils/math.js";
+import { Vector, constrain, fract, lerp, map, pow } from "../utils/math.js";
 export default function execute() {
     let parent = null;
     let canvas = null;

@@ -1,7 +1,7 @@
-import { Dye, Light } from "./colors.js";
-import { Object, quad } from "./object.js";
-import { lambertianBRDF, Material, phongEmitter } from "./material.js";
 import { Vector } from "../utils/math.js";
+import { Dye, Light } from "./colors.js";
+import { Material, lambertianBRDF, phongEmitter } from "./material.js";
+import { Object, quad } from "./object.js";
 
 // https://www.graphics.cornell.edu/online/box/
 const W = new Material(lambertianBRDF(new Dye(0.747, 0.740, 0.737)));

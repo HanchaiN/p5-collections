@@ -1,5 +1,5 @@
-import { Dye } from "./colors.js";
 import { pow, Vector } from "../utils/math.js";
+import { Dye } from "./colors.js";
 
 export function lambertianEmitter(color) {
     return (toViewer, norm) => color.clone();

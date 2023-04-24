@@ -1,6 +1,6 @@
 import "p5";
-import { TuringMachine } from "./turing.js";
 import { getParentSize } from "../utils/dom.js";
+import { TuringMachine } from "./turing.js";
 export default function execute() {
   let parent = null;
   let canvas = null;

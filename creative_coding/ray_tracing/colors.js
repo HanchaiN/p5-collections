@@ -1,4 +1,4 @@
-import { MIN_LUM, MAX_LUM } from "./const.js";
+import { MAX_LUM, MIN_LUM } from "./const.js";
 
 const CHANNELS = 3;
 

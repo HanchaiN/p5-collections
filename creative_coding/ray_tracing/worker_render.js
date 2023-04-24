@@ -1,8 +1,8 @@
-import { Light } from "./colors.js";
-import { Ray, trace } from "./ray.js";
 import { Vector } from "../utils/math.js";
-import { SCENE, FRAME_SIZE, FOCAL_LENGTH, CAMERA_POSITION } from "./scene.js";
+import { Light } from "./colors.js";
 import { postProcessorGen, reinhard_jodie_lum_ext as tonemaper } from "./postprocessor.js";
+import { Ray, trace } from "./ray.js";
+import { CAMERA_POSITION, FOCAL_LENGTH, FRAME_SIZE, SCENE } from "./scene.js";
 const postProcessorGen_ = postProcessorGen(
     tonemaper
 );
@@ -51,6 +51,7 @@ self.addEventListener("message", function (e) {
                 buffer[j * (size.w * 4) + i * 4 + 1] = g * 255;
                 buffer[j * (size.w * 4) + i * 4 + 2] = b * 255;
             }
+            this.postMessage({ buffer, size });
         }
     }
     this.postMessage({ buffer, size });

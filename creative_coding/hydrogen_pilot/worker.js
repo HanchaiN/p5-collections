@@ -1,7 +1,7 @@
-import { Complex, constrainMap } from "../utils/math.js";
-import * as d3 from "../utils/color.js";
-import { WaveFunction } from "./psi.js";
 import { State } from "../dynamical_system/dynamic.js";
+import * as d3 from "../utils/color.js";
+import { Complex, constrainMap } from "../utils/math.js";
+import { WaveFunction } from "./psi.js";
 
 let psi;
 let states = [];

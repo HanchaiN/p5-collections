@@ -1,10 +1,11 @@
-import { lim } from "./boid.js";
 import { getParentSize } from "../utils/dom.js";
+import { lim } from "./boid.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
     let resizeObserver = null;
     let worker = null;
+    let isActive = false;
 
     function parentResized() {
         if (!canvas) return;
@@ -16,6 +17,29 @@ export default function execute() {
         worker?.postMessage({ width, height });
     }
 
+    async function draw(time) {
+        if (!isActive) return;
+        const result = await new Promise(resolve => {
+            worker.postMessage({ time });
+            function listener(e) {
+                if (!e.data.boid) return;
+                resolve(e.data.boid);
+                worker.removeEventListener("message", listener);
+            }
+            worker.addEventListener("message", listener);
+        });
+        const ctx = canvas.getContext("2d", { alpha: false });
+        ctx.lineWidth = 0; ctx.fillStyle = "#0002"
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        result.forEach(({ c, p }) => {
+            ctx.fillStyle = c;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, lim.size, 0, 2 * Math.PI);
+            ctx.fill();
+        });
+        requestAnimationFrame(draw);
+    }
+
     return {
         start: (node) => {
             parent = node;
@@ -24,25 +48,11 @@ export default function execute() {
             resizeObserver = new ResizeObserver(parentResized).observe(parent);
             worker = new Worker(import.meta.resolve("./worker.js"), { type: "module" });
             worker.postMessage({ count: 250 });
-            function draw(time) {
-                worker.postMessage({ time });
-            }
-            worker.addEventListener("message", (e) => {
-                if (!e.data.boid) return;
-                requestAnimationFrame(draw);
-                const ctx = canvas.getContext("2d", { alpha: false });
-                ctx.lineWidth = 0; ctx.fillStyle = "#0002"
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                e.data.boid.forEach(({ c, p }) => {
-                    ctx.fillStyle = c;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, lim.size, 0, 2 * Math.PI);
-                    ctx.fill();
-                });
-            });
+            isActive = true;
             requestAnimationFrame(draw);
         },
         stop: () => {
+            isActive = false;
             canvas?.remove();
             resizeObserver?.disconnect();
             worker?.terminate();

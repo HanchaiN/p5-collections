@@ -10,24 +10,30 @@ export function loadWebComponent(id) {
     customElements.define(id, element);
 }
 export function importHtml(elem) {
-    const url = elem.getAttribute("import-html");
-    const xhttp = new XMLHttpRequest();
-    const loaded = new Event("htmlLoaded");
-    xhttp.open("GET", url, false);
-    xhttp.send();
-    if (xhttp.readyState === 4) {
-        switch (xhttp.status) {
-            case 200:
-                elem.innerHTML += xhttp.responseText;
-                break;
-            case 404:
-                elem.innerHTML = "Not Found";
-                break;
-        }
-        elem.removeAttribute("import-html");
-        elem.dispatchEvent(loaded);
-    }
+    return new Promise(resolve => {
+        const url = elem.getAttribute("import-html");
+        const xhttp = new XMLHttpRequest();
+        const loaded = new Event("htmlLoaded");
+        xhttp.open("GET", url, true);
+        xhttp.send();
+        xhttp.addEventListener("readystatechange", function () {
+            if (this.readyState === this.DONE) {
+                switch (this.status) {
+                    case 200:
+                        elem.innerHTML += this.responseText;
+                        break;
+                    case 404:
+                        elem.innerHTML = "Not Found";
+                        break;
+                }
+                elem.removeAttribute("import-html");
+                elem.dispatchEvent(loaded);
+                resolve(this.status);
+            }
+        });
+    })
 }
-export function importHtmlAll() {
-    document.querySelectorAll("*[import-html]").forEach(importHtml);
+export async function loadAll(...webcomponent_id) {
+    await Promise.all(Array.from(document.querySelectorAll("*[import-html]")).map(importHtml));
+    webcomponent_id.forEach(loadWebComponent);
 }

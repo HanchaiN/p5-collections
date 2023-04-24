@@ -1,6 +1,6 @@
 import "p5";
-import { BrainfuckEngine } from "./bf.js";
 import { getParentSize } from "../utils/dom.js";
+import { BrainfuckEngine } from "./bf.js";
 export default function execute() {
     let parent = null;
     let canvas = null;

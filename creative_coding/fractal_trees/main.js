@@ -1,7 +1,7 @@
 import "p5";
-import { Branch } from "./branch.js";
-import { constrain, Vector } from "../utils/math.js";
 import { getParentSize } from "../utils/dom.js";
+import { constrain, Vector } from "../utils/math.js";
+import { Branch } from "./branch.js";
 export default function execute() {
   let parent = null, wrapper = null;
   let canvas = null;

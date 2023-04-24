@@ -4,7 +4,7 @@
         const defaultTitle = document.title;
         function clearDisplay() {
             loaded.forEach(({ preview, executable }) => {
-                preview.remove();
+                preview?.remove();
                 executable?.stop();
             });
             loaded = [];
@@ -16,12 +16,15 @@
             document.title = defaultTitle ?? "index";
             document.body.querySelector("main").style.display = "block";
         }
-        async function loadDisplay({ title, loader }) {
+        async function loadDisplay(path) {
             clearDisplay();
+            const route = _reroute.routes.get(path);
+            if (typeof route === "undefined") return;
+            const { title, loader } = route;
             document.body.querySelector("main").style.display = "none";
             document.title = defaultTitle ? `${title} - ${defaultTitle}` : title;
             const preview = document.createElement("project-preview");
-            preview.id = id;
+            preview.id = path;
             document.body.appendChild(preview);
             const header = preview.appendChild(document.createElement("div"));
             header.setAttribute("slot", "title");
@@ -45,9 +48,7 @@
         function _reroute() {
             const hash = window.location.hash.replace(/^#/, "");
             const path = ((hash) => _reroute.routes.has(hash) ? hash : "404")(hash === "" ? "#" : hash);
-            const route = _reroute.routes.get(path);
-            if (route) loadDisplay(route);
-            else clearDisplay();
+            loadDisplay(path);
         }
         _reroute.routes = new Map();
         return _reroute;
@@ -60,14 +61,8 @@
         e.preventDefault();
         reroute();
     });
-    async function addScript(src) {
-        const module = await import(src);
-        return module.default;
-    }
     window.addEventListener("DOMContentLoaded", async (e) => {
-        (await import("/static/js/utils.js")).importHtmlAll();
-        const loadWebComponent = (await import("/static/js/utils.js")).loadWebComponent;
-        loadWebComponent("project-preview");
+        await (await import("/static/js/utils.js")).loadAll("project-preview");
 
         document.querySelector("nav .submenu_toggle#creative_coding~.scroll>ul")
             .querySelectorAll(":scope>li>a")
@@ -76,13 +71,9 @@
                 const id = path.split("#").slice(-1)[0];
                 item_link.setAttribute("href", `#${id}`);
                 const title = item_link.innerText;
-                item_link.addEventListener("click", (e) => {
-                    document.querySelector("nav input#menu_toggle").checked = false;
-                    reroute();
-                });
                 reroute.routes.set(id, {
                     title,
-                    loader: () => addScript(import.meta.resolve(`../../${id}/main.js`)),
+                    loader: async () => (await import(import.meta.resolve(`../../${id}/main.js`))).default,
                 });
             });
         reroute();

@@ -1,5 +1,5 @@
-import { Vector, randomGaussian, map } from "../utils/math.js";
 import { PriorityQueue, minimum_spanning_tree } from "../utils/algo.js";
+import { Vector, map, randomGaussian } from "../utils/math.js";
 
 function delaunay_triangulation(nodes, supertriangle) {
     const edges = [];

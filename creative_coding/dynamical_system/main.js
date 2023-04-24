@@ -1,12 +1,13 @@
 
+import * as d3 from "../utils/color.js";
 import { getParentSize, maxWorkers } from "../utils/dom.js";
 import { Vector, constrainMap } from "../utils/math.js";
-import * as d3 from "../utils/color.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
     let resizeObserver = null;
     let workers = null;
+    let isActive = false;
     const param = {
         rho: 28,
         sigma: 10,
@@ -21,6 +22,48 @@ export default function execute() {
         const ctx = canvas.getContext("2d", { alpha: false });
         ctx.lineWidth = 0; ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    async function draw(time) {
+        if (!isActive) return;
+        const aspect = canvas.width / canvas.height;
+        const center = new Vector(0, 0, param.rho - 1),
+            limit = new Vector(
+                3 * Math.sqrt(param.beta * (param.rho - 1)),
+                3 * Math.sqrt(param.beta * (param.rho - 1)),
+                3 * Math.sqrt(param.beta * (param.rho - 1)),
+            );
+        function project(x, y, z) {
+            const p = v => new Vector(v.x, v.y);
+            const pos = p(new Vector(x, y, z).sub(center));
+            const lim = p(limit);
+            return new Vector(
+                constrainMap(pos.x, -Math.max(lim.x, lim.y * aspect), +Math.max(lim.x, lim.y * aspect), 0, canvas.width),
+                constrainMap(pos.y, +Math.max(lim.y, lim.x / aspect), -Math.max(lim.y, lim.x / aspect), 0, canvas.height),
+            );
+        }
+        const result = await Promise.all(workers.map(worker => new Promise(resolve => {
+            worker.postMessage({ time });
+            function listener(e) {
+                resolve({ subdivide: e.data.subdivide, states: e.data.states });
+                worker.removeEventListener("message", listener);
+            }
+            worker.addEventListener("message", listener);
+        })));
+        const r = 1;
+        const ctx = canvas.getContext("2d", { alpha: false });
+        ctx.lineWidth = 0; ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        result.forEach(({ states }) => {
+            states.forEach(({ state, color }) => {
+                const pos = project(...state);
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, r, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        });
+        requestAnimationFrame(draw);
     }
 
     return {
@@ -54,50 +97,11 @@ export default function execute() {
             const ctx = canvas.getContext("2d", { alpha: false });
             ctx.lineWidth = 0; ctx.fillStyle = "#000";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            function draw(time) {
-                const aspect = canvas.width / canvas.height;
-                const center = new Vector(0, 0, param.rho - 1),
-                    limit = new Vector(
-                        3 * Math.sqrt(param.beta * (param.rho - 1)),
-                        3 * Math.sqrt(param.beta * (param.rho - 1)),
-                        3 * Math.sqrt(param.beta * (param.rho - 1)),
-                    );
-                function project(x, y, z) {
-                    const p = v => new Vector(v.x, v.y);
-                    const pos = p(new Vector(x, y, z).sub(center));
-                    const lim = p(limit);
-                    return new Vector(
-                        constrainMap(pos.x, -Math.max(lim.x, lim.y * aspect), +Math.max(lim.x, lim.y * aspect), 0, canvas.width),
-                        constrainMap(pos.y, +Math.max(lim.y, lim.x / aspect), -Math.max(lim.y, lim.x / aspect), 0, canvas.height),
-                    );
-                }
-                Promise.all(workers.map(worker => new Promise(resolve => {
-                    worker.postMessage({ time });
-                    function listener(e) {
-                        resolve({ subdivide: e.data.subdivide, states: e.data.states });
-                        worker.removeEventListener("message", listener);
-                    }
-                    worker.addEventListener("message", listener);
-                }))).then(_ => {
-                    const r = 1;
-                    ctx.lineWidth = 0; ctx.fillStyle = "#000";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    _.forEach(({ states }) => {
-                        states.forEach(({ state, color }) => {
-                            const pos = project(...state);
-                            ctx.fillStyle = color;
-                            ctx.beginPath();
-                            ctx.arc(pos.x, pos.y, r, 0, 2 * Math.PI);
-                            ctx.fill();
-                        });
-                    });
-                    requestAnimationFrame(draw);
-                });
-            }
+            isActive = true;
             requestAnimationFrame(draw);
         },
         stop: () => {
+            isActive = false;
             canvas?.remove();
             resizeObserver?.disconnect();
             workers?.forEach(worker => worker.terminate());

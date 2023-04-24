@@ -1,6 +1,6 @@
 import { Vector } from "../utils/math.js";
 import { Light } from "./colors.js";
-import { MAX_DEPTH, MIN_DIST, MAX_DIST } from "./const.js";
+import { MAX_DEPTH, MAX_DIST, MIN_DIST } from "./const.js";
 
 export class Ray {
     constructor(pos, dir) {

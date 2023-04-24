@@ -1,3 +1,5 @@
+export const supportWebGL = document.createElement("canvas").getContext("webgl") ? true : false;
+
 export function createAndLinkProgram(gl, vertex_shader, fragment_shader) {
     const prog = gl.createProgram();
     gl.attachShader(prog, vertex_shader);

@@ -1,8 +1,8 @@
 import "p5";
-import { Draggable } from "./draggable.js";
-import { Gyrovector } from "./gyrovector.js";
 import { getParentSize } from "../utils/dom.js";
 import { Complex } from "../utils/math.js";
+import { Draggable } from "./draggable.js";
+import { Gyrovector } from "./gyrovector.js";
 export default function execute() {
     let parent = null;
     let canvas = null;

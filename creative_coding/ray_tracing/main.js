@@ -1,5 +1,5 @@
 import { maxWorkers } from "../utils/dom.js";
-import { createAndLinkProgram, createShader } from "../utils/webgl.js";
+import { createAndLinkProgram, createShader, supportWebGL } from "../utils/webgl.js";
 const VERTEX_SHADER = await fetch(import.meta.resolve("./shader.vert")).then(r => r.text());
 const FRAGMENT_SHADER_R = await fetch(import.meta.resolve("./shader.frag")).then(r => r.text());
 const FRAGMENT_SHADER_P = await fetch(import.meta.resolve("./postprocessing.frag")).then(r => r.text());
@@ -12,11 +12,11 @@ export default function execute() {
         white: { r: 1, g: 1, b: 1 },
         bright: { r: 1, g: 1, b: 1 },
     };
-    let isAnimating = false;
+    let isActive = false;
 
     return {
         start: (node) => {
-            isAnimating = true;
+            isActive = true;
             parent = node;
             canvas = document.createElement("canvas");
             canvas.width = size[0];
@@ -33,7 +33,7 @@ export default function execute() {
                 color.bright = e.data.bright;
             });
             workers.push(white_calc)
-            if (document.createElement("canvas").getContext("webgl")) {
+            if (supportWebGL) {
                 const gl = canvas.getContext("webgl");
                 gl.getExtension("OES_texture_float");
 
@@ -73,7 +73,7 @@ export default function execute() {
                 });
                 let iter = 0;
                 function draw() {
-                    if (!isAnimating) return;
+                    if (!isActive) return;
                     gl.clearColor(1.0, 1.0, 1.0, 1.0);
                     gl.clear(gl.COLOR_BUFFER_BIT);
                     gl.useProgram(renderer);
@@ -109,7 +109,7 @@ export default function execute() {
                 );
                 workers.forEach(worker => {
                     worker.addEventListener("message", function draw(e) {
-                        if (isAnimating)
+                        if (isActive)
                             worker.postMessage({
                                 render: true,
                                 color,
@@ -123,7 +123,7 @@ export default function execute() {
                     for (let j = 0; j < subdivide[1]; j++) {
                         const worker = new Worker(import.meta.resolve("./worker_render.js"), { type: "module" });
                         worker.addEventListener("message", function draw(e) {
-                            if (isAnimating)
+                            if (isActive)
                                 worker.postMessage({
                                     render: true,
                                     color,
@@ -151,7 +151,7 @@ export default function execute() {
             workers.forEach(worker => {
                 worker.terminate();
             });
-            isAnimating = false;
+            isActive = false;
             workers = [];
             parent = canvas = null;
         },

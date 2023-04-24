@@ -1,5 +1,5 @@
 import { getParentSize } from "../utils/dom.js";
-import { createAndLinkProgram, createShader } from "../utils/webgl.js";
+import { createAndLinkProgram, createShader, supportWebGL } from "../utils/webgl.js";
 const VERTEX_SHADER = await fetch(import.meta.resolve("./shader.vert")).then(r => r.text());
 const FRAGMENT_SHADER_P = await fetch(import.meta.resolve("./shader.frag")).then(r => r.text());
 const FRAGMENT_SHADER_R = await fetch(import.meta.resolve("./render.frag")).then(r => r.text());
@@ -8,19 +8,19 @@ export default function execute() {
     let canvas = null;
     let resizeObserver = null;
     let worker;
-    let isAnimating = false;
+    let isActive = false;
 
     return {
         start: (node) => {
             parent = node;
-            isAnimating = true;
+            isActive = true;
 
             const { width, height } = getParentSize(parent, canvas);
             canvas = document.createElement("canvas");
             canvas.width = width;
             canvas.height = height;
             parent.appendChild(canvas);
-            if (document.createElement("canvas").getContext("webgl")) {
+            if (supportWebGL) {
                 const gl = canvas.getContext("webgl");
                 gl.getExtension("OES_texture_float");
 
@@ -75,7 +75,7 @@ export default function execute() {
                 });
                 let iter = 0;
                 function draw() {
-                    if (!isAnimating) return;
+                    if (!isActive) return;
                     gl.clearColor(1.0, 1.0, 1.0, 1.0);
                     gl.clear(gl.COLOR_BUFFER_BIT);
                     const subdiv = 50;
@@ -107,7 +107,7 @@ export default function execute() {
                 const ctx = canvas.getContext("2d");
                 worker = new Worker(import.meta.resolve("./worker.js"), { type: "module" });
                 function draw() {
-                    if (!isAnimating) return;
+                    if (!isActive) return;
                     worker?.postMessage?.({ dt: 1 });
                 }
                 worker.addEventListener("message", (e) => {
@@ -124,7 +124,7 @@ export default function execute() {
             canvas?.remove();
             resizeObserver?.disconnect();
             worker?.terminate();
-            isAnimating = false;
+            isActive = false;
             parent = canvas = resizeObserver = null;
         },
     };

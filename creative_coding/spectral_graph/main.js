@@ -1,6 +1,6 @@
 import "p5";
-import { Graph } from "./graph.js";
 import { getParentSize } from "../utils/dom.js";
+import { Graph } from "./graph.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
