@@ -5,7 +5,7 @@
         function clearDisplay() {
             loaded.forEach(({ preview, executable }) => {
                 preview.remove();
-                executable.stop();
+                executable?.stop();
             });
             loaded = [];
             document.querySelectorAll("project-preview").forEach((preview) => {
@@ -16,22 +16,31 @@
             document.title = defaultTitle ?? "index";
             document.body.querySelector("main").style.display = "block";
         }
-        function loadDisplay({ title, preview, loader }) {
+        async function loadDisplay({ title, loader }) {
             clearDisplay();
             document.body.querySelector("main").style.display = "none";
             document.title = defaultTitle ? `${title} - ${defaultTitle}` : title;
+            const preview = document.createElement("project-preview");
+            preview.id = id;
             document.body.appendChild(preview);
-            const canvas = preview.querySelector("[slot=content]");
+            const header = preview.appendChild(document.createElement("div"));
+            header.setAttribute("slot", "title");
+            header.appendChild(document.createTextNode(title));
+            const canvas = preview.appendChild(document.createElement("div"));
+            canvas.setAttribute("slot", "content");
             const loading = canvas.appendChild(document.createTextNode("Loading"));
-            loader().then((execute) => {
+            let executable = null;
+            try {
+                const execute = await loader();
                 canvas.removeChild(loading);
-                const executable = execute();
-                loaded.push({ executable, preview });
+                executable = execute();
                 executable.start(canvas);
-            }).catch((reason) => {
+            } catch (error) {
                 loading.replaceWith("Failed to load");
-                console.warn(reason);
-            });
+                console.warn(error);
+            } finally {
+                loaded.push({ executable, preview });
+            }
         }
         function _reroute() {
             const hash = window.location.hash.replace(/^#/, "");
@@ -68,23 +77,12 @@
                 item_link.setAttribute("href", `#${id}`);
                 const title = item_link.innerText;
                 item_link.addEventListener("click", (e) => {
-                    e.preventDefault();
                     document.querySelector("nav input#menu_toggle").checked = false;
-                    window.history.pushState({}, "", path);
                     reroute();
                 });
-                const preview = document.createElement("project-preview");
-                preview.id = id;
-                const header = preview.appendChild(document.createElement("div"));
-                header.setAttribute("slot", "title");
-                header.appendChild(document.createTextNode(title));
-                const canvas = preview.appendChild(document.createElement("div"));
-                canvas.setAttribute("slot", "content");
-                let loader;
-                const src = import.meta.resolve(`../../${id}/main.js`);
-                loader = () => addScript(src);
                 reroute.routes.set(id, {
-                    title, preview, loader,
+                    title,
+                    loader: () => addScript(import.meta.resolve(`../../${id}/main.js`)),
                 });
             });
         reroute();
