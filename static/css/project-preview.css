@@ -1,0 +1,27 @@
+body {
+    overflow: hidden;
+}
+
+article {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+article>h1 {
+    margin: 0;
+    flex: 0;
+    display: none;
+
+}
+
+article>main {
+    flex: 1;
+    overflow: hidden;
+}
+
+article>main>* {
+    height: 100%;
+    overflow: hidden;
+}

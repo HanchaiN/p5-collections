@@ -5,19 +5,37 @@
   <title>HanchaiN</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" type="text/css" href="/static/css/global.css" />
-  <script src="/static/js/main.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+  <script type="importmap">
+  {
+      "imports": {
+      "math": "https://unpkg.com/mathjs@11.6.0/lib/esm/index.js", // Issue
+      "p5": "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js",
+      "p5/sound": "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js",
+      "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+      }
+  }
+  </script>
+  <script type="module" src="/static/js/main.js"></script>
 </head>
 
 <body>
-  <nav import-html="/static/components/nav.wc">
-    <link rel="stylesheet" type="text/css" href="/static/components/nav.css" />
-    <script src="/static/components/nav.js"></script>
+  <nav class="navbar">
+    <input id="menu_toggle" class="menu_toggle" type="checkbox" />
+    <label for="menu_toggle">
+      <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
+        <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
+      </svg>
+      <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
+        <path
+          d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z">
+        </path>
+      </svg>
+    </label>
+    <div class="menu"></div>
   </nav>
-  <main>
-    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Omnis ullam sit quae et esse nam officiis asperiores
-    natus, est hic inventore harum velit eum labore provident. Perferendis error obcaecati architecto?
-  </main>
+  <main class="main"></main>
 </body>
 
 </html>
