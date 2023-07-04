@@ -1,26 +1,24 @@
 
 import * as d3 from "../utils/color.js";
-import { getParentSize, maxWorkers } from "../utils/dom.js";
+import { getColor, maxWorkers } from "../utils/dom.js";
 import { Vector, constrainMap } from "../utils/math.js";
 export default function execute() {
-    let parent = null;
     let canvas = null;
-    let resizeObserver = null;
     let workers = null;
     let isActive = false;
+    let background = null;
     const param = {
         rho: 28,
         sigma: 10,
         beta: 8 / 3,
     };
 
-    function parentResized() {
+    function setup() {
         if (!canvas) return;
-        const { width, height } = getParentSize(parent, canvas);
-        canvas.width = width;
-        canvas.height = height;
+        background = getColor('--color-surface-container-3', "#000");
         const ctx = canvas.getContext("2d", { alpha: false });
-        ctx.lineWidth = 0; ctx.fillStyle = "#000";
+        ctx.lineWidth = 0;
+        ctx.fillStyle = background.formatHex8();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -52,7 +50,8 @@ export default function execute() {
         })));
         const r = 1;
         const ctx = canvas.getContext("2d", { alpha: false });
-        ctx.lineWidth = 0; ctx.fillStyle = "#000";
+        ctx.lineWidth = 0;
+        ctx.fillStyle = background.formatHex8();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         result.forEach(({ states }) => {
             states.forEach(({ state, color }) => {
@@ -67,11 +66,9 @@ export default function execute() {
     }
 
     return {
-        start: (node = document.querySelector("main.sketch")) => {
-            parent = node;
-            canvas = document.createElement("canvas");
-            parent.appendChild(canvas);
-            resizeObserver = new ResizeObserver(parentResized).observe(parent);
+        start: (node = document.querySelector("article>canvas.sketch")) => {
+            canvas = node;
+            setup();
             const err = 1e-5;
             const count = 2048;
             workers = new Array(maxWorkers).fill(null).map(_ => new Worker(import.meta.resolve("./worker.js"), { type: "module" }));
@@ -86,7 +83,11 @@ export default function execute() {
                             20,
                         ]
                     ],
-                    color: d3.hcl(constrainMap(index + i, 0, count, 0, 360), 75, 75).formatHex8()
+                    color: d3.hcl(
+                        constrainMap(index + i, 0, count, 0, 360),
+                        75,
+                        Number.parseInt(getComputedStyle(document.body).getPropertyValue('--tone-base')),
+                    ).formatHex8(),
                 }));
                 worker.postMessage?.({
                     states,
@@ -103,9 +104,8 @@ export default function execute() {
         stop: () => {
             isActive = false;
             canvas?.remove();
-            resizeObserver?.disconnect();
             workers?.forEach(worker => worker.terminate());
-            workers = parent = canvas = resizeObserver = null;
+            workers = canvas = null;
         },
     };
 }

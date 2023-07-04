@@ -14,7 +14,7 @@ export default function execute() {
         const _viewrange = 50; //blocks
         let resolution = (min_resolution + max_resolution) / 2, viewrange = _viewrange;
         const sys = new BrainfuckEngine(
-            "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
+            "+[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<-.>>>>+."
         );
         let running = false;
 
@@ -91,19 +91,20 @@ export default function execute() {
             ram_filter.updatePixels();
         }
         function parentResized() {
+            let r = running;
             running = false;
             const { width, height } = getParentSize(parent, canvas);
             updateResolution();
             p.resizeCanvas(width, resolution * 15);
             ram_filter = p.createImage(6 * viewrange, 1);
             loadRamFilter();
-            running = true;
+            running = r;
+            p.redraw();
         }
         p.setup = function () {
             const { width, height } = getParentSize(parent, canvas);
             updateResolution();
             p.createCanvas(width, resolution * 15);
-            resizeObserver = new ResizeObserver(parentResized).observe(parent);
             ram = p.createImage((sys.ram.length + 2) * graphicsResolution, (sys.ram[0].length) * graphicsResolution);
             loadRam();
             ram_filter = p.createImage(6 * viewrange, 1);
@@ -112,6 +113,7 @@ export default function execute() {
             }
             running = true;
             output = p.createP('Output: ');
+            resizeObserver = new ResizeObserver(parentResized).observe(parent);
         }
 
         p.draw = function () {
@@ -167,8 +169,14 @@ export default function execute() {
             }
             if (running) {
                 const res = sys.eval(0);
-                if (res === "HALTED") p.noLoop();
-                if (res !== null) output.html().innerHTML += String.fromCharCode(res);
+                if (res === "HALTED") {
+                    p.noLoop();
+                    running = false;
+                }
+                if (res !== null)
+                {
+                    output.html(output.html() + String.fromCharCode(res));
+                }
             }
         }
     };

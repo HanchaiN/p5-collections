@@ -1,20 +1,20 @@
-import { getParentSize } from "../utils/dom.js";
+import { getColor } from "../utils/dom.js";
 import { lim } from "./boid.js";
 export default function execute() {
-    let parent = null;
     let canvas = null;
-    let resizeObserver = null;
     let worker = null;
+    let background = null;
     let isActive = false;
 
-    function parentResized() {
+    function setup() {
         if (!canvas) return;
-        const { width, height } = getParentSize(parent, canvas);
-        canvas.width = width; canvas.height = height;
+        background = getColor('--color-surface-container-3', "#000");
         const ctx = canvas.getContext("2d", { alpha: false });
-        ctx.lineWidth = 0; ctx.fillStyle = "#000";
+        ctx.lineWidth = 0;
+        ctx.fillStyle = background.formatHex8();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        worker?.postMessage({ width, height });
+        worker?.postMessage({ width: canvas.width, height: canvas.height });
+        background.opacity = .375;
     }
 
     async function draw(time) {
@@ -29,7 +29,8 @@ export default function execute() {
             worker.addEventListener("message", listener);
         });
         const ctx = canvas.getContext("2d", { alpha: false });
-        ctx.lineWidth = 0; ctx.fillStyle = "#0002"
+        ctx.lineWidth = 0;
+        ctx.fillStyle = background.formatHex8();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         result.forEach(({ c, p }) => {
             ctx.fillStyle = c;
@@ -39,24 +40,21 @@ export default function execute() {
         });
         requestAnimationFrame(draw);
     }
-
+    
     return {
-        start: (node = document.querySelector("main.sketch")) => {
-            parent = node;
-            canvas = document.createElement("canvas");
-            parent.appendChild(canvas);
-            resizeObserver = new ResizeObserver(parentResized).observe(parent);
+        start: (node = document.querySelector("article>canvas.sketch")) => {
+            canvas = node;
             worker = new Worker(import.meta.resolve("./worker.js"), { type: "module" });
             worker.postMessage({ count: 250 });
+            setup();
             isActive = true;
             requestAnimationFrame(draw);
         },
         stop: () => {
             isActive = false;
             canvas?.remove();
-            resizeObserver?.disconnect();
             worker?.terminate();
-            worker = parent = canvas = resizeObserver = null;
+            background = worker = canvas = null;
         },
     };
 }

@@ -1,3 +1,5 @@
+import * as d3 from "./color.js";
+
 export function getParentSize(parent, canvas) {
     if (canvas) canvas.hidden = true;
     const rect = parent?.getBoundingClientRect();
@@ -11,6 +13,10 @@ export function getParentSize(parent, canvas) {
         || document.body.clientHeight);
     if (canvas) canvas.hidden = false;
     return { width, height }
+}
+
+export function getColor(name, fallback="#0000") {
+    return d3.color(getComputedStyle(document.body).getPropertyValue(name) || fallback);
 }
 
 export const maxWorkers = window.navigator.hardwareConcurrency ? Math.floor(window.navigator.hardwareConcurrency * 3 / 4) : 1;

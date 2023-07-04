@@ -1,8 +1,9 @@
-<link rel="stylesheet" type="text/css" href="/static/css/project-preview.css" />
 <article>
     <h1>
         Boids
     </h1>
-    <main class="sketch">
-    </main>
+    <canvas width=500 height=500 class="sketch"></canvas>
+    <p>
+        Boids is an artificial life program, developed by Craig Reynolds in 1986, which simulates the flocking behaviour of birds.
+    </p>
 </article>

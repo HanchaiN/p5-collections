@@ -63,14 +63,30 @@ export class BrainfuckEngine {
         return null;
     }
     lin() {
+        if (this.opt() === 0)
+        {
+            let count = 0;
+            do {
+                switch (this.prog[this.pptr]) {
+                    case "[":
+                        count++;
+                        break;
+                    case "]":
+                        count--;
+                        break;
+                    default:
+                }
+                this.pptr++;
+            } while (count > 0 && typeof this.prog[this.pptr] !== "undefined");
+            this.pptr--;
+            return ;
+        }
         this.stack.push(this.pptr);
         return null;
     }
     lot() {
         this.pptr = this.stack.pop();
-        if (this.opt() !== 0) {
-            this.lin();
-        }
+        this.lin();
         return null;
     }
 }

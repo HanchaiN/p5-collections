@@ -1,16 +1,11 @@
-import { getParentSize, maxWorkers } from "../utils/dom.js";
+import { maxWorkers } from "../utils/dom.js";
 
 export default function execute() {
-    let parent = null;
     let canvas = null;
-    let resizeObserver = null;
     let workers = null;
 
-    function parentResized() {
+    function setup() {
         if (!canvas) return;
-        const { width, height } = getParentSize(parent, canvas);
-        canvas.width = width;
-        canvas.height = height;
         draw(canvas.width, canvas.height);
     }
     function draw(width, height) {
@@ -54,17 +49,14 @@ export default function execute() {
     }
 
     return {
-        start: (node = document.querySelector("main.sketch")) => {
-            parent = node;
-            canvas = document.createElement("canvas");
-            parent.appendChild(canvas);
-            resizeObserver = new ResizeObserver(parentResized).observe(parent);
+        start: (node = document.querySelector("article>canvas.sketch")) => {
+            canvas = node;
+            setup();
         },
         stop: () => {
             canvas?.remove();
-            resizeObserver?.disconnect();
             workers?.forEach(worker => worker.terminate());
-            workers = parent = canvas = resizeObserver = null;
+            workers = canvas = null;
         },
     };
 }

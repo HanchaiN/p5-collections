@@ -1,2 +1,8 @@
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse ullam, ipsa temporibus maxime assumenda nostrum
-perspiciatis libero sed fugit dignissimos vero accusantium aspernatur hic tempore! Nam vitae earum optio voluptates.
+<article>
+    <h1>
+        Creative Coding
+    </h1>
+    <p>
+        Creative coding is a type of computer programming in which the goal is to create something expressive instead of something functional.
+    </p>
+</article>

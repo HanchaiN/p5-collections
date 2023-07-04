@@ -10,7 +10,7 @@ export default function execute() {
     const gen = 100;
     const bit = 64;
     const size = 5;
-    const looped = true;
+    const looped = false;
     let rule = 0;
     let ca = new CA(bit, gen, looped);
 

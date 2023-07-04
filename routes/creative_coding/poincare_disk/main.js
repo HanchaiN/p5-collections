@@ -1,5 +1,5 @@
 import "p5";
-import { getParentSize } from "../utils/dom.js";
+import { getColor, getParentSize } from "../utils/dom.js";
 import { Complex } from "../utils/math.js";
 import { Draggable } from "./draggable.js";
 import { Gyrovector } from "./gyrovector.js";
@@ -45,11 +45,11 @@ export default function execute() {
         p.draw = function () {
             p.clear();
             p.strokeWeight(1);
-            p.stroke(0);
-            p.noFill();
+            p.stroke(getColor('--color-outline').formatHex8());
+            p.fill(getColor('--color-surface-container-3').formatHex8());
             p.circle(Ox, Oy, 2 * r);
             p.strokeWeight(5);
-            p.stroke(0);
+            p.stroke(getColor('--color-outline').formatHex8());
             p.point(Ox, Oy);
 
             A.over();
@@ -66,14 +66,14 @@ export default function execute() {
             const a = new Gyrovector(Complex.fromCartesian(...calculateposition(A.x, A.y)));
             const b = new Gyrovector(Complex.fromCartesian(...calculateposition(B.x, B.y)));
             p.strokeWeight(2.5);
-            p.stroke(220, 0, 0);
+            p.stroke(getColor('--color-on-surface').formatHex8());
             p.line(Ox, Oy, A.x, A.y);
-            p.stroke(0, 0, 220);
+            p.stroke(getColor('--color-on-surface-var').formatHex8());
             p.line(Ox, Oy, B.x, B.y);
             {
                 // Draw line with point and vector
                 p.strokeWeight(3.75);
-                p.stroke(255, 100, 125);
+                p.stroke(getColor('--color-tertiary-container').formatHex8());
                 p.noFill();
                 const l = Gyrovector.geodesic(a, a.add(b));
                 switch (l[0]) {
@@ -87,12 +87,12 @@ export default function execute() {
                 let s = a.add(b);
                 s = canvasposition(s.z.re, s.z.im);
                 p.strokeWeight(7.5);
-                p.stroke(0, 155, 130);
+                p.stroke(getColor('--color-tertiary').formatHex8());
                 p.point(s[0], s[1]);
             }
             {
                 p.strokeWeight(3.75);
-                p.stroke(255, 255, 100);
+                p.stroke(getColor('--color-secondary').formatHex8());
                 p.noFill();
                 const l = Gyrovector.geodesic(a, b);
                 switch (l[0]) {

@@ -1,3 +1,5 @@
+import { getColor } from "../utils/dom.js";
+
 export class CA {
   set rule(rule) {
     this.ruleset = [];
@@ -64,14 +66,20 @@ export class CA {
   // This is the easy part, just draw the cells
   display(p, forward) {
     for (let i = 0; i < this.cells.length; i++) {
-      let j = 0;
-      if (this.cells[i] == 1)
-        j += 150;
-      else
-        j -= 150;
       if (!this.looped && (i < this.h || i > this.cells.length - this.h))
-        j *= 0.5;
-      p.fill(j + 100);
+      {
+        if (this.cells[i] == 1)
+          p.fill(getColor('--color-on-surface-var').formatHex8());
+        else
+          p.fill(getColor('--color-surface-container-2').formatHex8());
+      }
+      else
+      {
+        if (this.cells[i] == 1)
+          p.fill(getColor('--color-on-surface').formatHex8());
+        else
+          p.fill(getColor('--color-surface-container-3').formatHex8());
+      }
       p.noStroke();
       if (this.looped)
         p.rect(i * p.width / (this.w), this.generation * p.height / (this.h * forward), p.width / (this.w), p.height / (this.h * forward));

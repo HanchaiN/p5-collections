@@ -1,1 +1,7 @@
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias porro vitae, cum quaerat asperiores, sit quam voluptatum delectus temporibus illum suscipit minus magni praesentium ullam magnam dignissimos voluptate numquam accusantium?
+<style>
+    .center {
+        display: block;
+        margin: auto;
+    }
+</style>
+<img src="https://http.cat/404" alt="404 Not Found" class="center">

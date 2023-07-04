@@ -66,9 +66,11 @@ export function generateNav(navElem) {
         if (parent.value) {
             parent.a.href = "#" + route;
             parent.a.innerHTML = parent.value.name;
+            parent.a.addEventListener("click", (e) => {
+                document.getElementById("menu_toggle").checked = false;
+            });
         }
     }
-    console.log(root)
 
     const scrollable = parents
         .filter(parent => parent.parent)
@@ -95,7 +97,7 @@ export function generateNav(navElem) {
 
     parents.forEach(({ li, ul }) => {
         ul.querySelectorAll(":scope > li").forEach((li, i, siblings) => {
-            li.style.setProperty("--color", `lch(75 75 ${360 * i / siblings.length})`);
+            li.style.setProperty("--color", `lch(var(--tone-container) 50 ${360 * i / siblings.length})`);
             li.style.setProperty("--delay", `${0.5 * i / (siblings.length - 1)}s`);
         });
         (li.querySelector(":scope > .submenu") ?? ul).style.setProperty("--delay", `${0.5}s`);
