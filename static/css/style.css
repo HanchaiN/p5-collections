@@ -1,30 +1,34 @@
 :root {
 	--hue-primary: 30;
+	--chroma-primary: 75%;
 	--hue-secondary: 344;
+	--chroma-secondary: 75%;
 	--hue-tertiary: 162;
+	--chroma-tertiary: 75%;
 	--hue-error: 13;
+	--chroma-error: 100%;
 	--hue-neutral: 38;
+	--chroma-neutral: 25%;
 	--hue-neutral-var: 21;
+	--chroma-neutral-var: 12.5%;
 
-	--chroma: 50%;
-	--chroma-neutral: 37.5%;
 
-	--color-primary: hsl(var(--hue-primary), var(--chroma), var(--tone-base));
-	--color-on-primary: hsl(var(--hue-primary), var(--chroma), var(--tone-on-base));
-	--color-primary-container: hsl(var(--hue-primary), var(--chroma), var(--tone-container));
-	--color-on-primary-container: hsl(var(--hue-primary), var(--chroma), var(--tone-on-container));
-	--color-secondary: hsl(var(--hue-secondary), var(--chroma), var(--tone-base));
-	--color-on-secondary: hsl(var(--hue-secondary), var(--chroma), var(--tone-on-base));
-	--color-secondary-container: hsl(var(--hue-secondary), var(--chroma), var(--tone-container));
-	--color-on-secondary-container: hsl(var(--hue-secondary), var(--chroma), var(--tone-on-container));
-	--color-tertiary: hsl(var(--hue-tertiary), var(--chroma), var(--tone-base));
-	--color-on-tertiary: hsl(var(--hue-tertiary), var(--chroma), var(--tone-on-base));
-	--color-tertiary-container: hsl(var(--hue-tertiary), var(--chroma), var(--tone-container));
-	--color-on-tertiary-container: hsl(var(--hue-tertiary), var(--chroma), var(--tone-on-container));
-	--color-error: hsl(var(--hue-error), var(--chroma), var(--tone-base));
-	--color-on-error: hsl(var(--hue-error), var(--chroma), var(--tone-on-base));
-	--color-error-container: hsl(var(--hue-error), var(--chroma), var(--tone-container));
-	--color-on-error-container: hsl(var(--hue-error), var(--chroma), var(--tone-on-container));
+	--color-primary: hsl(var(--hue-primary), var(--chroma-primary), var(--tone-base));
+	--color-on-primary: hsl(var(--hue-primary), var(--chroma-primary), var(--tone-on-base));
+	--color-primary-container: hsl(var(--hue-primary), var(--chroma-primary), var(--tone-container));
+	--color-on-primary-container: hsl(var(--hue-primary), var(--chroma-primary), var(--tone-on-container));
+	--color-secondary: hsl(var(--hue-secondary), var(--chroma-secondary), var(--tone-base));
+	--color-on-secondary: hsl(var(--hue-secondary), var(--chroma-secondary), var(--tone-on-base));
+	--color-secondary-container: hsl(var(--hue-secondary), var(--chroma-secondary), var(--tone-container));
+	--color-on-secondary-container: hsl(var(--hue-secondary), var(--chroma-secondary), var(--tone-on-container));
+	--color-tertiary: hsl(var(--hue-tertiary), var(--chroma-tertiary), var(--tone-base));
+	--color-on-tertiary: hsl(var(--hue-tertiary), var(--chroma-tertiary), var(--tone-on-base));
+	--color-tertiary-container: hsl(var(--hue-tertiary), var(--chroma-tertiary), var(--tone-container));
+	--color-on-tertiary-container: hsl(var(--hue-tertiary), var(--chroma-tertiary), var(--tone-on-container));
+	--color-error: hsl(var(--hue-error), var(--chroma-error), var(--tone-base));
+	--color-on-error: hsl(var(--hue-error), var(--chroma-error), var(--tone-on-base));
+	--color-error-container: hsl(var(--hue-error), var(--chroma-error), var(--tone-container));
+	--color-on-error-container: hsl(var(--hue-error), var(--chroma-error), var(--tone-on-container));
 	--color-surface-dim: hsl(var(--hue-neutral), var(--chroma-neutral), var(--tone-surface-dim));
 	--color-surface: hsl(var(--hue-neutral), var(--chroma-neutral), var(--tone-surface));
 	--color-surface-bright: hsl(var(--hue-neutral), var(--chroma-neutral), var(--tone-surface-bright));
@@ -34,9 +38,9 @@
 	--color-surface-container-4: hsl(var(--hue-neutral), var(--chroma-neutral), var(--tone-surface-container-4));
 	--color-surface-container-5: hsl(var(--hue-neutral), var(--chroma-neutral), var(--tone-surface-container-5));
 	--color-on-surface: hsl(var(--hue-neutral), var(--chroma-neutral), var(--tone-on-surface));
-	--color-on-surface-var: hsl(var(--hue-neutral-var), var(--chroma-neutral), var(--tone-on-surface-var));
-	--color-outline: hsl(var(--hue-neutral-var), var(--chroma-neutral), var(--tone-outline));
-	--color-outline-var: hsl(var(--hue-neutral-var), var(--chroma-neutral), var(--tone-outline-var));
+	--color-on-surface-var: hsl(var(--hue-neutral-var), var(--chroma-neutral-var), var(--tone-on-surface-var));
+	--color-outline: hsl(var(--hue-neutral-var), var(--chroma-neutral-var), var(--tone-outline));
+	--color-outline-var: hsl(var(--hue-neutral-var), var(--chroma-neutral-var), var(--tone-outline-var));
 }
 
 .light-mode {
@@ -84,14 +88,10 @@ body {
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
-body:before {
-	content: '';
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	z-index: -1000;
+article>canvas {
+	border-radius: 5px;
+	border: 1px solid var(--color-outline);
+	box-shadow: 1px 1px 3px var(--color-outline);
 }
 
 article>p {

@@ -73,7 +73,7 @@ export default function execute() {
             {
                 // Draw line with point and vector
                 p.strokeWeight(3.75);
-                p.stroke(getColor('--color-tertiary-container').formatHex8());
+                p.stroke(getColor('--color-tertiary').formatHex8());
                 p.noFill();
                 const l = Gyrovector.geodesic(a, a.add(b));
                 switch (l[0]) {
