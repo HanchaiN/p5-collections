@@ -1,10 +1,20 @@
 import { getColor } from "../utils/dom.js";
 
+function GrayToBinary(num)
+{
+    let mask = num;
+    while (mask) {
+        mask >>= 1;
+        num ^= mask;
+    }
+    return num;
+}
+
 export class CA {
   set rule(rule) {
-    this.ruleset = [];
+    this.ruleset = new Array(8);
     for (let j = 0; j < 8; j++) {
-      this.ruleset.push(rule % 2);
+      this.ruleset[GrayToBinary(j)] = rule % 2;
       rule = Math.floor(rule / 2);
     }
     this.ruleset.reverse();

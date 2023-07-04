@@ -5,19 +5,24 @@ export default function execute() {
   let parent = null;
   let canvas = null;
 
+  function BinaryToGray(num)
+  {
+    return num ^ (num >> 1);
+  }
+
   const sketch = (p) => {
     const forward = 1;
     const gen = 100;
     const bit = 64;
     const size = 5;
-    const looped = false;
+    const looped = true;
     let rule = 0;
     let ca = new CA(bit, gen, looped);
 
     CA.p = p;
 
     function nextRule() {
-      ca.rule = ++rule;
+      ca.rule = BinaryToGray(++rule);
       ca.filler = Math.floor(Math.random() * Math.pow(2, bit));
       p.background(100);
       p.loop();
@@ -29,7 +34,7 @@ export default function execute() {
         : p.createCanvas(size * (bit + 2 * gen), size * gen * forward);
       canvas.mouseClicked(nextRule);
       p.background(100);
-      ca.rule = rule;
+      ca.rule = BinaryToGray(rule);
       ca.filler = Math.floor(Math.random() * Math.pow(2, bit));
     };
 
