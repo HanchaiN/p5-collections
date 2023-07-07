@@ -1,0 +1,43 @@
+{
+    "$schema": "https://json.schemastore.org/web-manifest",
+    "lang": "en-US",
+    "dir": "ltr",
+    "name": "HanchaiN's GitHub Page",
+    "short_name": "HanchaiN",
+    "description": "HanchaiN's GitHub Page",
+    "icons": [
+        {
+            "src": "https://avatars.githubusercontent.com/HanchaiN",
+            "type": "image/png",
+            "sizes": "420x420"
+        }
+    ],
+    "scope": "/",
+    "id": "/",
+    "start_url": "/#",
+    "display": "browser",
+    "display_override": [
+        "window-controls-overlay",
+        "minimal-ui",
+        "standalone",
+        "browser"
+    ],
+    "orientation": "landscape-primary",
+    "theme_color": "#b36619",
+    "background_color": "#fbfaf9",
+    "shortcuts": [
+        {
+            "name": "Home",
+            "url": "/#",
+            "icons": [
+                {
+                    "src": "https://avatars.githubusercontent.com/HanchaiN",
+                    "type": "image/png",
+                    "sizes": "420x420"
+                }
+            ]
+        }
+    ],
+    "prefer_related_applications": true,
+    "related_applications": []
+}

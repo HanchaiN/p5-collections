@@ -43,42 +43,46 @@
 	--color-outline-var: hsl(var(--hue-neutral-var), var(--chroma-neutral-var), var(--tone-outline-var));
 }
 
-.light-mode {
-	--tone-base: 40%;
-	--tone-on-base: 100%;
-	--tone-container: 90%;
-	--tone-on-container: 10%;
-	--tone-surface-dim: 57%;
-	--tone-surface: 98%;
-	--tone-surface-bright: 98%;
-	--tone-surface-container-1: 100%;
-	--tone-surface-container-2: 96%;
-	--tone-surface-container-3: 94%;
-	--tone-surface-container-4: 92%;
-	--tone-surface-container-5: 90%;
-	--tone-on-surface: 10%;
-	--tone-on-surface-var: 30%;
-	--tone-outline: 50%;
-	--tone-outline-var: 80%;
+@media (prefers-color-scheme: light) {
+	:root {
+		--tone-base: 40%;
+		--tone-on-base: 100%;
+		--tone-container: 90%;
+		--tone-on-container: 10%;
+		--tone-surface-dim: 57%;
+		--tone-surface: 98%;
+		--tone-surface-bright: 98%;
+		--tone-surface-container-1: 100%;
+		--tone-surface-container-2: 96%;
+		--tone-surface-container-3: 94%;
+		--tone-surface-container-4: 92%;
+		--tone-surface-container-5: 90%;
+		--tone-on-surface: 10%;
+		--tone-on-surface-var: 30%;
+		--tone-outline: 50%;
+		--tone-outline-var: 80%;
+	}
 }
 
-.dark-mode {
-	--tone-base: 80%;
-	--tone-on-base: 20%;
-	--tone-container: 30%;
-	--tone-on-container: 90%;
-	--tone-surface-dim: 6%;
-	--tone-surface: 6%;
-	--tone-surface-bright: 24%;
-	--tone-surface-container-1: 4%;
-	--tone-surface-container-2: 10%;
-	--tone-surface-container-3: 12%;
-	--tone-surface-container-4: 17%;
-	--tone-surface-container-5: 22%;
-	--tone-on-surface: 90%;
-	--tone-on-surface-var: 80%;
-	--tone-outline: 60%;
-	--tone-outline-var: 30%;
+@media (prefers-color-scheme: dark) {
+	:root {
+		--tone-base: 80%;
+		--tone-on-base: 20%;
+		--tone-container: 30%;
+		--tone-on-container: 90%;
+		--tone-surface-dim: 6%;
+		--tone-surface: 6%;
+		--tone-surface-bright: 24%;
+		--tone-surface-container-1: 4%;
+		--tone-surface-container-2: 10%;
+		--tone-surface-container-3: 12%;
+		--tone-surface-container-4: 17%;
+		--tone-surface-container-5: 22%;
+		--tone-on-surface: 90%;
+		--tone-on-surface-var: 80%;
+		--tone-outline: 60%;
+		--tone-outline-var: 30%;
+	}
 }
 
 html,
