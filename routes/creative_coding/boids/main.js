@@ -1,38 +1,40 @@
 import { getColor } from "../utils/dom.js";
-import { lim } from "./boid.js";
+import { BoidSystem, lim } from "./boid.js";
 export default function execute() {
+    /**@type {HTMLCanvasElement} */
     let canvas = null;
-    let worker = null;
-    let background = null;
+    /**@type {CanvasRenderingContext2D} */
+    let ctx = null;
+    /**@type {BoidSystem} */
+    let system = null;
+    const background = getColor('--color-surface-container-3', "#000");
+    const time_scale = 1;
     let isActive = false;
+    let pretime = 0;
 
     function setup() {
         if (!canvas) return;
-        background = getColor('--color-surface-container-3', "#000");
-        const ctx = canvas.getContext("2d", { alpha: false });
         ctx.lineWidth = 0;
         ctx.fillStyle = background.formatHex8();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        worker?.postMessage({ width: canvas.width, height: canvas.height });
         background.opacity = .375;
+        system.wall.right = canvas.width;
+        system.wall.bottom = canvas.height;
     }
 
-    async function draw(time) {
+    function draw(time) {
         if (!isActive) return;
-        const result = await new Promise(resolve => {
-            worker.postMessage({ time });
-            function listener(e) {
-                if (!e.data.boid) return;
-                resolve(e.data.boid);
-                worker.removeEventListener("message", listener);
-            }
-            worker.addEventListener("message", listener);
-        });
-        const ctx = canvas.getContext("2d", { alpha: false });
+        if (pretime) {
+            const deltaTime = (time - pretime) * time_scale;
+            system.update(Math.min(deltaTime, 500), 1);
+            // const subdivide = Math.ceil(deltaTime / 500);
+            // system.update(deltaTime, subdivide);
+        }
+        pretime = time;
         ctx.lineWidth = 0;
         ctx.fillStyle = background.formatHex8();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        result.forEach(({ c, p }) => {
+        system.data().forEach(({ c, p }) => {
             ctx.fillStyle = c;
             ctx.beginPath();
             ctx.arc(p.x, p.y, lim.size, 0, 2 * Math.PI);
@@ -44,8 +46,8 @@ export default function execute() {
     return {
         start: (node = document.querySelector("article>canvas.sketch")) => {
             canvas = node;
-            worker = new Worker(import.meta.resolve("./worker.js"), { type: "module" });
-            worker.postMessage({ count: 250 });
+            ctx = canvas.getContext("2d", { alpha: false });
+            system = new BoidSystem(canvas.width, canvas.height, 250);
             setup();
             isActive = true;
             requestAnimationFrame(draw);
@@ -53,8 +55,7 @@ export default function execute() {
         stop: () => {
             isActive = false;
             canvas?.remove();
-            worker?.terminate();
-            background = worker = canvas = null;
+            system = ctx = canvas = null;
         },
     };
 }

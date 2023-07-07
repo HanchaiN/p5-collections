@@ -1,62 +1,75 @@
-import { maxWorkers } from "../utils/dom.js";
+import * as d3 from "../utils/color.js";
+import { getColor } from "../utils/dom.js";
+import { Complex, fract, map, pow, randomGaussian, zeta } from "../utils/math.js";
 
 export default function execute() {
+    /**@type {HTMLCanvasElement} */
     let canvas = null;
-    let workers = null;
+    /**@type {CanvasRenderingContext2D} */
+    let ctx = null;
+    /**@type {Uint8ClampedArray} */
+    let buffer = null;
+    const background = getColor('--color-surface-container-3', "#000");
+    const f = (z) => zeta(z);
+    let i = 0;
+    let j = 0;
 
     function setup() {
         if (!canvas) return;
-        draw(canvas.width, canvas.height);
+        i = 0;
+        j = 0;
+        ctx.fillStyle = background.formatHex8();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        buffer = new Uint8ClampedArray(ctx.getImageData(0, 0, canvas.width, canvas.height).data);
+        requestAnimationFrame(draw);
     }
-    function draw(width, height) {
-        const draw_batch = (worker) => (e) => {
-            if (!e.data.buffer) return;
-            const { buffer, size } = e.data;
-            const width = canvas.width, height = canvas.height;
-            if (size.sx === width && size.sy === height) {
-                const ctx = canvas.getContext("2d", { alpha: false });
-                const image = new ImageData(buffer, size.w, size.h);
-                ctx.putImageData(image, size.dx, size.dy);
-            } else {
-                worker?.terminate();
+    function draw() {
+        if (!canvas)
+            return ;
+        for (let _ = 0; _ < 64; _++)
+        {
+            j++;
+            if (j >= canvas.height)
+            {
+                j = 0;
+                i++;
             }
-            if (e.data.done) worker?.terminate();
+            if (i >= canvas.width)
+                return;
+            const z = Complex.add(...new Array(4).fill(0).map(_ => {
+                const re = map(i + randomGaussian(0, .3), 0, canvas.width, -10, +10);
+                const im = map(j + randomGaussian(0, .3), canvas.height, 0, -10, +10);
+                const z = f(Complex.fromCartesian(re, im));
+                return (z);
+            })).div(4);
+            const hue = map(z.theta, -Math.PI, +Math.PI, 0, 360);
+            const sat = map(
+                pow(2 * Math.abs(fract(z.theta * 20 / (2 * Math.PI)) - 0.5), 10),
+                0, 1, 75, 0
+            );
+            const lum = map(
+                fract(Math.log10(z.r)),
+                0, 1, 80, 70
+            );
+            const color = d3.hcl(hue, sat, lum).rgb();
+            buffer[j * (canvas.width * 4) + i * 4 + 0] = color.r;
+            buffer[j * (canvas.width * 4) + i * 4 + 1] = color.g;
+            buffer[j * (canvas.width * 4) + i * 4 + 2] = color.b;
         }
-        workers?.forEach(worker => worker.terminate());
-        const aspect = height / width;
-        const subdivide = [
-            Math.floor(Math.sqrt(maxWorkers / aspect)),
-            Math.floor(Math.sqrt(maxWorkers / aspect) * aspect),
-        ];
-        workers = new Array(subdivide[0] * subdivide[1]).fill(0).map(_ =>
-            new Worker(import.meta.resolve("./worker.js"), { type: "module" })
-        );
-        workers.forEach(worker => worker.addEventListener("message", draw_batch(worker)));
-        for (let i = 0; i < subdivide[0]; i++)
-            for (let j = 0; j < subdivide[1]; j++)
-                workers[i * subdivide[1] + j].postMessage({
-                    size: {
-                        width: Math.ceil(width / subdivide[0]),
-                        height: Math.ceil(height / subdivide[1]),
-                        dx: Math.floor(i * width / subdivide[0]),
-                        dy: Math.floor(j * height / subdivide[1]),
-                        sx: width,
-                        sy: height,
-                        y: 20,
-                    },
-                    render: true,
-                });
+        const image = new ImageData(buffer, canvas.width, canvas.height);
+        ctx.putImageData(image, 0, 0);
+        requestAnimationFrame(draw);
     }
 
     return {
         start: (node = document.querySelector("article>canvas.sketch")) => {
             canvas = node;
+            ctx = canvas.getContext("2d", { alpha: false });
             setup();
         },
         stop: () => {
             canvas?.remove();
-            workers?.forEach(worker => worker.terminate());
-            workers = canvas = null;
+            buffer = canvas = null;
         },
     };
 }
