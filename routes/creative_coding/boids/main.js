@@ -20,7 +20,7 @@ export default function execute() {
     const time_scale = 1;
     let isActive = false;
     let pretime = 0;
-    const scale = 1e-1;
+    const scale = 1e-2;
 
     function setup() {
         if (!canvas) return;

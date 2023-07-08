@@ -23,31 +23,30 @@ export const GROUP = {
     PRED: Symbol("hunt"),
 }
 export const SETTING = {
-    speedMax: 1e10,
-    speedMin: 200,
-    margin: 10,
-    visualRange: 500,
+    speedMax: 1e5,
+    speedMin: 1e3,
+    margin: 500,
+    visualRange: 5000,
     visualAngle: .9 * Math.PI * 2,
     turnRadius: 100,
-    accelFactor: 5e5,
-    avoidance: 10,
+    avoidance: 1e6,
     uniqueness: .50,
     [GROUP.PEER]: {
-        alignment: .100,
-        coherence: .050,
-        separation: 1.00,
+        alignment: 1000e3,
+        coherence: 500e3,
+        separation: 1000e6,
         agreeableness: 1.00,
     },
     [GROUP.PRED]: {
-        alignment: .025,
-        coherence: -.050,
-        separation: 1.50,
+        alignment: 250e3,
+        coherence: -500e3,
+        separation: 1500e6,
         agreeableness: -.25,
     },
     [GROUP.PREY]: {
-        alignment: .025,
-        coherence: .075,
-        separation: 1.00,
+        alignment: 250e3,
+        coherence: 750e3,
+        separation: 1000e6,
         agreeableness: -.25,
     }
 }
@@ -120,58 +119,57 @@ export class Boid {
         }
         {
             if (this.pos.x > this.system.wall.left)
-                this._accel.add(new Vector(+1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.pos.x - this.system.wall.left), 2)));
-            // else
-            // this._accel.add(new Vector(+1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.pos.x - this.system.wall.left), 2)));
+                this._accel.add(new Vector(+1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.pos.x - this.system.wall.left), 1)));
+            else
+                this._accel.add(new Vector(+1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.pos.x - this.system.wall.left), 1)));
             if (this.pos.y > this.system.wall.top)
-                this._accel.add(new Vector(0, +1).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.pos.y - this.system.wall.top), 2)));
-            // else
-            // this._accel.add(new Vector(0, +1).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.pos.y - this.system.wall.top), 2)));
+                this._accel.add(new Vector(0, +1).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.pos.y - this.system.wall.top), 1)));
+            else
+                this._accel.add(new Vector(0, +1).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.pos.y - this.system.wall.top), 1)));
             if (this.pos.x < this.system.wall.right)
-                this._accel.add(new Vector(-1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.system.wall.right - this.pos.x), 2)));
-            // else
-            // this._accel.add(new Vector(-1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.system.wall.right - this.pos.x), 2)));
+                this._accel.add(new Vector(-1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.system.wall.right - this.pos.x), 1)));
+            else
+                this._accel.add(new Vector(-1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.system.wall.right - this.pos.x), 1)));
             if (this.pos.y < this.system.wall.bottom)
-                this._accel.add(new Vector(0, -1).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.system.wall.bottom - this.pos.y), 2)));
-            // else
-            // this._accel.add(new Vector(0, -1).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.system.wall.bottom - this.pos.y), 2)));
+                this._accel.add(new Vector(0, -1).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.system.wall.bottom - this.pos.y), 1)));
+            else
+                this._accel.add(new Vector(0, -1).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.system.wall.bottom - this.pos.y), 1)));
         }
     }
     _applyPerp(v, w) {
         const perp = v.copy();
+        const dir = Vector.normalize(this.vel);
         let i = 0;
-        while (Math.abs(perp.dot(this.vel)) > .1)
-        {
-            const proj =this.vel.copy().mult(this.vel.dot(perp) / this.vel.magSq());
-            perp.sub(proj);
-            if (i++ > 10)
+        while (Math.abs(Vector.normalize(perp).dot(dir)) > 1e-10) {
+            perp.sub(dir.copy().mult(dir.dot(perp)));
+            if (i++ > 1024)
                 break;
         }
         this._accel.add(perp.mult(w / SETTING.turnRadius));
     }
     update(deltaTime) {
         const dt = deltaTime / 1000;
-        if (this.vel.mag() < SETTING.speedMin)
-            this.vel.add(new Vector(randomGaussian(0, 1), randomGaussian(0, 1)).mult(SETTING.speedMin));
+        // if (this.vel.mag() < SETTING.speedMin)
+        //     this.vel.add(new Vector(randomGaussian(0, 1), randomGaussian(0, 1)).mult(SETTING.speedMin));
         if (this.vel.mag() > SETTING.speedMax)
             this.vel.setMag(SETTING.speedMax);
-        this.vel.add(this._accel.copy().mult(dt * SETTING.accelFactor));
+        this.vel.add(this._accel.copy().mult(dt));
         this.pos.add(this.vel.copy().mult(dt));
         this.id.add(this._id_vel.copy().mult(dt)).normalize();
-        // if ((this.pos.x < this.system.wall.left && this.vel.x < 0)
-        //     || (this.pos.x > this.system.wall.right && this.vel.x > 0))
-        //     this.vel.mult(new Vector(-1, 1));
-        // if ((this.pos.y < this.system.wall.top && this.vel.y < 0)
-        //     || (this.pos.y > this.system.wall.bottom && this.vel.y > 0))
-        //     this.vel.mult(new Vector(1, -1));
-        while (this.pos.x < this.system.wall.left)
-            this.pos.add(new Vector(this.system.wall.right - this.system.wall.left, 0));
-        while (this.pos.x > this.system.wall.right)
-            this.pos.sub(new Vector(this.system.wall.right - this.system.wall.left, 0));
-        while (this.pos.y < this.system.wall.top)
-            this.pos.add(new Vector(0, this.system.wall.bottom - this.system.wall.top));
-        while (this.pos.y > this.system.wall.bottom)
-            this.pos.sub(new Vector(0, this.system.wall.bottom - this.system.wall.top));
+        if ((this.pos.x < this.system.wall.left && this.vel.x < 0)
+            || (this.pos.x > this.system.wall.right && this.vel.x > 0))
+            this.vel.mult(new Vector(-1, 1));
+        if ((this.pos.y < this.system.wall.top && this.vel.y < 0)
+            || (this.pos.y > this.system.wall.bottom && this.vel.y > 0))
+            this.vel.mult(new Vector(1, -1));
+        // while (this.pos.x < this.system.wall.left)
+        //     this.pos.add(new Vector(this.system.wall.right - this.system.wall.left, 0));
+        // while (this.pos.x > this.system.wall.right)
+        //     this.pos.sub(new Vector(this.system.wall.right - this.system.wall.left, 0));
+        // while (this.pos.y < this.system.wall.top)
+        //     this.pos.add(new Vector(0, this.system.wall.bottom - this.system.wall.top));
+        // while (this.pos.y > this.system.wall.bottom)
+        //     this.pos.sub(new Vector(0, this.system.wall.bottom - this.system.wall.top));
     }
     data() {
         return {
@@ -196,14 +194,14 @@ export class BoidSystem {
             top: 0,
             bottom: h,
         };
-        const tempRatio = 0,
+        const tempRatio = 1e-5,
             padding = .1;
         this.boids = new Array(n).fill(0).map((_) => {
             const vel = new Vector(randomGaussian(0, 1), randomGaussian(0, 1));
             return new Boid(
                 this,
                 new Vector(map(Math.random(), -padding, 1 + padding, 0, w), map(Math.random(), -padding, 1 + padding, 0, h)),
-                vel.mult(Math.sqrt((tempRatio * Math.pow(SETTING.speedMax, 2) + (1 - tempRatio) * Math.pow(SETTING.speedMin, 2)))),
+                vel.mult(Math.sqrt(((tempRatio) * Math.pow(SETTING.speedMax, 2) + (1 - tempRatio) * Math.pow(SETTING.speedMin, 2)))),
                 Math.random(),
             );
         });
