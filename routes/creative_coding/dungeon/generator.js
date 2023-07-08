@@ -1,7 +1,11 @@
 import { PriorityQueue } from "../utils/algo.js";
 import { Vector, map, randomGaussian } from "../utils/math.js";
 
+/**
+ * @param {number[][]} triangles
+ */
 function getEdges(triangles) {
+    /**@type {number[][]} */
     const edges = [];
     triangles.forEach(([ia, ib, ic]) => {
         if (!edges.some(([i, j]) => (i === ia && j === ib) || (i === ib && j === ia)))
@@ -13,8 +17,12 @@ function getEdges(triangles) {
     });
     return edges;
 }
-
+/**
+ * @param {Vector[]} nodes
+ * @param {Vector[]} supertriangle
+ */
 function* delaunay_triangulation(nodes, supertriangle) {
+    /**@type {Vector[]} */
     const nodes_ = [];
     {
         const [a, b, c] = supertriangle;
@@ -35,6 +43,7 @@ function* delaunay_triangulation(nodes, supertriangle) {
         }
     }
     nodes_.push(...nodes);
+    /**@type {number[][]} */
     let triangle = [];
     triangle.push([0, 1, 2]);
     for (let _i = 0; _i < nodes.length; _i++) {
@@ -100,10 +109,19 @@ function* delaunay_triangulation(nodes, supertriangle) {
     return getEdges(triangle.filter(([ia, ib, ic]) => ia > 2 && ib > 2 && ic > 2).map(([ia, ib, ic]) => [ia - 3, ib - 3, ic - 3]));
 }
 
+/**
+ * @param {number[][]} edges
+ */
 function* minimum_spanning_tree(edges) {
+    /**@type {number[]} */
     const tree_edges = [];
+    /**@type {number[]} */
     const vertex = [];
+    /**@type {PriorityQueue<{ie: number;d:number}>} */
     const lookup = new PriorityQueue((_) => _.d);
+    /**
+     * @param {number} iv
+     */
     function addNode(iv) {
         if (vertex.includes(iv)) return;
         vertex.push(iv);
@@ -114,7 +132,7 @@ function* minimum_spanning_tree(edges) {
     }
     addNode(0);
     while (lookup.top()) {
-        const { ie } = lookup.pop();
+        const { ie } = lookup.pop() ?? {};
         const [ia, ib] = edges[ie];
         const a_ = vertex.includes(ia);
         const b_ = vertex.includes(ib);
@@ -127,51 +145,84 @@ function* minimum_spanning_tree(edges) {
     return (tree_edges);
 }
 
+export const GRID_STATE = {
+    EMPTY: 1,
+    ROOM: 2,
+    BORDER: 3,
+    PATH: 4,
+    INTERNAL_PATH: 5,
+    DOOR: 6,
+    SEARCH_PATH: 7,
+    SEARCH_CURR: 8,
+};
+
 export function* generateDungeon(GRID_SIZE) {
     const EXTRA_NODE_RATE = .125;
+    const ROOM_COUNT_MAX = 100;
     const ROOM_SIZE_MIN = 5;
-    const ROOM_SIZE_BOUND = .25 * Math.min(GRID_SIZE.x, GRID_SIZE.y);
-    const ROOM_AREA_MAX = .5 * GRID_SIZE.x * GRID_SIZE.y;
-    const ROOM_COUNT_BOUND = 1e2;
-    const DIST_WEIGHT = [2, 5, 1, 0];
+    const ROOM_SIZE_MAX = .25 * Math.min(GRID_SIZE.x, GRID_SIZE.y);
+    const ROOM_AREA_TOTAL = .5 * GRID_SIZE.x * GRID_SIZE.y;
+    const ROOM_PADDING = 3;
+    const DIST_VAL = new Proxy({
+        [GRID_STATE.EMPTY]: 25,
+        [GRID_STATE.ROOM]: 1,
+        [GRID_STATE.BORDER]: 100,
+        [GRID_STATE.PATH]: 1,
+        [GRID_STATE.INTERNAL_PATH]: 1,
+        [GRID_STATE.DOOR]: 1,
+    }, {
+        get: (target, name) => target.hasOwnProperty(name) ? target[name] : Infinity
+    });
+    const DIST_VAR = new Proxy({
+        [GRID_STATE.EMPTY]: 10
+    }, {
+        get: (target, name) => target.hasOwnProperty(name) ? target[name] : 0
+    });
+    /**@type {{left:number;right:number;bottom:number;top:number;valid:boolean}[]} */
     const rooms = [];
+    /**@type {Vector[]} */
     const nodes = [];
     const grid = new Array(GRID_SIZE.x).fill(0).map(_ =>
-        new Array(GRID_SIZE.y).fill(0)
+        new Array(GRID_SIZE.y).fill(0).map(_ => GRID_STATE.EMPTY)
     );
+    /**@type {number[][]} */
     let edges = [];
+    /**@type {number[]} */
     let tree = [];
     yield ({ grid, rooms, nodes, edges, tree });
     {
         let room_area = 0;
-        for (let i = 0; i < ROOM_COUNT_BOUND; i++) {
-            if (room_area >= ROOM_AREA_MAX) break;
+        for (let i = 0; i < ROOM_COUNT_MAX && room_area < ROOM_AREA_TOTAL; i++) {
             const aspect = Math.abs(randomGaussian(1, .5 / 3));
-            const width = ROOM_SIZE_MIN * Math.max(1, 1 / aspect) + Math.abs(randomGaussian(0, ROOM_SIZE_BOUND / 3));
+            const width = ROOM_SIZE_MIN * Math.max(1, 1 / aspect) + Math.abs(randomGaussian(0, ROOM_SIZE_MAX / 3));
             const height = width * aspect
-            const _node = new Vector(
-                map(Math.random(), 0, 1, width / 2, GRID_SIZE.x - width / 2),
-                map(Math.random(), 0, 1, height / 2, GRID_SIZE.y - height / 2),
+            const node = new Vector(
+                map(Math.random(), 0, 1, ROOM_PADDING + width / 2, GRID_SIZE.x - ROOM_PADDING - width / 2),
+                map(Math.random(), 0, 1, ROOM_PADDING + height / 2, GRID_SIZE.y - ROOM_PADDING - height / 2),
             );
             const room = {
-                left: Math.round(_node.x - width / 2),
-                right: Math.round(_node.x + width / 2),
-                bottom: Math.round(_node.y - height / 2),
-                top: Math.round(_node.y + height / 2),
+                left: Math.round(node.x - width / 2),
+                right: Math.round(node.x + width / 2),
+                bottom: Math.round(node.y - height / 2),
+                top: Math.round(node.y + height / 2),
+                valid: room_area < ROOM_AREA_TOTAL,
             };
-            if (rooms.every(room_ =>
-                (room.left > room_.right + 1 || room.right + 1 < room_.left)
-                || (room.bottom > room_.top + 1 || room.top + 1 < room_.bottom)
-            )) {
+            room.valid &&= rooms.every(room_ =>
+                (room.left > room_.right + ROOM_PADDING || room.right + ROOM_PADDING < room_.left)
+                || (room.bottom > room_.top + ROOM_PADDING || room.top + ROOM_PADDING < room_.bottom)
+            );
+            if (room.valid) {
                 rooms.push(room);
-                nodes.push(_node);
-                room_area += (room.right - room.left) * (room.top - room.bottom);
+                nodes.push(node);
+                room_area += (room.right - room.left + 1) * (room.top - room.bottom + 1);
                 for (let ix = room.left; ix <= room.right; ix++)
                     for (let iy = room.bottom; iy <= room.top; iy++)
-                        if (typeof grid?.[ix]?.[iy] === "number")
-                            grid[ix][iy] = 1;
+                        grid[ix][iy] = (ix === room.left
+                            || ix === room.right
+                            || iy === room.bottom
+                            || iy === room.top) ? GRID_STATE.BORDER : GRID_STATE.ROOM;
             }
-            yield ({ grid, rooms: rooms.concat(room), nodes: nodes.concat(_node), edges, tree });
+            yield ({ grid, rooms: rooms.concat(room), nodes: nodes.concat(node), edges, tree });
         }
     }
     yield ({ grid, rooms, nodes, edges, tree });
@@ -201,49 +252,40 @@ export function* generateDungeon(GRID_SIZE) {
         }
     }
     {
-        edges.sort((a, b) => tree.indexOf(edges.indexOf(b)) - tree.indexOf(edges.indexOf(a)));
+        edges.sort((a, b) => {
+            let ia = tree.indexOf(edges.indexOf(a)),
+                ib = tree.indexOf(edges.indexOf(b));
+            if (ia < 0) ia = Infinity;
+            if (ib < 0) ib = Infinity;
+            return (ia - ib);
+        });
         tree = tree.map((_, i) => i);
         for (let i = edges.length - 1; i >= tree.length; i--) {
             if (Math.random() >= EXTRA_NODE_RATE)
-                edges.splice(i);
+                edges.splice(i, 1);
             yield ({ grid, rooms, nodes, edges, tree });
         }
     }
 
     for (let [i_begin, i_target] of edges) {
-        const begins = [
-            new Vector(Math.round(nodes[i_begin].x), Math.round(nodes[i_begin].y)),
-        ], targets = [
-            new Vector(Math.round(nodes[i_target].x), Math.round(nodes[i_target].y)),
-        ];
-        const target = {
-            x: nodes[i_target].x,
-            y: nodes[i_target].y,
-        };
-        const state = new Array(GRID_SIZE.x).fill(0).map(_ =>
-            new Array(GRID_SIZE.y).fill(0).map(_ => ({
-                parent: null,
-                distance: Infinity,
-            }))
-        );
         const grid_ = grid.map(_ => _.map(_ => _));
-        const lookup = new PriorityQueue((_) => _.est_distance);
         const EST = (from, to) => {
             let dist = 0;
             const steep = Math.abs(to.y - from.y) > Math.abs(to.x - from.x);
             const fpart = (x) => x - Math.floor(x);
             const rfpart = (x) => 1 - fpart(x);
-            const p = (x, y) => (steep ? [y, x] : [x, y]);
             const put = (x, y, w) => {
-                const [x_, y_] = p(x, y);
-                dist += DIST_WEIGHT?.[grid?.[x_]?.[y_] ?? -1] ?? 10000 * w;
+                const [x_, y_] = steep ? [y, x] : [x, y];
+                if (x_ >= grid.length || y_ >= grid[x_].length)
+                    return;
+                dist += DIST_VAL[grid[x_][y_]] * w;
             }
             let x0 = from.x,
                 y0 = from.y,
                 x1 = to.x,
                 y1 = to.y,
-                dx = Math.abs(x1 - x0),
-                dy = Math.abs(y1 - y0);
+                dx = (x1 - x0),
+                dy = (y1 - y0);
             if (steep)
                 [x0, y0, x1, y1, dx, dy] = [y0, x0, y1, x1, dy, dx];
             if (x1 < x0)
@@ -267,19 +309,40 @@ export function* generateDungeon(GRID_SIZE) {
                 put(x, y + 1, fpart(intery));
                 intery += grad;
             }
-            return dist * randomGaussian(1, 0.3);
+            return dist;
         }
+        const begins = [
+            new Vector(Math.round(nodes[i_begin].x), Math.round(nodes[i_begin].y)),
+        ], targets = [
+            new Vector(Math.round(nodes[i_target].x), Math.round(nodes[i_target].y)),
+        ];
+        const target = {
+            x: nodes[i_target].x,
+            y: nodes[i_target].y,
+        };
+        const state = new Array(GRID_SIZE.x).fill(0).map(_ =>
+            new Array(GRID_SIZE.y).fill(0).map(_ => ({
+                parent: null,
+                distance: Infinity,
+            }))
+        );
+        const lookup = new PriorityQueue((_) => _.est_distance);
         function addNode(p, parent, dist) {
             {
                 if (
                     p.x < 0 || p.x >= GRID_SIZE.x
                     || p.y < 0 || p.y >= GRID_SIZE.y
                 ) return;
-                const cost = DIST_WEIGHT[grid[p.x][p.y]];
+                for (let p_ = parent; p_ != null; p_ = state[p_.x][p_.y].parent)
+                {
+                    if (p_.x === p.x && p_.y === p.y)
+                        return;
+                }
+                const cost = Math.abs(randomGaussian(DIST_VAL[grid[p.x][p.y]], DIST_VAR[grid[p.x][p.y]]));
                 const distance = dist + cost;
+                if (state[p.x][p.y].distance <= distance) return ;
                 const est = EST(p, target);
                 const est_distance = distance + est;
-                if (state[p.x][p.y].distance <= distance) return;
                 state[p.x][p.y].distance = distance;
                 state[p.x][p.y].parent = parent;
                 lookup.push({
@@ -290,11 +353,13 @@ export function* generateDungeon(GRID_SIZE) {
             }
         }
         begins.forEach(p => {
-            addNode(p, { x: -1, y: -1 }, 0);
+            addNode(p, null, 0);
         })
         let curr;
         while (lookup.top()) {
             const { p, distance } = lookup.pop();
+            if (state[p.x][p.y].distance < distance)
+                continue;
             if (targets.some(t => t.x === p.x && t.y === p.y)) {
                 curr = p;
                 break;
@@ -307,58 +372,65 @@ export function* generateDungeon(GRID_SIZE) {
             ].sort(_ => .5 - Math.random()).forEach(p_ => {
                 addNode(p_, p, distance);
             });
-            grid_[p.x][p.y] = 5;
+            grid_[p.x][p.y] = GRID_STATE.SEARCH_CURR;
             yield ({ grid: grid_, rooms, nodes, edges, tree });
-            grid_[p.x][p.y] = 4;
+            grid_[p.x][p.y] = GRID_STATE.SEARCH_PATH;
         }
         do {
+            grid_[curr.x][curr.y] = GRID_STATE.PATH;
             switch (grid[curr.x][curr.y]) {
-                case 0:
-                    grid[curr.x][curr.y] = 2;
+                case GRID_STATE.EMPTY:
+                    grid[curr.x][curr.y] = GRID_STATE.PATH;
                     break;
-                case 1:
-                    grid[curr.x][curr.y] = 3;
+                case GRID_STATE.ROOM:
+                    grid[curr.x][curr.y] = GRID_STATE.INTERNAL_PATH;
+                    break;
+                case GRID_STATE.BORDER:
+                    grid[curr.x][curr.y] = GRID_STATE.DOOR;
                     break;
                 default:
             }
-        } while ((curr = state[curr.x][curr.y].parent).x !== -1);
-        yield ({ grid, rooms, nodes, edges, tree });
+            yield ({ grid: grid_, rooms, nodes, edges, tree });
+        } while (curr = state[curr.x][curr.y].parent);
     }
     return ({ grid, rooms, nodes, edges, tree });
 }
 
+/**
+ * @param {{grid:number[][];rooms:{left:number;right:number;bottom:number;top:number;valid:boolean}[];nodes:{x:number;y:number}[];edges:number[][];tree:number[]}} data
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {{x:number;y:number}} unit
+ * @param {string[]} palette
+ */
 export function drawDungeon(data, ctx, unit, palette) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.lineWidth = 0;
+    ctx.fillStyle = palette[0];
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if (!data) return;
     data.grid?.forEach((_, ix) => _.forEach((v, iy) => {
         switch (v) {
-            case 0:
-                ctx.fillStyle = palette[0];
-                break;
-            case 1:
-                ctx.fillStyle = palette[1];
-                break;
-            case 2:
-                ctx.fillStyle = palette[3];
-                break;
-            case 3:
-                if (
-                    data.grid[ix + 1][iy] === 2
-                    || data.grid[ix - 1][iy] === 2
-                    || data.grid[ix][iy + 1] === 2
-                    || data.grid[ix][iy - 1] === 2
-                )
-                    ctx.fillStyle = palette[2];
-                else
-                    ctx.fillStyle = palette[1];
-                break;
-            case 4:
-                ctx.fillStyle = palette[2];
-                break;
-            case 5:
+            case GRID_STATE.SEARCH_CURR:
                 ctx.fillStyle = palette[4];
                 break;
+            case GRID_STATE.SEARCH_PATH:
+                ctx.fillStyle = palette[2];
+                break;
+            case GRID_STATE.PATH:
+                ctx.fillStyle = palette[3];
+                break;
+            case GRID_STATE.DOOR:
+                ctx.fillStyle = palette[2];
+                break;
+            case GRID_STATE.BORDER:
+            case GRID_STATE.INTERNAL_PATH:
+            case GRID_STATE.ROOM:
+                ctx.fillStyle = palette[1];
+                break;
+            case GRID_STATE.EMPTY:
+                ctx.fillStyle = palette[0];
+                break;
             default:
-                ctx.fillStyle = "#000";
+                return;
         }
         ctx.beginPath();
         ctx.rect(
@@ -369,15 +441,13 @@ export function drawDungeon(data, ctx, unit, palette) {
     }))
     data.rooms?.forEach((room) => {
         ctx.lineWidth = 1;
-        ctx.strokeStyle = palette[2];
-        ctx.beginPath();
-        ctx.rect(
+        ctx.strokeStyle = room.valid ? palette[2] : palette[4];
+        ctx.strokeRect(
             unit.x * room.left,
             unit.y * room.bottom,
             unit.x * (room.right - room.left + 1),
             unit.y * (room.top - room.bottom + 1),
         );
-        ctx.stroke();
     });
     if (!data.nodes) return;
     data.nodes.forEach(p => {

@@ -92,13 +92,18 @@ body {
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
-article>canvas {
+article .preview-container {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+article .sketch {
 	border-radius: 5px;
 	border: 1px solid var(--color-outline);
 	box-shadow: 1px 1px 3px var(--color-outline);
 }
 
-article>p {
+article p {
 	max-width: 75em;
 }
 

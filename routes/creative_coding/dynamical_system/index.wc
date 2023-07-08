@@ -2,8 +2,10 @@
     <h1>
         Dynamical System
     </h1>
-    <canvas width=500 height=500 class="sketch"></canvas>
+    <div class="preview-container"><canvas width=500 height=500 class="sketch"></canvas>
+    </div>
     <p>
-        In physics, a dynamical system is described as a "particle or ensemble of particles whose state varies over time and thus obeys differential equations involving time derivatives".
+        In physics, a dynamical system is described as a "particle or ensemble of particles whose state varies over time
+        and thus obeys differential equations involving time derivatives".
     </p>
 </article>

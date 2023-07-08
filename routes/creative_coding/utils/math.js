@@ -4,6 +4,8 @@ export function lerp(v, l, h) { return map(v, 0, 1, l, h); }
 export function constrainMap(v, l, h, l_, h_) { return constrain(map(v, l, h, l_, h_), l_, h_); }
 export function constrainLerp(v, l, h) { return constrainMap(v, 0, 1, l, h); }
 export function sigm(x) { return 1 / (1 + Math.exp(-x)); }
+export function gaus(x) { return Math.exp(-x*x); }
+export function symlog(x) { return x > 0 ? Math.log(1 + x) : -Math.log(1 - x); }
 export function fract(x) { return x - Math.floor(x); }
 export function randomGaussian(mu = 0, sigma = 1) {
     const U1 = Math.random(),
@@ -11,6 +13,10 @@ export function randomGaussian(mu = 0, sigma = 1) {
     const Z0 = Math.sqrt(-2 * Math.log(U1)) * Math.cos(2 * Math.PI * U2),
         Z1 = Math.sqrt(-2 * Math.log(U1)) * Math.sin(2 * Math.PI * U2);
     return Z0 * sigma + mu
+}
+export function randomChi(k = 1)
+{
+    return Math.sqrt(new Array(Math.ceil(k)).fill(0).map(_=>Math.pow(randomGaussian(0, 1), 2)).reduce((acc, cur) => acc + cur, 0));
 }
 function negpow(val) {
     if (val % 2 === 0) return +1;
@@ -105,6 +111,11 @@ export class Vector {
     }
     dist(v) {
         return Vector.sub(v, this).mag();
+    }
+    static dist(a, b) {
+        if (!(a instanceof this) || !(b instanceof this))
+            throw new TypeError();
+        return a.dist(b);
     }
     add(v) {
         if (typeof v === "number")

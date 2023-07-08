@@ -26,9 +26,9 @@ export default function execute() {
         if (!canvas)
             return;
         const { value, done } = gen.next();
-        drawDungeon(value, ctx, unit, palette);
         if (!done)
             setTimeout(() => requestAnimationFrame(drawStep), 0);
+        drawDungeon(value, ctx, unit, palette);
     }
     function redraw() {
         generate_and_draw(size);
@@ -44,9 +44,9 @@ export default function execute() {
     }
 
     return {
-        start: (node = document.querySelector("article>canvas.sketch")) => {
-            canvas = node;
-            ctx = canvas.getContext("2d", { alpha: "false" });
+        start: () => {
+            canvas = document.querySelector("article canvas.sketch");
+            ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
             canvas.addEventListener("click", redraw);
             setup();
         },

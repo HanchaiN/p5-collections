@@ -66,8 +66,8 @@ export default function execute() {
     }
 
     return {
-        start: (node = document.querySelector("article>canvas.sketch")) => {
-            canvas = node;
+        start: () => {
+            canvas = document.querySelector("article canvas.sketch");
             setup();
             const err = 1e-5;
             const count = 2048;
@@ -83,10 +83,10 @@ export default function execute() {
                             20,
                         ]
                     ],
-                    color: d3.hcl(
+                    color: d3.cubehelix(
                         constrainMap(index + i, 0, count, 0, 360),
-                        75,
-                        Number.parseInt(getComputedStyle(document.body).getPropertyValue('--tone-base')),
+                        .75 * 2,
+                        Number.parseInt(getComputedStyle(document.body).getPropertyValue('--tone-on-surface')) / 100,
                     ).formatHex8(),
                 }));
                 worker.postMessage?.({

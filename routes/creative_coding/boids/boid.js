@@ -12,145 +12,158 @@
 // Angle -> lim * sigmoid(wt)
 // Speed -> lim * sigmoid(wt)
 
-import * as d3 from "../utils/color.js";
-import { Vector, map, randomGaussian, sigm } from "../utils/math.js";
-export const lim = {
-    range: 100,
-    steer: .1,
-    angularRange: 2 / 3,
-    speed: 50,
-    mutability: 0.1,
-    size: 5,
-    wallRange: 50,
-    wallRepulsion: 1,
-};
+import { Vector, map, randomGaussian } from "../utils/math.js";
+/**
+ * @readonly
+ * @enum {Symbol}
+ */
+export const GROUP = {
+    PEER: Symbol("peer"),
+    PREY: Symbol("prey"),
+    PRED: Symbol("hunt"),
+}
+export const SETTING = {
+    speedMax: 1e10,
+    speedMin: 200,
+    margin: 10,
+    visualRange: 500,
+    visualAngle: .9 * Math.PI * 2,
+    turnRadius: 100,
+    accelFactor: 5e5,
+    avoidance: 10,
+    uniqueness: .50,
+    [GROUP.PEER]: {
+        alignment: .100,
+        coherence: .050,
+        separation: 1.00,
+        agreeableness: 1.00,
+    },
+    [GROUP.PRED]: {
+        alignment: .025,
+        coherence: -.050,
+        separation: 1.50,
+        agreeableness: -.25,
+    },
+    [GROUP.PREY]: {
+        alignment: .025,
+        coherence: .075,
+        separation: 1.00,
+        agreeableness: -.25,
+    }
+}
 
 export class Boid {
-    constructor(system, pos, dir, id, cohesion, seperation, alignment, viewRange, viewAngle, speed, mutability) {
+    /**
+     * @param {BoidSystem} system
+     * @param {Vector} pos
+     * @param {Vector} vel
+     * @param {number} id
+     */
+    constructor(system, pos, vel, id) {
         this.system = system;
-        this.prop_inherit = {
-            id: id,
-            cohesion: cohesion,
-            seperation: seperation,
-            alignment: alignment,
-            viewRange: viewRange,
-            viewAngle: viewAngle,
-            speed: speed,
-            mutability: mutability,
-        };
-        this.prop = {
-            id: this.prop_inherit.id.copy(),
-            idAcceptance: lim.angularRange * 2 * Math.PI,
-            idCohesion: lim.steer,
-            cohesion: this.prop_inherit.cohesion * lim.steer * 1,
-            alignment: this.prop_inherit.alignment * lim.steer * 2,
-            seperation: this.prop_inherit.seperation * lim.steer * 4,
-            viewRange: this.prop_inherit.viewRange * lim.range,
-            viewAngle: this.prop_inherit.viewAngle * lim.angularRange * 2 * Math.PI,
-            speed: lim.speed,
-            mutability: this.prop_inherit.mutability * lim.mutability,
-        };
-        this.pos = pos;
-        this.dir = dir;
-        dir.setMag(this.prop.speed);
+        this.pos = pos.copy();
+        this.vel = vel.copy();
+        this.id_inherit = Vector.fromPolar(1, id * 2 * Math.PI);
+        this.id = this.id_inherit.copy();
     }
     eval() {
-        let sumSpeedFactor = 0;
-        const avgSpeed = Vector.zero(2);
-        let sumPositionFactor = 0;
-        const avgPosition = Vector.zero(2);
-        let sumDisplacementFactor = 0;
-        const avgDisplacement = Vector.zero(2);
-        let sumIdFactor = .1;
-        const avgId = this.prop_inherit.id.copy().mult(sumIdFactor);
-        for (let ind = 0; ind < this.system.boids.length; ind++) {
-            const other = this.system.boids[ind];
-            if (other === this) continue;
-            const displacement = Vector.sub(other.pos, this.pos);
-            const id_phase = this.prop.id.angleBetween(other.prop.id);
-            const angle = this.dir.angleBetween(displacement);
-            if (displacement.mag() < this.prop.viewRange) {
-                let wtS = Math.exp(Math.pow(id_phase, 2));
-                // let wtS = 1;
-                avgDisplacement.add(Vector.mult(displacement, wtS));
-                sumDisplacementFactor += wtS;
-            }
-            if (
-                displacement.mag() < this.prop.viewRange * 2 &&
-                Math.abs(angle) < this.prop.viewAngle
-            ) {
-                let wtA = Math.exp(-Math.pow(id_phase, 4));
-                // let wtA = 1;
-                avgSpeed.add(Vector.normalize(other.dir).mult(wtA));
-                sumSpeedFactor += wtA;
-            }
-            if (
-                displacement.mag() < this.prop.viewRange * 3 &&
-                Math.abs(angle) < this.prop.viewAngle
-            ) {
-                let wtC = Math.exp(- Math.pow(id_phase, 4));
-                // let wtC = 1;
-                avgPosition.add(Vector.mult(other.pos, wtC));
-                sumPositionFactor += wtC;
-            }
-            if (
-                displacement.mag() < this.prop.viewRange * 1 &&
-                Math.abs(angle) < this.prop.viewAngle
-            ) {
-                let wtI;
-                if (- this.prop.idAcceptance / 2 < id_phase && id_phase < + this.prop.idAcceptance / 2)
-                    wtI = Math.exp(- Math.pow(id_phase, 2));
-                else
-                    wtI = - Math.exp(+ Math.pow(id_phase, 2));
-                // let wtI = 0;
-                avgId.add(Vector.mult(other.prop.id, wtI));
-                sumIdFactor += Math.abs(wtI);
-            }
+        this._id_vel = this.id.copy().mult(0);
+        this._accel = this.vel.copy().mult(0);
+        this._id_vel.add(Vector.sub(this.id_inherit, this.id).mult(SETTING.uniqueness));
+        const acc = {
+            [GROUP.PEER]: {
+                count: 0,
+                pos: Vector.mult(this.pos, 0),
+                vel: Vector.mult(this.vel, 0),
+                id: Vector.mult(this.id, 0),
+            },
+            [GROUP.PREY]: {
+                count: 0,
+                pos: Vector.mult(this.pos, 0),
+                vel: Vector.mult(this.vel, 0),
+                id: Vector.mult(this.id, 0),
+            },
+            [GROUP.PRED]: {
+                count: 0,
+                pos: Vector.mult(this.pos, 0),
+                vel: Vector.mult(this.vel, 0),
+                id: Vector.mult(this.id, 0),
+            },
+        };
+        for (let other of this.system.boids) {
+            if (other == this)
+                continue;
+            const dist = Vector.sub(other.pos, this.pos);
+            const id_diff = Vector.angleBetween(this.id, other.id) / (2 * Math.PI);
+            const group = id_diff < -1 / 6 ? GROUP.PREY : id_diff > 1 / 6 ? GROUP.PRED : GROUP.PEER;
+            if (dist.mag() > SETTING.margin)
+                this._accel.add(dist.copy().setMag(-1).mult(SETTING[group].separation / dist.magSq()));
+            if (dist.mag() > SETTING.visualRange)
+                continue;
+            if (Math.abs(this.vel.angleBetween(dist)) > SETTING.visualAngle / 2)
+                continue;
+            acc[group].count++;
+            acc[group].pos.add(other.pos);
+            acc[group].vel.add(other.vel);
+            acc[group].id.add(other.id);
+        }
+        for (let key in GROUP) {
+            const group = GROUP[key];
+            if (acc[group].count === 0)
+                continue;
+            acc[group].pos.div(acc[group].count);
+            acc[group].vel.div(acc[group].count);
+            acc[group].id.div(acc[group].count);
+            this._applyPerp(Vector.sub(acc[group].pos, this.pos).normalize(), SETTING[group].coherence);
+            this._applyPerp(acc[group].vel, SETTING[group].alignment / SETTING.speedMax);
+            this._id_vel.add(Vector.sub(acc[group].id, this.id).mult(SETTING[group].agreeableness));
         }
         {
-            const wt = lim.wallRepulsion;
-            if (this.pos.x - this.system.wall.left < lim.wallRange) {
-                avgDisplacement.add(new Vector(this.system.wall.left - this.pos.x, 0).mult(wt));
-                sumDisplacementFactor += wt;
-            }
-            if (this.pos.y - this.system.wall.top < lim.wallRange) {
-                avgDisplacement.add(new Vector(0, this.system.wall.top - this.pos.y).mult(wt));
-                sumDisplacementFactor += wt;
-            }
-            if (this.system.wall.right - this.pos.x < lim.wallRange) {
-                avgDisplacement.add(new Vector(this.system.wall.right - this.pos.x, 0).mult(wt));
-                sumDisplacementFactor += wt;
-            }
-            if (this.system.wall.bottom - this.pos.y < lim.wallRange) {
-                avgDisplacement.add(new Vector(0, this.system.wall.bottom - this.pos.y).mult(wt));
-                sumDisplacementFactor += wt;
-            }
+            if (this.pos.x > this.system.wall.left)
+                this._accel.add(new Vector(+1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.pos.x - this.system.wall.left), 2)));
+            // else
+            // this._accel.add(new Vector(+1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.pos.x - this.system.wall.left), 2)));
+            if (this.pos.y > this.system.wall.top)
+                this._accel.add(new Vector(0, +1).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.pos.y - this.system.wall.top), 2)));
+            // else
+            // this._accel.add(new Vector(0, +1).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.pos.y - this.system.wall.top), 2)));
+            if (this.pos.x < this.system.wall.right)
+                this._accel.add(new Vector(-1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.system.wall.right - this.pos.x), 2)));
+            // else
+            // this._accel.add(new Vector(-1, 0).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.system.wall.right - this.pos.x), 2)));
+            if (this.pos.y < this.system.wall.bottom)
+                this._accel.add(new Vector(0, -1).mult(SETTING.avoidance / Math.pow(SETTING.margin + Math.abs(this.system.wall.bottom - this.pos.y), 2)));
+            // else
+            // this._accel.add(new Vector(0, -1).mult(SETTING.avoidance / Math.pow(SETTING.margin - Math.abs(this.system.wall.bottom - this.pos.y), 2)));
         }
-        if (sumSpeedFactor !== 0) {
-            avgSpeed.mult(1 / sumSpeedFactor);
-            this.dir.add(avgSpeed.copy().sub(this.dir).mult(this.prop.alignment));
+    }
+    _applyPerp(v, w) {
+        const perp = v.copy();
+        let i = 0;
+        while (Math.abs(perp.dot(this.vel)) > .1)
+        {
+            const proj =this.vel.copy().mult(this.vel.dot(perp) / this.vel.magSq());
+            perp.sub(proj);
+            if (i++ > 10)
+                break;
         }
-        if (sumPositionFactor !== 0) {
-            avgPosition.mult(1 / sumPositionFactor);
-            this.dir.add(avgPosition.copy().sub(this.pos).mult(this.prop.cohesion));
-        }
-        if (sumDisplacementFactor !== 0) {
-            avgDisplacement.mult(1 / sumDisplacementFactor);
-            this.dir.sub(avgDisplacement.copy().mult(this.prop.seperation));
-        }
-        if (sumIdFactor !== 0) {
-            avgId.mult(1 / sumIdFactor);
-            this.id_ = avgId.copy().sub(this.prop.id);
-            if (this.id_.magSq() !== 0)
-                this.id_.setMag(this.prop.idCohesion);
-        }
-        this.dir.setMag(this.prop.speed);
+        this._accel.add(perp.mult(w / SETTING.turnRadius));
     }
     update(deltaTime) {
-        this.pos.add(this.dir.copy().mult(deltaTime / 1000));
-        this.prop.id.add(this.id_.mult(deltaTime / 1000));
-        this.prop.id.setMag(1);
-        delete this.id_;
+        const dt = deltaTime / 1000;
+        if (this.vel.mag() < SETTING.speedMin)
+            this.vel.add(new Vector(randomGaussian(0, 1), randomGaussian(0, 1)).mult(SETTING.speedMin));
+        if (this.vel.mag() > SETTING.speedMax)
+            this.vel.setMag(SETTING.speedMax);
+        this.vel.add(this._accel.copy().mult(dt * SETTING.accelFactor));
+        this.pos.add(this.vel.copy().mult(dt));
+        this.id.add(this._id_vel.copy().mult(dt)).normalize();
+        // if ((this.pos.x < this.system.wall.left && this.vel.x < 0)
+        //     || (this.pos.x > this.system.wall.right && this.vel.x > 0))
+        //     this.vel.mult(new Vector(-1, 1));
+        // if ((this.pos.y < this.system.wall.top && this.vel.y < 0)
+        //     || (this.pos.y > this.system.wall.bottom && this.vel.y > 0))
+        //     this.vel.mult(new Vector(1, -1));
         while (this.pos.x < this.system.wall.left)
             this.pos.add(new Vector(this.system.wall.right - this.system.wall.left, 0));
         while (this.pos.x > this.system.wall.right)
@@ -162,19 +175,14 @@ export class Boid {
     }
     data() {
         return {
-            c: d3.hcl(
-                map(this.prop.id.heading(), -Math.PI, +Math.PI, 0, 360),
-                50,
-                75,
-                1
-            ).formatHex8(),
+            c: map(this.id.heading(), -Math.PI, +Math.PI, 0, 360),
             p: {
                 x: this.pos.x,
                 y: this.pos.y,
             },
             d: {
-                x: this.dir.x,
-                y: this.dir.y,
+                x: this.vel.x,
+                y: this.vel.y,
             },
         }
     }
@@ -188,23 +196,20 @@ export class BoidSystem {
             top: 0,
             bottom: h,
         };
+        const tempRatio = 0,
+            padding = .1;
         this.boids = new Array(n).fill(0).map((_) => {
-            let v = Vector.random2D();
-            v.setMag(sigm(randomGaussian(0, 1)));
+            const vel = new Vector(randomGaussian(0, 1), randomGaussian(0, 1));
             return new Boid(
                 this,
-                new Vector(map(v.x, -1, +1, 0, w), map(v.y, -1, +1, 0, h)),
-                Vector.random2D(),
-                Vector.random2D(),
-                sigm(randomGaussian(0, 1)),
-                sigm(randomGaussian(0, 1)),
-                sigm(randomGaussian(0, 1)),
-                sigm(randomGaussian(0, 1)),
-                sigm(randomGaussian(0, 1)),
-                sigm(randomGaussian(0, 1)),
+                new Vector(map(Math.random(), -padding, 1 + padding, 0, w), map(Math.random(), -padding, 1 + padding, 0, h)),
+                vel.mult(Math.sqrt((tempRatio * Math.pow(SETTING.speedMax, 2) + (1 - tempRatio) * Math.pow(SETTING.speedMin, 2)))),
                 Math.random(),
             );
         });
+    }
+    get T() {
+        return this.boids.reduce((acc, boid) => acc + boid.vel.magSq(), 0) / this.boids.length;
     }
     data() {
         return this.boids.map(b => b.data())
@@ -213,6 +218,22 @@ export class BoidSystem {
         for (let i = 0; i < n; i++) {
             this.boids.forEach(b => b.eval());
             this.boids.forEach(b => b.update(deltaTime / n));
+            for (let i = 0; i < this.boids.length; i++)
+                for (let j = i + 1; j < this.boids.length; j++) {
+                    const boidA = this.boids[i];
+                    const boidB = this.boids[j];
+                    const dx = Vector.sub(boidB.pos, boidA.pos);
+                    const dv = Vector.sub(boidB.vel, boidA.vel);
+                    if (dx.magSq() == 0)
+                        continue;
+                    if (dx.mag() < SETTING.margin
+                        && -Vector.dot(dx, dv) > 0
+                    ) {
+                        const r = Vector.normalize(dx);
+                        boidA.vel.add(r.copy().mult(Vector.dot(dv, r)));
+                        boidB.vel.sub(r.copy().mult(Vector.dot(dv, r)));
+                    }
+                }
         }
     }
 }

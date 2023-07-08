@@ -2,8 +2,11 @@
     <h1>
         Complex function
     </h1>
-    <canvas width=500 height=500 class="sketch"></canvas>
+    <div class="preview-container">
+        <canvas width=500 height=500 class="sketch"></canvas>
+    </div>
     <p>
-        In complex analysis, domain coloring or a color wheel graph is a technique for visualizing complex functions by assigning a color to each point of the complex plane.
+        In complex analysis, domain coloring or a color wheel graph is a technique for visualizing complex functions by
+        assigning a color to each point of the complex plane.
     </p>
 </article>

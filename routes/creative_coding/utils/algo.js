@@ -1,5 +1,13 @@
+/**
+ * @template A
+ */
 export class PriorityQueue {
+    /**
+     * 
+     * @param {(item: A) => any} priority 
+     */
     constructor(priority = (_) => _) {
+        /**@type {A[]} */
         this._heap = [];
         this._gt = (a, b) => priority(a) > priority(b);
         this._lt = (a, b) => priority(a) < priority(b);
@@ -23,6 +31,9 @@ export class PriorityQueue {
         return item;
     }
 
+    /**
+     * @param {A} item 
+     */
     push(item) {
         this._heap.push(item);
         this._heapifyUp();
