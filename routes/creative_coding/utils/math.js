@@ -6,6 +6,7 @@ export function constrainLerp(v, l, h) { return constrainMap(v, 0, 1, l, h); }
 export function sigm(x) { return 1 / (1 + Math.exp(-x)); }
 export function gaus(x) { return Math.exp(-x*x); }
 export function symlog(x) { return x > 0 ? Math.log(1 + x) : -Math.log(1 - x); }
+export function symlog_inv(x) { return x > 0 ? Math.exp(x) - 1 : 1 - Math.exp(-x); }
 export function fract(x) { return x - Math.floor(x); }
 export function randomGaussian(mu = 0, sigma = 1) {
     const U1 = Math.random(),

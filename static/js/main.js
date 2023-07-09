@@ -69,8 +69,13 @@ router.routes.set("creative_coding/hydrogen_pilot", new Route({
     filePath: "/creative_coding/hydrogen_pilot/index.wc",
     scriptPath: "/creative_coding/hydrogen_pilot/main.js",
 }));
+router.routes.set("creative_coding/ideal_gas", new Route({
+    name: "Ideal Gas",
+    filePath: "/creative_coding/ideal_gas/index.wc",
+    scriptPath: "/creative_coding/ideal_gas/main.js",
+}));
 router.routes.set("creative_coding/poincare_disk", new Route({
-    name: "Poincare disk",
+    name: "Poincare Disk",
     filePath: "/creative_coding/poincare_disk/index.wc",
     scriptPath: "/creative_coding/poincare_disk/main.js",
 }));

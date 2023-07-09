@@ -1,26 +1,23 @@
 import * as d3 from "../utils/color.js";
 import { getColor } from "../utils/dom.js";
-import { symlog } from "../utils/math.js";
 import { BoidSystem, SETTING } from "./boid.js";
 export default function execute() {
     /**@type {HTMLCanvasElement} */
     let canvas = null;
     /**@type {CanvasRenderingContext2D} */
     let ctx = null;
-    /**@type {HTMLInputElement} */
-    let temp = null;
     /**@type {BoidSystem} */
     let system = null;
     const background = () => getColor('--color-surface-container-3', "#000");
     const foreground = () => {
         const c = getColor('--color-on-surface', "#FFF")
-        c.opacity = .01;
+        c.opacity = .0075;
         return c;
     };
     const time_scale = 1;
     let isActive = false;
     let pretime = 0;
-    const scale = 1e-2;
+    const scale = .5;
 
     function setup() {
         if (!canvas) return;
@@ -46,6 +43,9 @@ export default function execute() {
         system.data().forEach(({ p, d }) => {
             ctx.fillStyle = foreground().formatHex8();
             ctx.beginPath();
+            ctx.arc(p.x * scale, p.y * scale, SETTING.separationRange * scale, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
             ctx.moveTo(p.x * scale, p.y * scale);
             ctx.arc(p.x * scale, p.y * scale, SETTING.visualRange * scale, Math.atan2(d.y, d.x) - SETTING.visualAngle / 2, Math.atan2(d.y, d.x) + SETTING.visualAngle / 2);
             ctx.lineTo(p.x * scale, p.y * scale);
@@ -62,19 +62,14 @@ export default function execute() {
             ctx.arc(p.x * scale, p.y * scale, 3, 0, 2 * Math.PI);
             ctx.fill();
         });
-        temp.value = symlog(system.T);
-        document.querySelector("article #config #temperature-value").innerText = system.T.toExponential(2);
         requestAnimationFrame(draw);
     }
     
     return {
         start: () => {
             canvas = document.querySelector("article .sketch");
-            temp = document.querySelector("article #config #temperature");
-            temp.min = symlog(Math.pow(SETTING.speedMin, 2));
-            temp.max = symlog(Math.pow(SETTING.speedMax, 2));
             ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
-            system = new BoidSystem(canvas.width / scale, canvas.height / scale, 128);
+            system = new BoidSystem(canvas.width / scale, canvas.height / scale, 256);
             setup();
             isActive = true;
             requestAnimationFrame(draw);
