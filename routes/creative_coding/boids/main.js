@@ -76,7 +76,7 @@ export default function execute() {
         },
         stop: () => {
             isActive = false;
-            system = ctx = canvas = temp = null;
+            system = ctx = canvas = null;
         },
     };
 }
