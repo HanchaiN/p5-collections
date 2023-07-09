@@ -4,10 +4,6 @@
     </h1>
     <div class="preview-container">
         <canvas width=500 height=500 class="sketch"></canvas>
-        <form id="config" class="data-container">
-            <label for="temperature">Temperature: <slot id="temperature-value"></slot></label>
-            <input id="temperature" type="range" min="0" max="1" value="0.5" step="1e-16" readonly disabled>
-        </form>
     </div>
     <p>
         Boids is an artificial life program, developed by Craig Reynolds in 1986, which simulates the flocking behaviour
