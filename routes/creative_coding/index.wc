@@ -1,8 +1,12 @@
+<head>
+    <title>Creative Coding</title>
+</head>
 <article>
     <h1>
         Creative Coding
     </h1>
     <p>
-        Creative coding is a type of computer programming in which the goal is to create something expressive instead of something functional.
+        Creative coding is a type of computer programming in which the goal is to create something expressive instead of
+        something functional.
     </p>
 </article>

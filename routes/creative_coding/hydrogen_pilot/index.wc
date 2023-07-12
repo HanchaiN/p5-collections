@@ -1,3 +1,15 @@
+<head>
+    <title>Hydrogen Pilot Wave</title>
+    <script type="module">
+        import main from "/routes/creative_coding/hydrogen_pilot/main.js";
+        const exec = main();
+        exec.start();
+        window.addEventListener("htmx:afterSwap", function cleanup() {
+            exec.stop();
+            window.removeEventListener("htmx:afterSwap", cleanup);
+        });
+    </script>
+</head>
 <article>
     <h1>
         Hydrogen Pilot Wave

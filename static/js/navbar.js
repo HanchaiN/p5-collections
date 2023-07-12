@@ -64,11 +64,11 @@ export function generateNav(navElem) {
         }
         parent.value = value;
         if (parent.value) {
-            parent.a.href = "#" + route;
+            parent.a.href = `#${route}`;
             parent.a.innerHTML = parent.value.name;
-            parent.a.addEventListener("click", (e) => {
-                document.getElementById("menu_toggle").checked = false;
-            });
+            // parent.a.addEventListener("click", (e) => {
+            //     document.getElementById("menu_toggle").checked = false;
+            // });
         }
     }
 

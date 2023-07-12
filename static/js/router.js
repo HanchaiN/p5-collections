@@ -1,14 +1,9 @@
 import { generateNav } from "./navbar.js";
-import { HTTP_STATUS } from "./utils.js";
 export class Route {
     /**
      * @type {string}
     */
     filePath = ""
-    /**
-     * @type {string}
-    */
-    scriptPath = ""
     /**
      * @type {boolean}
     */
@@ -22,11 +17,10 @@ export class Route {
      */
     title = "";
     /**
-     * @param {{filePath: string, scriptPath: string, isNav: boolean, name: string, title: string}} 
+     * @param {{filePath: string, isNav: boolean, name: string, title: string}} 
      */
-    constructor({ filePath, scriptPath = "", isNav = true, name, title = name }) {
+    constructor({ filePath, isNav = true, name, title = name }) {
         this.filePath = filePath;
-        this.scriptPath = scriptPath;
         this.isNav = isNav;
         this.name = name;
         this.title = title;
@@ -46,7 +40,6 @@ export class Router {
      */
     stop = () => { };
     /**
-     * 
      * @param {Route[]} routes
      * @param {HTMLElement} rootElem
      */
@@ -58,47 +51,26 @@ export class Router {
         Router.instance = this;
     }
     init() {
-        this.update();
-        window.addEventListener('hashchange', function (e) {
-            Router.instance.update();
-        });
         generateNav(document.querySelector(".menu"));
+        window.addEventListener('hashchange', function (e) {
+            window.location.reload();
+        });
+        window.addEventListener('load', function onLoad(e) {
+            Router.instance.update();
+            window.removeEventListener('load', onLoad);
+        })
     }
     update() {
-        this.goToRoute(this.routes.get(window.location.hash.substring(1)) ?? null);
+        this.goToRoute(window.location.hash.substring(1));
     }
     /**
-     * 
-     * @param {Route} route 
+     * @param {string} route 
      */
     goToRoute(route = null) {
-        const fallback = route != null;
-        if (route == null) {
-            route = this.routes.get("404");
-        }
-        let url = '/routes/' + route.filePath,
-            scriptUrl = '/routes/' + route.scriptPath,
-            xhttp = new XMLHttpRequest();
-        xhttp.addEventListener('readystatechange', function () {
-            if (this.readyState === this.DONE) {
-                if (this.status !== HTTP_STATUS.OK) {
-                    if (fallback) Router.instance.goToRoute();
-                    return;
-                }
-                Router.instance.stop();
-                Router.instance.rootElem.innerHTML = this.responseText;
-                if (route.scriptPath)
-                    import(scriptUrl).then(module => {
-                        const loader = module.default();
-                        loader.start();
-                        Router.instance.stop = loader.stop;
-                    }).catch(_ => {
-                        if (fallback) Router.instance.goToRoute()
-                    });
-                document.title = route.title;
-            }
+        const data = this.routes.get(route) ?? this.routes.get("404");
+        htmx.ajax('GET', data.filePath, {
+            target: '#main-content',
+            swap: 'innerHTML',
         });
-        xhttp.open('GET', url, true);
-        xhttp.send();
     }
 }

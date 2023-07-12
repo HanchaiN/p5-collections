@@ -1,4 +1,3 @@
-import * as math from "math";
 export class Graph {
     constructor(directed = false) {
         this.node = [];
