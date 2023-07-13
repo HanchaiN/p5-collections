@@ -1,5 +1,6 @@
 <head>
     <title>Hilbert Curve</title>
+    <!-- <script src="https://unpkg.com/gpu.js@latest/dist/gpu-browser.min.js"></script> -->
     <script type="module">
         import main from "/routes/creative_coding/hilbert/main.js";
         const exec = main();
@@ -14,6 +15,7 @@
     <h1>
         Hilbert Curve
     </h1>
-    <main class="sketch">
-    </main>
+    <div class="preview-container">
+        <canvas width=500 height=500 class="sketch"></canvas>
+    </div>
 </article>

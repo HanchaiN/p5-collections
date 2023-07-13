@@ -1,3 +1,4 @@
+/// <reference path="../utils/types/math.d.ts" />
 export class Graph {
     constructor(directed = false) {
         this.node = [];

@@ -1,6 +1,6 @@
 import * as d3 from "../utils/color.js";
 import { getParentSize } from "../utils/dom.js";
-import { Vector, constrain, fract, lerp, map, pow } from "../utils/math.js";
+import { Vector, constrain, fract, lerp, map } from "../utils/math.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
@@ -22,9 +22,9 @@ export default function execute() {
     const LAYER_COUNT = 1;
     const TOTAL_SLIT_COUNT = 128;
     const ORDER = 0;
-    const SLIT_COUNTS = new Array(LAYER_COUNT).fill(0).map((_, i) => Math.round(map(pow(i + 1, ORDER), 0, pow(LAYER_COUNT, ORDER), 1, TOTAL_SLIT_COUNT)));
+    const SLIT_COUNTS = new Array(LAYER_COUNT).fill(0).map((_, i) => Math.round(map(Math.pow(i + 1, ORDER), 0, Math.pow(LAYER_COUNT, ORDER), 1, TOTAL_SLIT_COUNT)));
     const LAYERS = SLIT_COUNTS.map((slitCount, i) => {
-        const SLIT_WIDTH = map(pow(i + 1, ORDER), 0, pow(LAYER_COUNT, ORDER), 0, TOTAL_SLIT_WIDTH);
+        const SLIT_WIDTH = map(Math.pow(i + 1, ORDER), 0, Math.pow(LAYER_COUNT, ORDER), 0, TOTAL_SLIT_WIDTH);
         const SLIT_BEGIN = SOURCE_POSITION.x - SLIT_WIDTH / 2;
         const SLIT_END = SOURCE_POSITION.x + SLIT_WIDTH / 2;
         return {

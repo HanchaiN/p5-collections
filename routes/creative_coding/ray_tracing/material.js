@@ -1,4 +1,4 @@
-import { pow, Vector } from "../utils/math.js";
+import { Vector } from "../utils/math.js";
 import { Dye } from "./colors.js";
 
 export function lambertianEmitter(color) {
@@ -36,8 +36,8 @@ function BDF(BRDF = null, BTDF = null) {
         const cos_i = Math.abs(norm.dot(toViewer));
         const cos_t = Math.sqrt(1 - (1 - cos_i * cos_i) / (rel_index * rel_index))
         const R = (
-            pow((cos_i - rel_index * cos_t) / (cos_i + rel_index * cos_t), 2)
-            + pow((cos_t - rel_index * cos_i) / (cos_t + rel_index * cos_i), 2)
+            Math.pow((cos_i - rel_index * cos_t) / (cos_i + rel_index * cos_t), 2)
+            + Math.pow((cos_t - rel_index * cos_i) / (cos_t + rel_index * cos_i), 2)
         ) / 2;
         if (
             norm.dot(toViewer) * norm.dot(toSource) > 0

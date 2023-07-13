@@ -9,11 +9,25 @@
             window.removeEventListener("htmx:afterSwap", cleanup);
         });
     </script>
+    <style>
+        .preview-container {
+            position: relative;
+        }
+
+        .sketch#main,
+        .sketch#foreground {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
 </head>
 <article>
     <h1>
         Hydrogen Cloud
     </h1>
-    <main class="sketch">
-    </main>
+    <div class="preview-container">
+        <canvas width=500 height=500 class="sketch" id="main"></canvas>
+        <canvas width=500 height=500 class="sketch" id="foreground"></canvas>
+    </div>
 </article>

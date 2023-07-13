@@ -1,4 +1,4 @@
-import { combination, Complex, factorial, permutation, pow, product, Vector } from "../utils/math.js";
+import { Complex, Math, Vector, combination, factorial, permutation, product } from "../utils/math.js";
 export const RADIUS_REDUCED = 1;
 export const MASS_REDUCED = 9.109e-31;
 export const H_BAR = 1.054e-34;
@@ -7,12 +7,12 @@ const SAMPLE_RESOLUTION = .25;
 const EPSILON = 1e-12;
 
 function laguerre(n, k) {
-    const coeff = new Array(n + 1).fill(0).map((_, i) => pow(-1, i) * combination(n + k, n - i) / factorial(i));
+    const coeff = new Array(n + 1).fill(0).map((_, i) => Math.pow(-1, i) * combination(n + k, n - i) / factorial(i));
     return (x) => coeff.reduceRight((prev, curr) => prev * x + curr, 0);
 }
 function laguerre_der(n, k, order = 1) {
     if (order > n) return (x) => 0;
-    const factor = pow(-1, order);
+    const factor = Math.pow(-1, order);
     const laguerre_ = laguerre(n - order, k + order);
     return (x) => factor * laguerre_(x);
 }
@@ -25,36 +25,36 @@ function legendre(m, l) {
     }
     if (m < 0) {
         const legendre_ = legendre(-m, l);
-        const factor = pow(-1, -m) * product(l - m + 1, l + m);
+        const factor = Math.pow(-1, -m) * product(l - m + 1, l + m);
         return (x) => legendre_(x) * factor;
     }
-    const factor = pow(-1, m) * pow(2, l);
+    const factor = Math.pow(-1, m) * Math.pow(2, l);
     const coeff = new Array(l - m + 1).fill(0).map((_, ind) =>
         factor * combination(l, ind + m) * combination((l + ind + m - 1) / 2, l) * permutation(ind + m, m)
     );
     return (x) =>
-        coeff.reduceRight((prev, curr) => prev * x + curr, 0) * pow(1 - x * x, m / 2);
+        coeff.reduceRight((prev, curr) => prev * x + curr, 0) * Math.pow(1 - x * x, m / 2);
 }
 function legendre_der(m, l, order = 1) {
     if (order === 0) return legendre(m, l);
     if (order === 1) {
         const legendre_ = legendre(m, l);
         const legendre__ = legendre(m, l + 1);
-        return (x) => (-(l + 1) * x * legendre_(x) + (l - m + 1) * legendre__(x)) / (pow(x, 2) - 1)
+        return (x) => (-(l + 1) * x * legendre_(x) + (l - m + 1) * legendre__(x)) / (Math.pow(x, 2) - 1)
     }
     throw new Error();
 }
 function sph_harm(m, l) {
     if (m < 0) {
         const sph_harm_ = sph_harm(-m, l);
-        const factor = pow(-1, -m);
+        const factor = Math.pow(-1, -m);
         return (theta, phi) =>
             sph_harm_(theta, phi)
                 .mult(factor)
                 .conj();
     }
     const legendre_ = legendre(m, l);
-    const factor = pow(-1, m) * Math.sqrt((2 * l + 1) / (4 * Math.PI) / product(l - m + 1, l + m));
+    const factor = Math.pow(-1, m) * Math.sqrt((2 * l + 1) / (4 * Math.PI) / product(l - m + 1, l + m));
     return (theta, phi) =>
         Complex.fromCartesian(0, m * phi)
             .exp()
@@ -63,7 +63,7 @@ function sph_harm(m, l) {
 function sph_harm_der(m, l, order_theta = 0, order_phi = 0) {
     if (m < 0) {
         const sph_harm_der_ = sph_harm_der(-m, l, order_theta, order_phi);
-        const factor = pow(-1, -m);
+        const factor = Math.pow(-1, -m);
         return (theta, phi) =>
             sph_harm_der_(theta, phi)
                 .mult(factor)
@@ -77,7 +77,7 @@ function sph_harm_der(m, l, order_theta = 0, order_phi = 0) {
     if (order_theta === 0) return sph_harm(m, l);
     if (order_theta === 1) {
         const legendre_der_ = legendre_der(m, l, order_theta);
-        const factor = pow(-1, m) * Math.sqrt((2 * l + 1) / (4 * Math.PI) / product(l - m + 1, l + m));
+        const factor = Math.pow(-1, m) * Math.sqrt((2 * l + 1) / (4 * Math.PI) / product(l - m + 1, l + m));
         return (theta, phi) =>
             Complex.fromCartesian(0, m * phi)
                 .exp()
@@ -157,7 +157,7 @@ export class WaveFunction {
     static fromOrbital(n, l, m) {
         const psi = new WaveFunction();
         const normalize_r = - Math.sqrt(
-            pow(2 * Z / (n * RADIUS_REDUCED), 3)
+            Math.pow(2 * Z / (n * RADIUS_REDUCED), 3)
             / (2 * n * product(n - l, n + l))
         );
         const laguerre_ = laguerre(n - l - 1, 2 * l + 1);
@@ -169,15 +169,15 @@ export class WaveFunction {
         const factor_r = (2 * Z) / (n * RADIUS_REDUCED);
         const _radial = (r) => {
             const rho = factor_r * r;
-            return Complex.fromCartesian(normalize_r * Math.exp(-rho / 2) * pow(rho, l) * laguerre_(rho), 0);
+            return Complex.fromCartesian(normalize_r * Math.exp(-rho / 2) * Math.pow(rho, l) * laguerre_(rho), 0);
         }
         const _radial_der = (r) => {
             const rho = factor_r * r;
             const d = Complex.fromCartesian(
                 factor_r * normalize_r * (
-                    -1 / 2 * Math.exp(-rho / 2) * pow(rho, l) * laguerre_(rho)
-                    + Math.exp(-rho / 2) * l * pow(rho, l - 1) * laguerre_(rho)
-                    + Math.exp(-rho / 2) * pow(rho, l) * laguerre_der_(rho)
+                    -1 / 2 * Math.exp(-rho / 2) * Math.pow(rho, l) * laguerre_(rho)
+                    + Math.exp(-rho / 2) * l * Math.pow(rho, l - 1) * laguerre_(rho)
+                    + Math.exp(-rho / 2) * Math.pow(rho, l) * laguerre_der_(rho)
                 ),
                 0
             );

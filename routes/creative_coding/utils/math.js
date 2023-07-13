@@ -4,7 +4,7 @@ export function lerp(v, l, h) { return map(v, 0, 1, l, h); }
 export function constrainMap(v, l, h, l_, h_) { return constrain(map(v, l, h, l_, h_), l_, h_); }
 export function constrainLerp(v, l, h) { return constrainMap(v, 0, 1, l, h); }
 export function sigm(x) { return 1 / (1 + Math.exp(-x)); }
-export function gaus(x) { return Math.exp(-x*x); }
+export function gaus(x) { return Math.exp(-x * x); }
 export function symlog(x) { return x > 0 ? Math.log(1 + x) : -Math.log(1 - x); }
 export function symlog_inv(x) { return x > 0 ? Math.exp(x) - 1 : 1 - Math.exp(-x); }
 export function fract(x) { return x - Math.floor(x); }
@@ -15,45 +15,32 @@ export function randomGaussian(mu = 0, sigma = 1) {
         Z1 = Math.sqrt(-2 * Math.log(U1)) * Math.sin(2 * Math.PI * U2);
     return Z0 * sigma + mu
 }
-export function randomChi(k = 1)
-{
-    return Math.sqrt(new Array(Math.ceil(k)).fill(0).map(_=>Math.pow(randomGaussian(0, 1), 2)).reduce((acc, cur) => acc + cur, 0));
+export function randomChi(k = 1) {
+    return Math.sqrt(new Array(Math.ceil(k)).fill(0).map(_ => Math.pow(randomGaussian(0, 1), 2)).reduce((acc, cur) => acc + cur, 0));
 }
-function negpow(val) {
-    if (val % 2 === 0) return +1;
-    if (val % 2 === 1) return -1;
-    return 0;
-}
-export function pow(x, y) {
-    if (x < 0) return negpow(y) * pow(-x, y);
-    if (x < 1) return pow(1 / x, -y);
-    if (y < 0) return 1 / pow(x, -y);
-    if (Math.floor(y) === 0) return Math.pow(x, y);
-    const exp = Math.floor(y), half = pow(x, Math.floor(exp / 2)), rem = y - exp;
-    if (exp % 2 === 0) return half * half * pow(x, rem);
-    if (exp % 2 === 1) return half * half * x * pow(x, rem);
-    return 0;
+export function arctan2(y, x) {
+    if (y === 0) {
+        if (x < 0)
+            return Math.PI;
+        else
+            return 0;
+    }
+    return 2 * Math.atan(y / (Math.sqrt(x * x + y * y) + x));
 }
 export function product(from, to) {
-    if (to < from) {
-        return 1
-    }
-
-    if (to === from) {
-        return to
-    }
-
-    const half = from + Math.floor((to - from) / 2);
-    return product(from, half) * product(half + 1, to);
+    let y = 1.0;
+    for (let i = from; i <= to; i++)
+        y *= i;
+    return y;
 }
 export function factorial(n) {
-    return product(2, n);
+    return product(1, n);
 }
 export function permutation(a, k) {
     return product(a - k + 1, a);
 }
 export function combination(a, k) {
-    return product(a - k + 1, a) / factorial(k);
+    return product(a - k + 1, a) / product(1, k);
 }
 export class Vector {
     constructor(...val) {
@@ -358,7 +345,7 @@ export class Complex {
         return this.copy(z).log();
     }
     pow(v) {
-        return Complex.fromPolar(pow(this.r, v), this.theta * v);
+        return Complex.fromPolar(Math.pow(this.r, v), this.theta * v);
     }
     static pow(a, b) {
         if (b instanceof this)
@@ -366,7 +353,7 @@ export class Complex {
         if (a instanceof this)
             return a.pow(b);
         if (typeof a === "number")
-            return this.copy(pow(a, b));
+            return this.copy(Math.pow(a, b));
         throw new TypeError();
     }
     sinh() {
@@ -428,7 +415,7 @@ export class ComplexPolar extends Complex {
         return ComplexPolar.fromPolar(this.r, -this.theta);
     }
     absSq() {
-        return pow(this.r, 2);
+        return Math.pow(this.r, 2);
     }
     abs() {
         return this.r;
@@ -476,7 +463,7 @@ export class ComplexPolar extends Complex {
         return ComplexPolar.fromCartesian(Math.log(this.r), this.theta);
     }
     pow(v) {
-        return ComplexPolar.fromPolar(pow(this.r, v), this.theta * v);
+        return ComplexPolar.fromPolar(Math.pow(this.r, v), this.theta * v);
     }
     sinh() {
         return ComplexPolar.fromCartesian(
@@ -537,12 +524,12 @@ export function gamma(n) {
                 * Math.pow((n / Math.E), n)
                 * (
                     1
-                    + 1 / (12 * pow(n, 1))
-                    + 1 / (288 * pow(n, 2))
-                    - 139 / (51840 * pow(n, 3))
-                    - 571 / (2488320 * pow(n, 4))
-                    + 163879 / (209018880 * pow(n, 5))
-                    + 5246819 / (75246796800 * pow(n, 6))
+                    + 1 / (12 * Math.pow(n, 1))
+                    + 1 / (288 * Math.pow(n, 2))
+                    - 139 / (51840 * Math.pow(n, 3))
+                    - 571 / (2488320 * Math.pow(n, 4))
+                    + 163879 / (209018880 * Math.pow(n, 5))
+                    + 5246819 / (75246796800 * Math.pow(n, 6))
                 );
         n--;
         let x = gammaP[0];
@@ -590,7 +577,7 @@ export function zeta(s, prec = 1e-3, only = false) {
         let S = Complex.copy(0);
         for (let k = 1; k <= n; k++) {
             S.add(
-                Complex.div(pow(-1, k - 1) * d(k), Complex.pow(k, z))
+                Complex.div(Math.pow(-1, k - 1) * d(k), Complex.pow(k, z))
             );
         }
         return S.div(
