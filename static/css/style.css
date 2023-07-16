@@ -196,6 +196,7 @@ article p {
 	height: 100vh;
 	transition: background 0.15s;
 	width: 100vw;
+	z-index: 100;
 }
 
 .navbar .menu_toggle~label svg,
@@ -271,6 +272,7 @@ article p {
 	top: 0;
 	width: 100%;
 	height: 100%;
+	z-index: 100;
 }
 
 .navbar .menu_toggle:checked~.menu {
@@ -312,7 +314,7 @@ article p {
 	transition-duration: inherit;
 	transition-delay: 0.725s;
 	background-color: var(--color-side);
-	z-index: 1;
+	z-index: 101;
 }
 
 .navbar .menu_toggle~.menu>ul a:after {
@@ -326,7 +328,7 @@ article p {
 	transform-origin: left;
 	transform: scaleX(0);
 	background-color: var(--color-under);
-	z-index: 2;
+	z-index: 102;
 }
 
 .navbar .menu_toggle~.menu>ul li:hover:not(:has(li:hover))>a:after {

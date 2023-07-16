@@ -1,9 +1,9 @@
 /// <reference path="../utils/types/gpu.d.ts" />
 import "gpu";
-import { cubehelix2rgb, hcl2lab, lab2xyz, rgb2srgb, xyz2rgb } from "../utils/color.js";
+import { hcl2rgb, rgb2srgb } from "../utils/color.js";
 import { getColor } from "../utils/dom.js";
-import { arctan2, combination, factorial, fract, map, permutation, product } from "../utils/math.js";
-import { laguerre, legendre, psi_orbital, sph_harm } from "./psi.js";
+import { arctan2, constrain, fpart, map } from "../utils/math.js";
+import { psi_orbital } from "./psi.js";
 
 export default function execute() {
     /**@type {HTMLCanvasElement} */
@@ -31,65 +31,25 @@ export default function execute() {
             foreground = document.querySelector("article .sketch#foreground");
             ctx = foreground.getContext("2d");
             canvas = document.querySelector("article .sketch#main");
-            gpu = new GPU.GPU({ canvas })
-                .addFunction(arctan2, {
-                    argumentTypes: { x: 'Float', y: 'Float' },
-                    returnType: 'Float'
-                }).addFunction(product, {
-                    argumentTypes: { from: 'Float', to: 'Float' },
-                    returnType: 'Float'
-                }).addFunction(factorial, {
-                    argumentTypes: { n: 'Integer' },
-                    returnType: 'Integer'
-                }).addFunction(combination, {
-                    argumentTypes: { a: 'Float', k: 'Integer' },
-                    returnType: 'Float'
-                }).addFunction(permutation, {
-                    argumentTypes: { a: 'Float', k: 'Integer' },
-                    returnType: 'Float'
-                }).addFunction(laguerre, {
-                    argumentTypes: { n: 'Integer', k: 'Integer', x: 'Float' },
-                    returnType: 'Float',
-                }).addFunction(legendre, {
-                    argumentTypes: { m: 'Integer', l: 'Integer', x: 'Float' },
-                    returnType: 'Float',
-                }).addFunction(sph_harm, {
-                    argumentTypes: { m: 'Integer', l: 'Integer', theta: 'Float', phi: 'Float' },
-                    returnType: 'Array(2)',
-                }).addFunction(psi_orbital, {
-                    argumentTypes: {
-                        n: 'Integer', l: 'Integer', m: 'Integer',
-                        x: 'Float', y: 'Float', z: 'Float', time: 'Float'
-                    },
-                    returnType: 'Array(2)',
-                }).addFunction(hcl2lab, {
-                    argumentTypes: { hcl: 'Array(3)' },
-                    returnType: 'Array(3)',
-                }).addFunction(lab2xyz, {
-                    argumentTypes: { lab: 'Array(3)' },
-                    returnType: 'Array(3)',
-                }).addFunction(xyz2rgb, {
-                    argumentTypes: { xyz: 'Array(3)' },
-                    returnType: 'Array(3)',
-                }).addFunction(cubehelix2rgb, {
-                    argumentTypes: { hsl: 'Array(3)' },
-                    returnType: 'Array(3)',
-                }).addFunction(rgb2srgb, {
-                    argumentTypes: { rgb: 'Array(3)' },
-                    returnType: 'Array(3)',
-                });
+            gpu = new GPU.GPU({ canvas });
+            arctan2.add(gpu);
+            psi_orbital.add(gpu);
+            hcl2rgb.add(gpu);
+            rgb2srgb.add(gpu);
+            constrain.add(gpu);
+            map.add(gpu);
             kernel = gpu.createKernel(function (z, t) {
-                const x = -this.constants.R + 2 * this.constants.R * this.thread.x / this.output.x;
-                const y = +this.constants.R - 2 * this.constants.R * this.thread.y / this.output.y;
+                const x = map(this.thread.x / this.output.x, 0, 1, -this.constants.R, +this.constants.R);
+                const y = map(this.thread.y / this.output.y, 0, 1, -this.constants.R, +this.constants.R);
                 const v = psi(x, y, z, t);
                 const prob = 1000 * (v[0] * v[0] + v[1] * v[1]);
                 const phase = arctan2(v[1], v[0]);
                 const brightness = Math.pow(prob / (prob + 1), 0.5);
-                const c = rgb2srgb(xyz2rgb(lab2xyz(hcl2lab([
-                    (phase < 0 ? phase + 2 * Math.PI : phase) / (2.0 * Math.PI),
-                    Math.min(Math.max(brightness, 0), 1),
-                    Math.min(Math.max(brightness, 0), 1),
-                ]))));
+                const c = rgb2srgb(hcl2rgb([
+                    (phase < 0.0 ? phase + 2 * Math.PI : phase) / (2.0 * Math.PI),
+                    constrain(brightness, 0, 1),
+                    constrain(brightness, 0, 1)
+                ]));
                 this.color(c[0], c[1], c[2], 1);
             })
                 .addFunction(function psi(x, y, z, t) {
@@ -110,12 +70,12 @@ export default function execute() {
                 .setGraphical(true);
             kernel(0, 0);
             requestAnimationFrame(function draw(t) {
-                const z = map(fract(t / T), 0, 1, -R, +R);
+                const z = map(fpart(t / T), 0, 1, -R, +R);
                 kernel(z, 0.0);
                 requestAnimationFrame(draw);
             });
             requestAnimationFrame(function draw(t) {
-                const z = map(fract(t / T), 0, 1, -R, +R);
+                const z = map(fpart(t / T), 0, 1, -R, +R);
                 ctx.clearRect(0, 0, foreground.width, foreground.height)
                 for (let i = 0; i <= R; i++) {
                     if (Number.isInteger(Math.sqrt(i)))
@@ -135,7 +95,7 @@ export default function execute() {
         },
         stop: () => {
             isActive = false;
-            system = ctx = canvas = null;
+            ctx = canvas = null;
             kernel.destroy();
             gpu.destroy();
             gpu = kernel = null;

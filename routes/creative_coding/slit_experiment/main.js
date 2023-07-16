@@ -1,6 +1,6 @@
 import * as d3 from "../utils/color.js";
 import { getParentSize } from "../utils/dom.js";
-import { Vector, constrain, fract, lerp, map } from "../utils/math.js";
+import { Vector, constrain, fpart, lerp, map } from "../utils/math.js";
 export default function execute() {
     let parent = null;
     let canvas = null;
@@ -220,7 +220,7 @@ export default function execute() {
         const foreground_ctx = canvas.querySelector("#foreground").getContext("2d");
         const middleground_ctx = canvas.querySelector("#middleground").getContext("2d");
         const mag_plot_ctx = canvas.querySelector("#mag_plot").getContext("2d");
-        const t_ = fract(t / (2 * FULL_WIDTH_DURATION * 1000));
+        const t_ = fpart(t / (2 * FULL_WIDTH_DURATION * 1000));
         const forward = t_ < 0.5;
         const x_ = forward ? map(t_, 0, 0.5, -1, 1) : map(t_, 0.5, 1, 1, -1);
         const scan_x = map(x_, -1, 1, 0, 1);
