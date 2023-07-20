@@ -17,7 +17,12 @@ export class Route {
      */
     title = "";
     /**
-     * @param {{filePath: string, isNav: boolean, name: string, title: string}} 
+     * 
+     * @param {Object} param
+     * @param {string} param.filePath
+     * @param {boolean} param.isNav
+     * @param {string} param.name
+     * @param {string} param.title
      */
     constructor({ filePath, isNav = true, name, title = name }) {
         this.filePath = filePath;

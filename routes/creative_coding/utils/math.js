@@ -1,21 +1,22 @@
+/// <reference path="../utils/types/gpu.d.ts" />
 export * from './random.js';
 export function constrain(v, l, h) { return Math.min(h, Math.max(l, v)); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 constrain.add = (gpu) => {
     gpu.addFunction(constrain, { argumentTypes: ['Float', 'Float', 'Float'], returnType: 'Float' });
 };
 export function map(v, l, h, l_, h_) { return l_ + (v - l) * (h_ - l_) / (h - l); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 map.add = (gpu) => {
     gpu.addFunction(map, { argumentTypes: ['Float', 'Float', 'Float', 'Float', 'Float'], returnType: 'Float' });
 };
 export function lerp(v, l, h) { return map(v, 0, 1, l, h); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 lerp.add = (gpu) => {
     map.add(gpu)
@@ -23,7 +24,7 @@ lerp.add = (gpu) => {
 };
 export function constrainMap(v, l, h, l_, h_) { return constrain(map(v, l, h, l_, h_), l_, h_); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 constrainMap.add = (gpu) => {
     constrain.add(gpu);
@@ -32,7 +33,7 @@ constrainMap.add = (gpu) => {
 };
 export function constrainLerp(v, l, h) { return constrainMap(v, 0, 1, l, h); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 constrainLerp.add = (gpu) => {
     constrainMap.add(gpu);
@@ -40,7 +41,7 @@ constrainLerp.add = (gpu) => {
 };
 export function fpart(x) { return x - Math.floor(x); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 fpart.add = (gpu) => {
     gpu.addFunction(fpart, { argumentTypes: ['Float'], returnType: 'Float' });
@@ -49,7 +50,7 @@ export function powneg(x) {
     return Math.pow(-1, x);
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 powneg.add = (gpu) => {
     constrainLerp.add(gpu);
@@ -57,28 +58,28 @@ powneg.add = (gpu) => {
 };
 export function sigm(x) { return 1 / (1 + Math.exp(-x)); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 sigm.add = (gpu) => {
     gpu.addFunction(sigm, { argumentTypes: ['Float'], returnType: 'Float' });
 };
 export function gaus(x) { return Math.exp(-x * x); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 gaus.add = (gpu) => {
     gpu.addFunction(gaus, { argumentTypes: ['Float'], returnType: 'Float' });
 };
 export function symlog(x) { return x > 0 ? Math.log(1 + x) : -Math.log(1 - x); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 symlog.add = (gpu) => {
     gpu.addFunction(symlog, { argumentTypes: ['Float'], returnType: 'Float' });
 };
 export function symlog_inv(x) { return x > 0 ? Math.exp(x) - 1 : 1 - Math.exp(-x); }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 symlog_inv.add = (gpu) => {
     gpu.addFunction(symlog_inv, { argumentTypes: ['Float'], returnType: 'Float' });
@@ -90,7 +91,7 @@ export function product(from, to) {
     return y;
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 product.add = (gpu) => {
     gpu.addFunction(product, { argumentTypes: ['Float', 'Float'], returnType: 'Float' });
@@ -99,7 +100,7 @@ export function factorial(n) {
     return product(1, n);
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 factorial.add = (gpu) => {
     product.add(gpu);
@@ -109,7 +110,7 @@ export function permutation(a, k) {
     return product(a - k + 1, a);
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 permutation.add = (gpu) => {
     product.add(gpu);
@@ -119,7 +120,7 @@ export function combination(a, k) {
     return product(a - k + 1, a) / product(1, k);
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 combination.add = (gpu) => {
     product.add(gpu);
@@ -135,7 +136,7 @@ export function arctan2(y, x) {
     return 2 * Math.atan(y / (Math.sqrt(x * x + y * y) + x));
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 arctan2.add = (gpu) => {
     gpu.addFunction(arctan2, { argumentTypes: ['Float', 'Float'], returnType: 'Float' });
@@ -144,7 +145,7 @@ export function complex_conj(z) {
     return [z[0], -z[1]];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_conj.add = (gpu) => {
     gpu.addFunction(complex_conj, { argumentTypes: ['Array(2)'], returnType: 'Array(2)' });
@@ -153,7 +154,7 @@ export function complex_absSq(z) {
     return z[0] * z[0] + z[1] * z[1];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_absSq.add = (gpu) => {
     gpu.addFunction(complex_absSq, { argumentTypes: ['Array(2)'], returnType: 'Float' });
@@ -162,7 +163,7 @@ export function complex_add(z1, z2) {
     return [z1[0] + z2[0], z1[1] + z2[1]];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_add.add = (gpu) => {
     gpu.addFunction(complex_add, { argumentTypes: ['Array(2)', 'Array(2)'], returnType: 'Array(2)' });
@@ -171,7 +172,7 @@ export function complex_scale(z, v) {
     return [z[0] * v, z[1] * v];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_scale.add = (gpu) => {
     gpu.addFunction(complex_scale, { argumentTypes: ['Array(2)', 'Float'], returnType: 'Array(2)' });
@@ -180,7 +181,7 @@ export function complex_add_inv(z) {
     return complex_scale(z, -1);
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_add_inv.add = (gpu) => {
     complex_scale.add(gpu);
@@ -191,7 +192,7 @@ export function complex_sub(z1, z2) {
     return [z1[0] - z2[0], z1[1] - z2[1]];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_sub.add = (gpu) => {
     // complex_add.add(gpu);
@@ -202,7 +203,7 @@ export function complex_mult(z1, z2) {
     return [z1[0] * z2[0] - z1[1] * z2[1], z1[0] * z2[1] + z1[1] * z2[0]];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_mult.add = (gpu) => {
     gpu.addFunction(complex_mult, { argumentTypes: ['Array(2)', 'Array(2)'], returnType: 'Array(2)' });
@@ -211,7 +212,7 @@ export function complex_mult_inv(z) {
     return complex_scale(complex_conj(z), 1 / complex_absSq(z));
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_mult_inv.add = (gpu) => {
     complex_conj.add(gpu);
@@ -224,7 +225,7 @@ export function complex_div(z1, z2) {
     return complex_scale(complex_mult(z1, [z2[0], -z2[1]]), 1 / complex_absSq(z2));
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_div.add = (gpu) => {
     complex_mult.add(gpu);
@@ -240,7 +241,7 @@ export function complex_sin(z) {
     ];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_sin.add = (gpu) => {
     gpu.addFunction(complex_sin, { argumentTypes: ['Array(2)'], returnType: 'Array(2)' });
@@ -249,7 +250,7 @@ export function complex_exp(z) {
     return [Math.exp(z[0]) * Math.cos(z[1]), Math.exp(z[0]) * Math.sin(z[1])];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_exp.add = (gpu) => {
     gpu.addFunction(complex_exp, { argumentTypes: ['Array(2)'], returnType: 'Array(2)' });
@@ -261,7 +262,7 @@ export function complex_log(z) {
     ];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_log.add = (gpu) => {
     complex_absSq.add(gpu);
@@ -316,7 +317,7 @@ export function gamma_re(n) {
     return reflected ? Math.PI / (Math.sin(-Math.PI * n) * result) : result;
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 gamma_re.add = (gpu) => {
     factorial.add(gpu)
@@ -361,7 +362,7 @@ export function complex_gamma(z) {
         ) : result;
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_gamma.add = (gpu) => {
     // gamma_re.add(gpu);
@@ -374,10 +375,9 @@ complex_gamma.add = (gpu) => {
     complex_sin.add(gpu);
     gpu.addFunction(complex_gamma, { argumentTypes: ['Array(2)'], returnType: 'Array(2)' });
 };
-export function complex_zeta(s) {
+export function complex_zeta(s, prec = 1e-10) {
     const f0 = 0.0;
     if (complex_absSq(s) === f0) return [-0.5, 0];
-    const prec = 1e-3;
     let dec = -Math.round(Math.log(prec * 0.1) / Math.LN10)
     let n = Math.min(Math.round(1.3 * dec + 0.9 * Math.abs(s[1])), 60);
     let reflected = false;
@@ -401,7 +401,6 @@ export function complex_zeta(s) {
     for (let j = 0; j <= n; j++) {
         T += (product(n - j + 1, n + j - 1) * Math.pow(4, j) / factorial(2 * j));
     }
-    T = 1.0;
     let result = complex_div(
         S,
         complex_scale(
@@ -419,7 +418,7 @@ export function complex_zeta(s) {
     ) : result;
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 complex_zeta.add = (gpu) => {
     powneg.add(gpu);
@@ -435,7 +434,13 @@ complex_zeta.add = (gpu) => {
     complex_log.add(gpu);
     complex_sin.add(gpu);
     complex_gamma.add(gpu);
-    gpu.addFunction(complex_zeta, { argumentTypes: ['Array(2)'], returnType: 'Array(2)' });
+    gpu.addFunction(complex_zeta, {
+        argumentTypes: { s: 'Array(2)', prec: 'Float' },
+        returnType: 'Array(2)'
+    }).addFunction(complex_zeta, {
+        argumentTypes: { s: 'Array(2)' },
+        returnType: 'Array(2)'
+    });
 };
 export class Vector {
     constructor(...val) {

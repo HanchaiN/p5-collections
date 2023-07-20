@@ -1,3 +1,4 @@
+/// <reference path="../utils/types/gpu.d.ts" />
 import { arctan2, combination, complex_conj, complex_exp, complex_mult, complex_scale, factorial, permutation, product } from "../utils/math.js";
 export const RADIUS_REDUCED = 1.0;
 export const MASS_REDUCED = 9.109e-31;
@@ -13,7 +14,7 @@ export function laguerre(n, k, x) {
     return y;
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 laguerre.add = (gpu) => {
     combination.add(gpu);
@@ -43,7 +44,7 @@ export function legendre(m, l, x) {
     return y * factor * Math.pow(1 - x * x, f1 * m / 2);
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 legendre.add = (gpu) => {
     product.add(gpu);
@@ -69,7 +70,7 @@ export function sph_harm(m, l, theta, phi) {
     return reflected ? complex_conj(result) : result;
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 sph_harm.add = (gpu) => {
     product.add(gpu);
@@ -103,7 +104,7 @@ export function psi_orbital(n, l, m, x, y, z, t) {
     return complex_mult(_spatial, _temporal);
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 psi_orbital.add = (gpu) => {
     arctan2.add(gpu);

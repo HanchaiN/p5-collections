@@ -22,9 +22,9 @@ export default function execute() {
     /**@type {ParticleSystem} */
     let system = null;
     const background = () => getColor('--color-surface-container-3', "#000");
-    const n = 512;
-    const time_scale = 1/8;
-    const max_dt = .5 * time_scale;
+    const n = 2048;
+    const time_scale = 1;
+    const max_dt = 1 / 8 * time_scale;
     let isActive = false;
     let pretime = 0;
     const scale = 1e-2;
@@ -35,23 +35,21 @@ export default function execute() {
         ctx.fillStyle = background().formatHex8();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         system.wall.right = canvas.width / scale;
-        volume_slider.min = 1.5 * n * Math.PI * Math.pow(SETTING.RADIUS, 2);
+        volume_slider.min = .5 * n * Math.PI * Math.pow(SETTING.DIAMETER, 2);
         volume_slider.max = canvas.height / scale * system.w;
         volume_slider.value = system.h * system.w;
         temperature_slider.min = symlog(SETTING.TempMin);
         temperature_slider.max = symlog(SETTING.TempMax);
         temperature_slider.value = symlog(system.Temperature);
-        pressure_slider.min = symlog(1/3 * n * SETTING.TempMin * (2 / (SETTING.DOF) * SETTING.BOLTZMANN) / parseFloat(volume_slider.max));
-        pressure_slider.max = symlog(1/3 * n * SETTING.TempMax * (2 / (SETTING.DOF) * SETTING.BOLTZMANN) / parseFloat(volume_slider.min));
+        pressure_slider.min = symlog(1 / 3 * n * SETTING.TempMin * (2 / (SETTING.DOF) * SETTING.BOLTZMANN) / parseFloat(volume_slider.max));
+        pressure_slider.max = symlog(1 / 3 * n * SETTING.TempMax * (2 / (SETTING.DOF) * SETTING.BOLTZMANN) / parseFloat(volume_slider.min));
     }
 
     function draw(time) {
         if (!isActive) return;
         if (pretime) {
             const deltaTime = (time - pretime) * time_scale / 1000;
-            // system.update(Math.min(deltaTime, max_dt), 1);
-            const subdivide = Math.ceil(deltaTime / max_dt);
-            system.update(deltaTime, subdivide);
+            system.update(Math.min(deltaTime, max_dt), 4);
         }
         pretime = time;
         ctx.lineWidth = 0;
@@ -62,14 +60,13 @@ export default function execute() {
                 constrainMap(symlog(particle.Temperature), symlog(SETTING.TempMin), symlog(SETTING.TempMax), 180, 360),
                 1.5,
                 Number.parseInt(getComputedStyle(document.body).getPropertyValue('--tone-on-surface-var')) / 100,
-                1
             ).formatHex8();
             ctx.beginPath();
             ctx.arc(particle.pos.x * scale, particle.pos.y * scale, 3, 0, 2 * Math.PI);
             ctx.fill();
         })
         temperature_value.innerText = system.Temperature.toExponential(2);
-        pressure_slider.value = symlog(1/3 * system.Pressure);
+        pressure_slider.value = symlog(1 / 3 * system.Pressure);
         pressure_value.innerText = system.Pressure.toExponential(2);
         requestAnimationFrame(draw);
     }
@@ -81,7 +78,7 @@ export default function execute() {
     }
     function temperature_handler() {
         const value = symlog_inv(parseFloat(temperature_slider.value));
-        system.Temperature = value;
+        system.wall_temp.bottom = value;
     }
     return {
         start: () => {

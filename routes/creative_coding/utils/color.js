@@ -8,7 +8,7 @@ export function hcl2lab(hcl) {
     ];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 hcl2lab.add = (gpu) => {
     gpu.addFunction(hcl2lab, { argumentTypes: ['Array(3)'], returnType: 'Array(3)' });
@@ -31,7 +31,7 @@ export function lab2xyz(lab) {
     ];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 lab2xyz.add = (gpu) => {
     gpu.addFunction(lab2xyz, { argumentTypes: ['Array(3)'], returnType: 'Array(3)' });
@@ -49,7 +49,7 @@ export function xyz2rgb(xyz) {
     ]
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 xyz2rgb.add = (gpu) => {
     gpu.addFunction(xyz2rgb, { argumentTypes: ['Array(3)'], returnType: 'Array(3)' });
@@ -73,7 +73,7 @@ export function cubehelix2rgb(hsl) {
     ]
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 cubehelix2rgb.add = (gpu) => {
     gpu.addFunction(cubehelix2rgb, { argumentTypes: ['Array(3)'], returnType: 'Array(3)' });
@@ -86,7 +86,7 @@ export function rgb2srgb(rgb) {
     ];
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 rgb2srgb.add = (gpu) => {
     gpu.addFunction(rgb2srgb, { argumentTypes: ['Array(3)'], returnType: 'Array(3)' });
@@ -95,7 +95,7 @@ export function hcl2rgb(hcl) {
     return xyz2rgb(lab2xyz(hcl2lab(hcl)));
 }
 /**
- * @param {import("../utils/types/gpu.d.ts").GPU | import("../utils/types/gpu.d.ts").IKernelRunShortcut} gpu 
+ * @param {GPU.GPU | GPU.Kernel} gpu 
  */
 hcl2rgb.add = (gpu) => {
     xyz2rgb.add(gpu);
