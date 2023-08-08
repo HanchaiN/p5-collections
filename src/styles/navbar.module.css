@@ -1,0 +1,174 @@
+.navbar {
+  overflow: hidden;
+}
+
+.navbar .menu_toggle,
+.navbar .submenu_toggle {
+  opacity: 0;
+  position: fixed;
+  display: none;
+}
+
+.navbar .menu_toggle ~ label,
+.navbar .submenu_toggle ~ label {
+  position: relative;
+  cursor: pointer;
+}
+
+.navbar .menu_toggle ~ label {
+  left: 0;
+  top: 0;
+}
+
+.navbar .submenu_toggle ~ label {
+  left: 14px;
+}
+
+.navbar .menu_toggle:checked ~ label:before {
+  content: "";
+  background: var(--color-surface-container-3);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  transition: background 0.15s;
+  width: 100vw;
+  z-index: 100;
+}
+
+.navbar .menu_toggle ~ label svg,
+.navbar .submenu_toggle ~ label svg {
+  transition: transform 0.15s;
+}
+
+.navbar .menu_toggle ~ label svg {
+  position: fixed;
+  height: 44px;
+  width: 44px;
+  right: 0;
+  top: 0;
+  z-index: 101;
+}
+
+.navbar .submenu_toggle ~ label svg {
+  position: absolute;
+  height: 44px;
+  width: 44px;
+}
+
+.navbar .menu_toggle ~ label svg path,
+.navbar .submenu_toggle ~ label svg path {
+  fill: var(--color-on-surface-var);
+}
+
+.navbar .menu_toggle:checked ~ label svg:nth-of-type(1),
+.navbar .submenu_toggle:checked ~ label svg:nth-of-type(1) {
+  transform: scale(0);
+}
+
+.navbar .menu_toggle ~ label svg:nth-of-type(2),
+.navbar .submenu_toggle ~ label svg:nth-of-type(2) {
+  transform: scale(0);
+}
+
+.navbar .menu_toggle:checked ~ label svg:nth-of-type(2),
+.navbar .submenu_toggle:checked ~ label svg:nth-of-type(2) {
+  transform: scale(1);
+}
+
+.navbar .menu_toggle ~ .menu > ul,
+.navbar .submenu_toggle ~ .submenu > ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.navbar .menu_toggle ~ .menu {
+  overflow-y: scroll;
+  scrollbar-width: none;
+  transition-duration: var(--delay);
+}
+
+.navbar .submenu_toggle ~ .submenu {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--delay);
+}
+
+.navbar .menu_toggle ~ .menu::-webkit-scrollbar,
+.navbar .submenu_toggle ~ .submenu::-webkit-scrollbar {
+  display: none;
+}
+
+.navbar .menu_toggle ~ .menu {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  right: 100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+}
+
+.navbar .menu_toggle:checked ~ .menu {
+  transform: translate(100%, 0);
+}
+
+.navbar .menu_toggle ~ .menu li {
+  line-height: 44px;
+  min-height: 44px;
+  padding: 0 0 0 8px;
+  transform: translateX(-100%);
+  transition-duration: var(--delay);
+  --color: initial;
+  --color-side: var(--color, initial);
+  --color-under: var(--color, inherit);
+}
+
+.navbar .submenu_toggle:checked ~ .submenu {
+  grid-template-rows: 1fr;
+}
+
+.navbar .menu_toggle:checked ~ .menu > ul > li,
+.navbar .submenu_toggle:checked ~ .submenu > ul > li {
+  transform: translateX(0);
+}
+
+.navbar .menu_toggle ~ .menu > ul li a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+  padding: 0 0 0 6px;
+}
+
+.navbar .menu_toggle ~ .menu > ul li:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 8px;
+  height: 100%;
+  transition-duration: inherit;
+  transition-delay: 0.725s;
+  background-color: var(--color-side);
+  z-index: 101;
+}
+
+.navbar .menu_toggle ~ .menu > ul a:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  transition: transform 0.2s;
+  transform-origin: left;
+  transform: scaleX(0);
+  background-color: var(--color-under);
+  z-index: 102;
+}
+
+.navbar .menu_toggle ~ .menu > ul li:hover:not(:has(li:hover)) > a:after {
+  transform: scaleX(1);
+}

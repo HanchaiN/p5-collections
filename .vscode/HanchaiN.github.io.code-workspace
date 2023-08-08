@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"christian-kohler.npm-intellisense",
+			"dbaeumer.vscode-eslint",
+			"GraphQL.vscode-graphql",
+			"GraphQL.vscode-graphql-syntax",
+			"slevesque.shader"
+		]
+	}
+}

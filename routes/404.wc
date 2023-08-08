@@ -1,7 +1,0 @@
-<style>
-    .center {
-        display: block;
-        margin: auto;
-    }
-</style>
-<img src="https://http.cat/404" alt="404 Not Found" class="center">
