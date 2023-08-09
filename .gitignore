@@ -133,4 +133,4 @@ dist
 node_modules/
 .cache/
 public
-src/gatsby-types.d.ts
+# src/gatsby-types.d.ts
