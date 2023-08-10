@@ -13,7 +13,7 @@ export default function execute() {
   const REMOVER = 0.062;
   let grid: number[][][];
 
-  interface IUpdateConstants {
+  interface IUpdateConstants extends GPU.IConstantsThis {
     ADDER: number;
     REMOVER: number;
     DIFFUSION_RATE: number[];
@@ -22,7 +22,7 @@ export default function execute() {
   function init(this: GPU.IKernelFunctionThis) {
     if (
       Math.pow(Math.abs(this.thread.x - this.output.x / 2), 2) +
-        Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
+      Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
       Math.pow(10, 2)
     )
       return [1, 1];
@@ -39,17 +39,17 @@ export default function execute() {
       grid[this.thread.x][this.thread.y][1];
     const reaction = [
       -rxn +
-        this.constants.ADDER * (1.0 - grid[this.thread.x][this.thread.y][0]),
+      this.constants.ADDER * (1.0 - grid[this.thread.x][this.thread.y][0]),
       +rxn -
-        (this.constants.ADDER + this.constants.REMOVER) *
-          grid[this.thread.x][this.thread.y][1],
+      (this.constants.ADDER + this.constants.REMOVER) *
+      grid[this.thread.x][this.thread.y][1],
     ];
     const div_grad = [0, 0];
     if (
-      this.thread.x != 0 &&
-      this.thread.y != 0 &&
-      this.thread.x + 1 != this.output.x &&
-      this.thread.y + 1 != this.output.y
+      (this.thread.x != 0) &&
+      (this.thread.y != 0) &&
+      (this.thread.x + 1 != this.output.x) &&
+      (this.thread.y + 1 != this.output.y)
     ) {
       div_grad[0] +=
         grid[this.thread.x][this.thread.y][0] * -1.0 +
@@ -84,7 +84,7 @@ export default function execute() {
   function draw(this: GPU.IKernelFunctionThis, grid: number[][][]) {
     const v = constrain(
       grid[this.thread.x][this.thread.y][0] -
-        grid[this.thread.x][this.thread.y][1],
+      grid[this.thread.x][this.thread.y][1],
       0,
       1,
     );
@@ -97,10 +97,10 @@ export default function execute() {
       gpu = new GPU.GPU({});
       gpu_ = new GPU.GPU({ canvas });
       init_kernel = gpu
-        .createKernel(init as GPU.KernelFunction)
+        .createKernel(init)
         .setOutput([canvas.width, canvas.height, 2]);
       update_kernel = gpu
-        .createKernel(update as GPU.KernelFunction)
+        .createKernel(update)
         .setArgumentTypes({
           grid: "Array",
           dt: "Float",

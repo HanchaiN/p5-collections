@@ -6,7 +6,9 @@ const config: GatsbyConfig = {
     description: `HanchaiN's GitHub Page`,
     siteUrl: `https://HanchaiN.github.io`,
   },
-  graphqlTypegen: true,
+  graphqlTypegen: {
+    generateOnBuild: true
+  },
   plugins: [
     "gatsby-plugin-sitemap",
     {

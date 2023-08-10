@@ -9,10 +9,11 @@ export default function execute() {
   let main_kernel: GPU.IKernelRunShortcut;
   let audioContext: AudioContext, gainNode: GainNode, oscl: OscillatorNode;
 
-  interface IConstants {
+  interface IConstants extends GPU.IConstantsThis {
     h: number;
     l: number;
   }
+
   function main(this: GPU.IKernelFunctionThis<IConstants>, n: number) {
     const d = xy2d(n, this.thread.x, this.thread.y);
     const v = (1.0 * d) / Math.pow(n, 2);
@@ -33,10 +34,8 @@ export default function execute() {
         Math.ceil(Math.log2(Math.max(canvas.width, canvas.height))),
       );
       gpu = new GPU.GPU({ canvas });
-      cubehelix2rgb.add(gpu);
-      rgb2srgb.add(gpu);
       main_kernel = gpu
-        .createKernel(main as GPU.KernelFunction)
+        .createKernel(main)
         .addFunction(xy2d, {
           argumentTypes: ["Integer", "Integer", "Integer"],
           returnType: "Integer",
@@ -57,6 +56,8 @@ export default function execute() {
         })
         .setOutput([n, n])
         .setGraphical(true);
+      cubehelix2rgb.add(main_kernel);
+      rgb2srgb.add(main_kernel);
       main_kernel(n);
       canvas.addEventListener("mousedown", (e) => {
         if (typeof audioContext === "undefined") {
@@ -92,7 +93,6 @@ export default function execute() {
     stop: () => {
       main_kernel?.destroy();
       gpu?.destroy();
-      // gpu = kernel = null;
     },
   };
 }
