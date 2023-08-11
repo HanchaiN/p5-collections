@@ -2,8 +2,8 @@ import type { GPUKernel } from "@/script/utils/types";
 import { arctan2 } from ".";
 import { randomUniform } from "./random";
 
-export type vector = number[];
-export function vector_dim(v: vector) {
+export type TVector = number[];
+export function vector_dim(v: TVector) {
   return v.length;
 }
 vector_dim.add = (gpu: GPUKernel) => {
@@ -21,7 +21,7 @@ vector_dim.add = (gpu: GPUKernel) => {
       returnType: "Integer",
     });
 };
-export function vector_add(a: vector, b: vector): vector {
+export function vector_add(a: TVector, b: TVector): TVector {
   // if (vector_dim(a) !== vector_dim(b)) throw new TypeError();
   return a.map((_, i) => a[i] + b[i]);
 }
@@ -41,7 +41,7 @@ vector_add.add = (gpu: GPUKernel) => {
       returnType: "Array(3)",
     });
 };
-export function vector_sub(a: vector, b: vector): vector {
+export function vector_sub(a: TVector, b: TVector): TVector {
   // if (vector_dim(a) !== vector_dim(b)) throw new TypeError();
   return a.map((_, i) => a[i] - b[i]);
 }
@@ -61,7 +61,7 @@ vector_sub.add = (gpu: GPUKernel) => {
       returnType: "Array(3)",
     });
 };
-export function vector_mult(v: vector, s: number): vector {
+export function vector_mult(v: TVector, s: number): TVector {
   return v.map((_, i) => v[i] * s);
 }
 vector_mult.add = (gpu: GPUKernel) => {
@@ -79,7 +79,7 @@ vector_mult.add = (gpu: GPUKernel) => {
       returnType: "Array(3)",
     });
 };
-export function vector_div(v: vector, s: number): vector {
+export function vector_div(v: TVector, s: number): TVector {
   return v.map((_, i) => v[i] / s);
 }
 vector_div.add = (gpu: GPUKernel) => {
@@ -97,7 +97,7 @@ vector_div.add = (gpu: GPUKernel) => {
       returnType: "Array(3)",
     });
 };
-export function vector_dot(a: vector, b: vector) {
+export function vector_dot(a: TVector, b: TVector) {
   // if (vector_dim(a) != vector_dim(b)) throw new TypeError();
   let acc = 0.0;
   for (let i = 0; i < vector_dim(a); i++) acc += a[i] * b[i];
@@ -119,7 +119,7 @@ vector_dot.add = (gpu: GPUKernel) => {
       returnType: "Float",
     });
 };
-export function vector_cross(a: vector, b: vector): vector {
+export function vector_cross(a: TVector, b: TVector): TVector {
   // if (vector_dim(a) !== 3 || vector_dim(b) !== 3) throw new TypeError();
   return [
     a[1] * b[2] - a[2] * b[1],
@@ -134,7 +134,7 @@ vector_cross.add = (gpu: GPUKernel) => {
     returnType: "Array(3)",
   });
 };
-export function vector_magSq(v: vector) {
+export function vector_magSq(v: TVector) {
   return vector_dot(v, v);
 }
 vector_magSq.add = (gpu: GPUKernel) => {
@@ -153,7 +153,7 @@ vector_magSq.add = (gpu: GPUKernel) => {
       returnType: "Float",
     });
 };
-export function vector_mag(v: vector) {
+export function vector_mag(v: TVector) {
   return Math.sqrt(vector_dot(v, v));
 }
 vector_mag.add = (gpu: GPUKernel) => {
@@ -169,7 +169,7 @@ vector_mag.add = (gpu: GPUKernel) => {
       returnType: "Float",
     });
 };
-export function vector_dist(a: vector, b: vector) {
+export function vector_dist(a: TVector, b: TVector) {
   return vector_mag(vector_sub(a, b));
 }
 vector_dist.add = (gpu: GPUKernel) => {
@@ -189,17 +189,17 @@ vector_dist.add = (gpu: GPUKernel) => {
       returnType: "Float",
     });
 };
-export function vector_normalize(v: vector): vector {
+export function vector_normalize(v: TVector): TVector {
   return vector_div(v, vector_mag(v));
 }
-export function vector_setMag(v: vector, mag: number): vector {
+export function vector_setMag(v: TVector, mag: number): TVector {
   return vector_mult(vector_normalize(v), mag);
 }
-export function vector_heading(v: vector) {
+export function vector_heading(v: TVector) {
   if (vector_dim(v) !== 2) throw new TypeError();
   return arctan2(v[1], v[0]);
 }
-export function vector_angleBetween(a: vector, b: vector) {
+export function vector_angleBetween(a: TVector, b: TVector) {
   if (vector_dim(a) !== vector_dim(b)) throw new TypeError();
   if (vector_dim(a) !== 2)
     return Math.acos(vector_dot(a, b) / (vector_mag(a), vector_mag(b)));
@@ -208,14 +208,14 @@ export function vector_angleBetween(a: vector, b: vector) {
     Math.sign(a[0] * b[1] - a[1] * b[0])
   );
 }
-export function vector_rotate(v: vector, theta: number): vector {
+export function vector_rotate(v: TVector, theta: number): TVector {
   if (vector_dim(v) !== 2) throw new TypeError();
   return [
     Math.cos(theta) * v[0] - Math.sin(theta) * v[1],
     Math.sin(theta) * v[0] + Math.cos(theta) * v[1],
   ];
 }
-export function vector_inclination(v: vector) {
+export function vector_inclination(v: TVector) {
   // if (vector_dim(v) !== 3) throw new TypeError();
   const r = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]); //vector_mag(v);
   return r === 0 ? 0 : Math.acos(v[2] / r);
@@ -228,7 +228,7 @@ vector_inclination.add = (gpu: GPUKernel) => {
     returnType: "Float",
   });
 };
-export function vector_alzimuth(v: vector) {
+export function vector_alzimuth(v: TVector) {
   // if (vector_dim(v) !== 3) throw new TypeError();
   return arctan2(v[1], v[0]);
 }
@@ -240,14 +240,14 @@ vector_alzimuth.add = (gpu: GPUKernel) => {
     returnType: "Float",
   });
 };
-export function vector_fromPolar(r: number, heading: number): vector {
+export function vector_fromPolar(r: number, heading: number): TVector {
   return [r * Math.cos(heading), r * Math.sin(heading)];
 }
 export function vector_fromSphere(
   r: number,
   inclination: number,
   alzimuth: number,
-): vector {
+): TVector {
   return [
     r * Math.sin(inclination) * Math.cos(alzimuth),
     r * Math.sin(inclination) * Math.sin(alzimuth),

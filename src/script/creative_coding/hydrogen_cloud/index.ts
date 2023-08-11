@@ -1,6 +1,6 @@
 import { hcl2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor } from "@/script/utils/dom";
-import { arctan2, constrain, fpart, map, vector } from "@/script/utils/math";
+import { TVector, arctan2, constrain, fpart, map } from "@/script/utils/math";
 import GPU from "gpu.js";
 import { psi_orbital } from "./psi";
 
@@ -22,7 +22,7 @@ export default function execute() {
   }
   function psi(
     this: GPU.IKernelFunctionThis<IConstants>,
-    x: vector,
+    x: TVector,
     t: number,
   ) {
     return psi_orbital(

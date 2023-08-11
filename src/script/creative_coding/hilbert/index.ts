@@ -16,7 +16,7 @@ export default function execute() {
 
   function main(this: GPU.IKernelFunctionThis<IConstants>, n: number) {
     const d = xy2d(n, this.thread.x, this.thread.y);
-    const v = (1.0 * d) / Math.pow(n, 2);
+    const v = (1.0 * d) / (n * n);
     const c = rgb2srgb(
       cubehelix2rgb([
         v,
@@ -40,9 +40,10 @@ export default function execute() {
           argumentTypes: ["Integer", "Integer", "Integer"],
           returnType: "Integer",
         })
-        .setArgumentTypes({
-          n: "Integer",
-        })
+        // .setArgumentTypes(["Integer"])
+        // .setArgumentTypes({
+        //   n: "Integer",
+        // })
         .setConstants<IConstants>({
           h: 1.5,
           l:
@@ -55,6 +56,7 @@ export default function execute() {
           l: "Float",
         })
         .setOutput([n, n])
+        .setDebug(true)
         .setGraphical(true);
       cubehelix2rgb.add(main_kernel);
       rgb2srgb.add(main_kernel);

@@ -1,6 +1,6 @@
 import { cubehelix2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor } from "@/script/utils/dom";
-import type { complex } from "@/script/utils/math";
+import type { TComplex } from "@/script/utils/math";
 import {
   arctan2,
   complex_absSq,
@@ -24,7 +24,7 @@ export default function execute() {
     ) / 100;
   let i = 0;
   let j = 0;
-  function f(z: complex) {
+  function f(z: TComplex) {
     return complex_zeta(z);
   }
 

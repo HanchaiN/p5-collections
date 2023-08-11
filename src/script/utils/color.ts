@@ -1,7 +1,9 @@
 import type { GPUKernel } from "@/script/utils/types";
 export * as d3 from "d3-color";
 
-export function hcl2lab(hcl: number[]) {
+export function hcl2lab(
+  hcl: [h: number, c: number, l: number],
+): [l: number, a: number, b: number] {
   return [
     hcl[2],
     hcl[1] * Math.cos(hcl[0] * 2 * Math.PI),
@@ -14,7 +16,9 @@ hcl2lab.add = (gpu: GPUKernel) => {
     returnType: "Array(3)",
   });
 };
-export function lab2xyz(lab: number[]) {
+export function lab2xyz(
+  lab: [l: number, a: number, b: number],
+): [x: number, y: number, z: number] {
   const CBRT_EPSILON = 6.0 / 29.0;
   const KAPPA = 243.89 / 27.0;
   const std = [0.9504492182750991, 1.0, 1.0889166484304715];
@@ -33,7 +37,9 @@ lab2xyz.add = (gpu: GPUKernel) => {
     returnType: "Array(3)",
   });
 };
-export function xyz2rgb(xyz: number[]) {
+export function xyz2rgb(
+  xyz: [x: number, y: number, z: number],
+): [r: number, g: number, b: number] {
   const xyz2rgb = [
     [+8041697 / 3400850, -3049000 / 3400850, -1591847 / 3400850],
     [-1752003 / 340085000, +4851000 / 3400850, +301853 / 3400850],
@@ -51,7 +57,9 @@ xyz2rgb.add = (gpu: GPUKernel) => {
     returnType: "Array(3)",
   });
 };
-export function cubehelix2rgb(hsl: number[]) {
+export function cubehelix2rgb(
+  hsl: [h: number, s: number, l: number],
+): [r: number, g: number, b: number] {
   const A = -0.14861,
     B = +1.78277,
     C = -0.29227,
@@ -70,7 +78,9 @@ cubehelix2rgb.add = (gpu: GPUKernel) => {
     returnType: "Array(3)",
   });
 };
-export function rgb2srgb(rgb: number[]) {
+export function rgb2srgb(
+  rgb: [r: number, g: number, b: number],
+): [r: number, g: number, b: number] {
   return [
     rgb[0] < 0.0031308
       ? rgb[0] * 12.92
@@ -89,7 +99,9 @@ rgb2srgb.add = (gpu: GPUKernel) => {
     returnType: "Array(3)",
   });
 };
-export function hcl2rgb(hcl: number[]) {
+export function hcl2rgb(
+  hcl: [h: number, c: number, l: number],
+): [r: number, g: number, b: number] {
   return xyz2rgb(lab2xyz(hcl2lab(hcl)));
 }
 hcl2rgb.add = (gpu: GPUKernel) => {

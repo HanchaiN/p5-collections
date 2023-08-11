@@ -1,7 +1,7 @@
 import type GPU from "gpu.js";
 import type p5 from "p5";
 export interface GPUKernel {
-  addFunction<ArgTypes extends ThreadKernelVariable[]>(
+  addFunction<ArgTypes extends GPU.ThreadKernelVariable[]>(
     flag: GPU.GPUFunction<ArgTypes>,
     settings?: IFunctionSettings,
   ): this;

@@ -5,6 +5,7 @@ import {
   permutation,
   product,
 } from "@/script/utils/math";
+import type { TComplex } from "@/script/utils/math/complex";
 import {
   complex_conj,
   complex_exp,
@@ -12,7 +13,7 @@ import {
   complex_scale,
 } from "@/script/utils/math/complex";
 import {
-  vector,
+  TVector,
   vector_alzimuth,
   vector_inclination,
 } from "@/script/utils/math/vector";
@@ -98,7 +99,7 @@ export function psi_orbital(
   n: number,
   l: number,
   m: number,
-  x: vector,
+  x: TVector,
   t: number,
 ) {
   const RADIUS_REDUCED = 1.0;
@@ -118,7 +119,7 @@ export function psi_orbital(
       (2 * MASS_REDUCED * RADIUS_REDUCED * RADIUS_REDUCED * n * n) /
       H_BAR) *
     t;
-  const _radial = [
+  const _radial: TComplex = [
     normalize_r *
       Math.exp(-rho / 2) *
       Math.pow(rho, l) *
