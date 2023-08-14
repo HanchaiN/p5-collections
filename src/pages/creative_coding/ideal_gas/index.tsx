@@ -4,6 +4,7 @@ import {
   previewContainer,
   sketch,
 } from "@/styles/creative_coding.module.css";
+import { headingLarge, labelMedium } from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -34,15 +35,15 @@ const Preview = React.lazy(async () => {
             ref={canvas}
           ></canvas>
           <form className={dataContainer} ref={config}>
-            <label htmlFor="volume">
+            <label htmlFor="volume" className={labelMedium}>
               Volume: <slot id="volume-value"></slot>
             </label>
             <input id="volume" type="range" step="1e-5" />
-            <label htmlFor="temperature">
+            <label htmlFor="temperature" className={labelMedium}>
               Temperature: <slot id="temperature-value"></slot>
             </label>
             <input id="temperature" type="range" step="1e-16" />
-            <label htmlFor="pressure">
+            <label htmlFor="pressure" className={labelMedium}>
               Pressure: <slot id="pressure-value"></slot>
             </label>
             <input id="pressure" type="range" step="1e-16" readOnly disabled />
@@ -57,7 +58,7 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1>Ideal Gas</h1>
+        <h1 className={headingLarge}>Ideal Gas</h1>
         <Suspense>
           <Preview />
         </Suspense>

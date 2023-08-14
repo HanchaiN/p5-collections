@@ -1,6 +1,7 @@
 import Header from "@/components/header";
 import React, { Suspense, useEffect, useRef } from "react";
 
+import { headingLarge } from "@/styles/main.module.css";
 const Preview = React.lazy(async () => {
   const main =
     typeof window !== "undefined"
@@ -29,7 +30,7 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1>Elementary Cellular Automata</h1>
+        <h1 className={headingLarge}>Elementary Cellular Automata</h1>
         <Suspense>
           <Preview />
         </Suspense>

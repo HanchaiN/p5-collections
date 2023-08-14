@@ -1,6 +1,6 @@
 import { useSiteMetadata } from "@/hooks/use-site-metadata";
 import "@/styles/main.css";
-import { surface } from "@/styles/main.module.css";
+import { bodyMedium, surface } from "@/styles/main.module.css";
 import React, { PropsWithChildren } from "react";
 
 type Props = {
@@ -43,7 +43,15 @@ export default function Header({
         content="#f2cca6"
         media="(prefers-color-scheme: dark)"
       />
-      <body className={surface} />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@12..57,400..500&display=swap"
+      ></link>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      />
+      <body className={`${surface} ${bodyMedium}`} />
       {children}
     </>
   );

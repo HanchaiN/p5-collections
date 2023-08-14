@@ -1,5 +1,6 @@
 import Header from "@/components/header";
 import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
+import { headingLarge } from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -38,7 +39,7 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1>Complex Function</h1>
+        <h1 className={headingLarge}>Complex Function</h1>
         <Suspense>
           <Preview />
         </Suspense>

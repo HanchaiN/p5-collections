@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import { headingLarge } from "@/styles/main.module.css";
 import type { PageProps } from "gatsby";
 import { Link, graphql } from "gatsby";
 import * as React from "react";
@@ -7,7 +8,7 @@ export default function Body({ data }: PageProps<Queries.CreativeCodingQuery>) {
   return (
     <>
       <article>
-        <h1>Creative Coding</h1>
+        <h1 className={headingLarge}>Creative Coding</h1>
         <p>
           Creative coding is a type of computer programming in which the goal is
           to create something expressive instead of something functional.

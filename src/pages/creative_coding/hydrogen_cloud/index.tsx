@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import { headingLarge } from "@/styles/main.module.css";
 import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
@@ -47,7 +48,7 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1>Hydrogen Cloud</h1>
+        <h1 className={headingLarge}>Hydrogen Cloud</h1>
         <Suspense>
           <Preview />
         </Suspense>

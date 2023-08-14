@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import { headingLarge } from "@/styles/main.module.css";
 import React, { Suspense, useEffect } from "react";
 
 const Preview = React.lazy(async () => {
@@ -27,7 +28,7 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1>DTMF</h1>
+        <h1 className={headingLarge}>DTMF</h1>
         <Suspense>
           <Preview />
         </Suspense>

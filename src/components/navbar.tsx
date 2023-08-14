@@ -1,8 +1,9 @@
+import { unslugify } from "@/script/utils/strings";
+import { bodyMedium } from "@/styles/main.module.css";
 import {
   menu,
   menu_toggle,
   navbar,
-  submenu,
   submenu_toggle,
 } from "@/styles/navbar.module.css";
 import { Link, graphql, useStaticQuery } from "gatsby";
@@ -40,6 +41,7 @@ function generateNav(
             {typeof child.href !== "undefined" ? (
               <Link
                 to={child.href}
+                className={bodyMedium}
                 onClick={() => {
                   menuToggle.current!.checked = false;
                 }}
@@ -57,15 +59,15 @@ function generateNav(
                   type="checkbox"
                 />
                 <label htmlFor={child.name}>
-                  <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
-                    <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
-                  </svg>
-                  <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
-                    <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"></path>
-                  </svg>
+                  <span className="material-symbols-rounded" id="icon_menu">
+                    menu
+                  </span>
+                  <span className="material-symbols-rounded" id="icon_close">
+                    close
+                  </span>
                 </label>
                 <div
-                  className={submenu}
+                  className={menu}
                   style={{ "--delay": ".5s" } as CSSPropertiesExtended}
                 >
                   {generateNav(child, menuToggle)}
@@ -96,13 +98,14 @@ export default function Navbar() {
     let parent = root;
     if (route === "404" || route === "500") continue;
     for (const name of route.split("/")) {
+      if (name.startsWith("dev-")) continue;
       path += "/" + name;
       let node = map.get(path);
       if (!node) {
         map.set(
           path,
           (node = {
-            name,
+            name: unslugify(name),
             parent,
             child: [],
           }),
@@ -124,12 +127,12 @@ export default function Navbar() {
           ref={menuToggle}
         />
         <label htmlFor="menu_toggle">
-          <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
-            <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
-          </svg>
-          <svg preserveAspectRatio="xMinYMin" viewBox="0 0 24 24">
-            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"></path>
-          </svg>
+          <span className="material-symbols-rounded" id="icon_menu">
+            menu
+          </span>
+          <span className="material-symbols-rounded" id="icon_close">
+            close
+          </span>
         </label>
         <div className={menu}>{generateNav(root, menuToggle)}</div>
       </nav>
