@@ -1,5 +1,9 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -29,11 +33,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Hydrogen Pilot Wave</h1>
+        <h1 className={headlineLarge}>Hydrogen Pilot Wave</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           The de Broglie&ndash;Bohm theory, also known as the pilot wave theory,
           Bohmian mechanics, Bohm&apos;s interpretation, and the causal
           interpretation, is an interpretation of quantum mechanics. In addition

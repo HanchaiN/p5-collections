@@ -177,3 +177,7 @@
   line-height: 1rem;
   letter-spacing: 0.025rem;
 }
+
+.text-container {
+  max-width: 75ch;
+}

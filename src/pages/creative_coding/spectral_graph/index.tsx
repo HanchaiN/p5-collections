@@ -1,5 +1,9 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -29,11 +33,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Spectral Graph</h1>
+        <h1 className={headlineLarge}>Spectral Graph</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           Spectral layout is a class of algorithm for drawing graphs. The layout
           uses the eigenvectors of a matrix, such as the Laplace matrix of the
           graph, as Cartesian coordinates of the graph&apos;s vertices.

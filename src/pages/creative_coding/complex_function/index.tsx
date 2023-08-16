@@ -1,6 +1,10 @@
 import Header from "@/components/header";
 import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -39,11 +43,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Complex Function</h1>
+        <h1 className={headlineLarge}>Complex Function</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           In complex analysis, domain coloring or a color wheel graph is a
           technique for visualizing complex functions by assigning a color to
           each point of the complex plane.

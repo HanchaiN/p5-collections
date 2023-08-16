@@ -1,5 +1,9 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -29,11 +33,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Turing Machine</h1>
+        <h1 className={headlineLarge}>Turing Machine</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           A Turing machine is a mathematical model of computation describing an
           abstract machine that manipulates symbols on a strip of tape according
           to a table of rules.

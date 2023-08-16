@@ -1,6 +1,10 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
 import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -39,11 +43,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Hilbert Curve</h1>
+        <h1 className={headlineLarge}>Hilbert Curve</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           The Hilbert curve (also known as the Hilbert space-filling curve) is a
           continuous fractal space-filling curve first described by the German
           mathematician David Hilbert in 1891, as a variant of the space-filling

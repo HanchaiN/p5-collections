@@ -1,5 +1,9 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -29,11 +33,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Brainfuck</h1>
+        <h1 className={headlineLarge}>Brainfuck</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           Brainfuck is an esoteric programming language created in 1993 by Urban
           Müller.
         </p>

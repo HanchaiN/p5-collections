@@ -1,6 +1,6 @@
 .preview-container {
   /* display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(500px, 50%)); */
+  grid-template-columns: repeat(auto-fit, minmax(500px, 50%)); */
   display: flex;
   flex-wrap: wrap;
 

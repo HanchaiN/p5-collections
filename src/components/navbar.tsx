@@ -2,9 +2,9 @@ import { unslugify } from "@/script/utils/strings";
 import { bodyMedium } from "@/styles/main.module.css";
 import {
   menu,
-  menu_toggle,
+  menuToggle,
   navbar,
-  submenu_toggle,
+  submenuToggle,
 } from "@/styles/navbar.module.css";
 import { Link, graphql, useStaticQuery } from "gatsby";
 import React, { useRef } from "react";
@@ -55,7 +55,7 @@ function generateNav(
               <>
                 <input
                   id={child.name}
-                  className={submenu_toggle}
+                  className={submenuToggle}
                   type="checkbox"
                 />
                 <label htmlFor={child.name}>
@@ -84,7 +84,7 @@ function generateNav(
 }
 
 export default function Navbar() {
-  const menuToggle = useRef<HTMLInputElement>(null);
+  const menuToggleRef = useRef<HTMLInputElement>(null);
   const data = useStaticQuery<Queries.NavbarQuery>(query);
   const paths = data.allSitePage.nodes.map(
     (node) => node.path.match(/^\/(.*?)(\.html|\/|)$/)![1],
@@ -122,9 +122,9 @@ export default function Navbar() {
       <nav className={navbar}>
         <input
           id="menu_toggle"
-          className={menu_toggle}
+          className={menuToggle}
           type="checkbox"
-          ref={menuToggle}
+          ref={menuToggleRef}
         />
         <label htmlFor="menu_toggle">
           <span className="material-symbols-rounded" id="icon_menu">
@@ -134,7 +134,7 @@ export default function Navbar() {
             close
           </span>
         </label>
-        <div className={menu}>{generateNav(root, menuToggle)}</div>
+        <div className={menu}>{generateNav(root, menuToggleRef)}</div>
       </nav>
     </>
   );

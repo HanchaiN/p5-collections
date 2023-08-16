@@ -2,7 +2,11 @@ import Header from "@/components/header";
 import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 const Preview = React.lazy(async () => {
   const main =
     typeof window !== "undefined"
@@ -39,11 +43,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Dynamical System</h1>
+        <h1 className={headlineLarge}>Dynamical System</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           In physics, a dynamical system is described as a &ldquo;particle or
           ensemble of particles whose state varies over time and thus obeys
           differential equations involving time derivatives&rdquo;.

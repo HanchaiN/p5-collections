@@ -28,16 +28,14 @@ const config: GatsbyConfig = {
         background_color: "#fbfaf9",
       },
     },
-    // "gatsby-plugin-mdx",
-    // {
-    //   resolve: 'gatsby-source-filesystem',
-    //   options: {
-    //     name: `blogs`,
-    //     path: `./src/blogs`
-    //   },
-    // },
     "gatsby-plugin-image",
     "gatsby-plugin-sharp",
+    {
+      resolve: "gatsby-plugin-webpack-bundle-analyser-v2",
+      options: {
+        analyzerMode: "static",
+      },
+    },
   ],
 };
 

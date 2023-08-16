@@ -1,25 +1,20 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
-import type { PageProps } from "gatsby";
-import { Link, graphql } from "gatsby";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import * as React from "react";
 
-export default function Body({ data }: PageProps<Queries.CreativeCodingQuery>) {
+export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Creative Coding</h1>
-        <p>
+        <h1 className={headlineLarge}>Creative Coding</h1>
+        <p className={`${textContainer} ${bodyMedium}`}>
           Creative coding is a type of computer programming in which the goal is
           to create something expressive instead of something functional.
         </p>
-        <ul>
-          {data.allSitePage.nodes.map((node) => (
-            <li key={node.path}>
-              <Link to={node.path}>{node.path}</Link>
-            </li>
-          ))}
-        </ul>
       </article>
     </>
   );
@@ -32,16 +27,3 @@ export function Head() {
     </>
   );
 }
-
-export const query = graphql`
-  query CreativeCoding {
-    allSitePage(
-      filter: { path: { glob: "/creative_coding/*" } }
-      sort: { path: ASC }
-    ) {
-      nodes {
-        path
-      }
-    }
-  }
-`;

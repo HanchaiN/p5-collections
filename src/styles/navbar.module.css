@@ -1,8 +1,8 @@
 .navbar {
   overflow: hidden;
 
-  .menu_toggle,
-  .submenu_toggle {
+  .menu-toggle,
+  .submenu-toggle {
     opacity: 0;
     position: fixed;
     display: none;
@@ -14,17 +14,19 @@
       [id="icon_menu"],
       [id="icon_close"] {
         transition: transform 0.15s;
-        height: 44px;
-        width: 44px;
-        font-size: 44px;
+        height: var(--target-size);
+        width: var(--target-size);
+        font-size: var(--target-size);
       }
 
       [id="icon_menu"] {
         transform: scale(1);
+        visibility: visible;
       }
 
       [id="icon_close"] {
         transform: scale(0);
+        visibility: hidden;
       }
     }
 
@@ -39,14 +41,39 @@
       overflow: hidden;
     }
 
+    & ~ .menu li {
+      line-height: var(--target-size);
+      min-height: var(--target-size);
+      padding: 0 0 0 0.25rem;
+      transform: translateX(-100%);
+      transition-duration: var(--delay);
+      --color: initial;
+      --color-side: var(--color, initial);
+      --color-under: var(--color, inherit);
+
+      &:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 0.25rem;
+        height: 100%;
+        transition-duration: inherit;
+        transition-delay: 0.725s;
+        background-color: var(--color-side);
+        z-index: 101;
+      }
+    }
+
     &:checked {
       & ~ label {
         [id="icon_menu"] {
           transform: scale(0);
+          visibility: hidden;
         }
 
         [id="icon_close"] {
           transform: scale(1);
+          visibility: visible;
         }
       }
 
@@ -56,15 +83,12 @@
     }
   }
 
-  .menu_toggle {
+  .menu-toggle {
     & ~ label {
-      left: 0;
-      top: 0;
-
       [id="icon_menu"],
       [id="icon_close"] {
         position: fixed;
-        right: 0;
+        right: var(--spacer);
         top: 0;
         z-index: 101;
         color: var(--color-on-surface-var);
@@ -84,36 +108,14 @@
       height: 100%;
       z-index: 100;
 
-      & li {
-        line-height: 44px;
-        min-height: 44px;
-        padding: 0 0 0 8px;
-        transform: translateX(-100%);
-        transition-duration: var(--delay);
-        --color: initial;
-        --color-side: var(--color, initial);
-        --color-under: var(--color, inherit);
-      }
-
       & > ul {
-        & li {
-          &:before {
-            content: "";
-            position: absolute;
-            left: 0;
-            width: 8px;
-            height: 100%;
-            transition-duration: inherit;
-            transition-delay: 0.725s;
-            background-color: var(--color-side);
-            z-index: 101;
-          }
-
+        & > li {
           & a {
+            visibility: hidden;
             text-transform: capitalize;
             color: var(--color-on-surface);
             text-decoration: none;
-            padding: 0 0 0 6px;
+            padding: 0 0 0 0.3125rem;
 
             &:after {
               content: "";
@@ -121,7 +123,7 @@
               left: 0;
               right: 0;
               bottom: 0;
-              height: 4px;
+              height: 0.25rem;
               transition: transform 0.2s;
               transform-origin: left;
               transform: scaleX(0);
@@ -153,13 +155,17 @@
 
       & ~ .menu {
         transform: translate(100%, 0);
+
+        & > ul > li > a {
+          visibility: visible;
+        }
       }
     }
   }
 
-  .submenu_toggle {
+  .submenu-toggle {
     & ~ label {
-      left: 14px;
+      left: calc(var(--spacer) / 2);
 
       [id="icon_menu"],
       [id="icon_close"] {
@@ -171,10 +177,18 @@
       display: grid;
       grid-template-rows: 0fr;
       transition: grid-template-rows var(--delay);
+
+      & > ul > li > a {
+        visibility: hidden;
+      }
     }
 
     &:checked ~ .menu {
       grid-template-rows: 1fr;
+
+      & > ul > li > a {
+        visibility: visible;
+      }
     }
   }
 }

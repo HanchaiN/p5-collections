@@ -1,7 +1,11 @@
 import Header from "@/components/header";
 import React, { Suspense, useEffect, useRef } from "react";
 
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 const Preview = React.lazy(async () => {
   const main =
     typeof window !== "undefined"
@@ -30,11 +34,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Elementary Cellular Automata</h1>
+        <h1 className={headlineLarge}>Elementary Cellular Automata</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           In mathematics and computability theory, an elementary cellular
           automaton is a one-dimensional cellular automaton where there are two
           possible states (labeled 0 and 1) and the rule to determine the state

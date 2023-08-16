@@ -1,5 +1,9 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect } from "react";
 
 const Preview = React.lazy(async () => {
@@ -28,11 +32,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>DTMF</h1>
+        <h1 className={headlineLarge}>DTMF</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           Dual-tone multi-frequency signaling (DTMF) is a telecommunication
           signaling system using the voice-frequency band over telephone lines
           between telephone equipment and other communications devices and

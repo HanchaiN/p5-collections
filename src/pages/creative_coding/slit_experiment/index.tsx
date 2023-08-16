@@ -1,5 +1,9 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -29,11 +33,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Slit Experiment</h1>
+        <h1 className={headlineLarge}>Slit Experiment</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           The path integral formulation is a description in quantum mechanics
           that generalizes the action principle of classical mechanics. It
           replaces the classical notion of a single, unique classical trajectory

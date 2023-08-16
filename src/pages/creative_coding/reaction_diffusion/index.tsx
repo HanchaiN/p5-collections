@@ -1,7 +1,11 @@
 import Header from "@/components/header";
 import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
-import { headingLarge } from "@/styles/main.module.css";
 
 const Preview = React.lazy(async () => {
   const main =
@@ -39,11 +43,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Reaction-diffusion</h1>
+        <h1 className={headlineLarge}>Reaction-diffusion</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           Reaction&ndash;diffusion systems are mathematical models which
           correspond to several physical phenomena. The most common is the
           change in space and time of the concentration of one or more chemical

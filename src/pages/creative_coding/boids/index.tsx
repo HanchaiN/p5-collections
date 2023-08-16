@@ -1,6 +1,10 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
 import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -39,11 +43,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Boids</h1>
+        <h1 className={headlineLarge}>Boids</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           Boids is an artificial life program, developed by Craig Reynolds in
           1986, which simulates the flocking behaviour of birds.
         </p>

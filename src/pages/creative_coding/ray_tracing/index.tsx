@@ -1,5 +1,5 @@
 import Header from "@/components/header";
-import { headingLarge } from "@/styles/main.module.css";
+import { headlineLarge } from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -29,7 +29,7 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Ray Tracing</h1>
+        <h1 className={headlineLarge}>Ray Tracing</h1>
         <Suspense>
           <Preview />
         </Suspense>

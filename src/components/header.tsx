@@ -44,11 +44,13 @@ export default function Header({
         media="(prefers-color-scheme: dark)"
       />
       <link
-        rel="stylesheet"
+        rel="preload"
+        as="font"
         href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@12..57,400..500&display=swap"
       ></link>
       <link
-        rel="stylesheet"
+        rel="preload"
+        as="font"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
       />
       <body className={`${surface} ${bodyMedium}`} />

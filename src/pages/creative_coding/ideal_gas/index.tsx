@@ -4,7 +4,12 @@ import {
   previewContainer,
   sketch,
 } from "@/styles/creative_coding.module.css";
-import { headingLarge, labelMedium } from "@/styles/main.module.css";
+import {
+  bodyMedium,
+  headlineLarge,
+  labelMedium,
+  textContainer,
+} from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
 const Preview = React.lazy(async () => {
@@ -58,11 +63,11 @@ export default function Body() {
   return (
     <>
       <article>
-        <h1 className={headingLarge}>Ideal Gas</h1>
+        <h1 className={headlineLarge}>Ideal Gas</h1>
         <Suspense>
           <Preview />
         </Suspense>
-        <p>
+        <p className={`${textContainer} ${bodyMedium}`}>
           An ideal gas is a theoretical gas composed of many randomly moving
           point particles that are not subject to interparticle interactions.
           The ideal gas concept is useful because it obeys the ideal gas law, a
