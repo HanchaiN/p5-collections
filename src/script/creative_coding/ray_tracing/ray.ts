@@ -1,15 +1,18 @@
 import { Vector } from "@/script/utils/math";
 import { Light } from "./colors";
 import { MAX_DEPTH, MAX_DIST, MIN_DIST } from "./const";
+import type { SceneObject } from "./object";
 
 export class Ray {
-  constructor(pos, dir) {
+  position: Vector;
+  direction: Vector;
+  constructor(pos: Vector, dir: Vector) {
     this.position = pos;
     this.direction = dir.normalize();
   }
-  intersect(object) {
-    let position = this.position.copy();
-    let d,
+  intersect(object: SceneObject) {
+    const position = this.position.copy();
+    let d: number,
       total_dist = 0;
     while ((d = object.distance(position)) <= MIN_DIST) {
       total_dist += d = Math.max(Math.abs(d) * 0.99, MIN_DIST);
@@ -34,14 +37,14 @@ export class Ray {
   }
 }
 
-export function trace(ray, object, depth = 0) {
+export function trace(ray: Ray, object: SceneObject, depth = 0) {
   if (depth > MAX_DEPTH) return Light.black;
   const intersect = ray.intersect(object);
   const toViewer = ray.direction.copy().mult(-1);
   if (intersect === null) return Light.black;
   const { position, total_dist, isInside } = intersect;
   const light = Light.black;
-  const material = object.materialAt(position, ray.direction.copy());
+  const material = object.materialAt(position);
   const normal = object.normal(position);
   if (material.emittance !== null) {
     const emit = material.emittance(toViewer, normal);

@@ -291,7 +291,7 @@ export class Vector {
   }
   set(...val: number[]) {
     if (val.length === 0) val = [0, 0, 0];
-    this._val = val.slice();
+    this._val = val;
     return this;
   }
   copy() {

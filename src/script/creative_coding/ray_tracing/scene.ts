@@ -1,17 +1,17 @@
 import { Vector } from "@/script/utils/math";
 import { Dye, Light } from "./colors";
 import { Material, lambertianBRDF, phongEmitter } from "./material";
-import { Object, quad } from "./object";
+import { SceneObject, quad } from "./object";
 
 // https://www.graphics.cornell.edu/online/box/
-const W = new Material(lambertianBRDF(new Dye(0.747, 0.74, 0.737)));
-const R = new Material(lambertianBRDF(new Dye(0.058, 0.287, 0.642)));
-const G = new Material(lambertianBRDF(new Dye(0.285, 0.16, 0.159)));
+const W = new Material(lambertianBRDF(new Dye([0.747, 0.74, 0.737])));
+const R = new Material(lambertianBRDF(new Dye([0.058, 0.287, 0.642])));
+const G = new Material(lambertianBRDF(new Dye([0.285, 0.16, 0.159])));
 const L = new Material(
-  lambertianBRDF(new Dye(0.78, 0.78, 0.78)),
-  phongEmitter(new Light(8.0, 15.6, 18.4), 1),
+  lambertianBRDF(new Dye([0.78, 0.78, 0.78])),
+  phongEmitter(new Light([8.0, 15.6, 18.4]), 1),
 );
-export const SCENE_REF = Object.union(
+export const SCENE_REF = SceneObject.union(
   quad(
     new Vector(552.8, 0.0, 0.0),
     new Vector(0.0, 0.0, 0.0),
@@ -55,7 +55,7 @@ export const SCENE_REF = Object.union(
     R,
   ),
 );
-export const SCENE = Object.union(
+export const SCENE = SceneObject.union(
   SCENE_REF,
   quad(
     new Vector(130.0, 165.0, 65.0),

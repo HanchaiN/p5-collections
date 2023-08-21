@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
 import { headlineLarge } from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
 
@@ -9,7 +10,7 @@ const Preview = React.lazy(async () => {
       : () => null;
   return {
     default: function Component() {
-      const canvas = useRef<HTMLDivElement>(null);
+      const canvas = useRef<HTMLCanvasElement>(null);
       const exec = main();
       useEffect(() => {
         exec?.start(canvas.current!);
@@ -20,7 +21,16 @@ const Preview = React.lazy(async () => {
         },
         [],
       );
-      return <div ref={canvas}></div>;
+      return (
+        <div className={previewContainer}>
+          <canvas
+            width="500"
+            height="500"
+            className={sketch}
+            ref={canvas}
+          ></canvas>
+        </div>
+      );
     },
   };
 });

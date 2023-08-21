@@ -10,5 +10,8 @@ export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({
         "@": path.resolve(__dirname, "src"),
       },
     },
+    optimization: {
+      minimize: false,
+    },
   });
 };

@@ -1,32 +1,48 @@
 import { Vector } from "@/script/utils/math";
-import { Dye } from "./colors";
+import { Dye, Light } from "./colors";
 
-export function lambertianEmitter(color) {
-  return (toViewer, norm) => color.clone();
+type IEmittance = (toViewer: Vector, norm: Vector) => Light;
+type IBRDF = (toViewer: Vector, norm: Vector, toSource: Vector) => Dye;
+type IBTDF = (
+  toViewer: Vector,
+  norm: Vector,
+  toSource: Vector,
+  rel_index: number,
+) => Dye;
+type IBDF = (
+  toViewer: Vector,
+  norm: Vector,
+  toSource: Vector,
+  rel_index: number,
+) => Dye;
+type IInterior = (from: Vector, direction: Vector, distance: number) => Dye;
+
+export function lambertianEmitter(color: Light): IEmittance {
+  return () => color.clone();
 }
-export function phongEmitter(color, exponent) {
+export function phongEmitter(color: Light, exponent: number): IEmittance {
   return (toViewer, norm) => {
     const emit_rate = Math.pow(Math.max(-norm.dot(toViewer), 0), exponent);
     return color.clone().mult(emit_rate);
   };
 }
-function BDF(BRDF = null, BTDF = null) {
+function BDF(BRDF: IBRDF | null = null, BTDF: IBTDF | null = null): IBDF {
   if (BRDF === null && BTDF === null) {
-    return (toViewer, norm, toSource, rel_index) => null;
+    return () => Dye.black;
   }
   if (BTDF === null)
-    return (toViewer, norm, toSource, rel_index) => {
+    return (toViewer, norm, toSource) => {
       if (norm.dot(toViewer) * norm.dot(toSource) > 0) {
-        return BRDF(toViewer, norm, toSource).lightMult(2);
+        return BRDF!(toViewer, norm, toSource).lightMult(2);
       }
-      return null;
+      return Dye.black;
     };
   if (BRDF === null)
-    return (toViewer, norm, toSource, rel_index) => {
+    return (toViewer, norm, toSource, rel_index: number) => {
       if (norm.dot(toViewer) * norm.dot(toSource) < 0) {
-        return BTDF(toViewer, norm, toSource, rel_index).lightMult(2);
+        return BTDF!(toViewer, norm, toSource, rel_index).lightMult(2);
       }
-      return null;
+      return Dye.black;
     };
   return (toViewer, norm, toSource, rel_index) => {
     const cos_i = Math.abs(norm.dot(toViewer));
@@ -39,21 +55,25 @@ function BDF(BRDF = null, BTDF = null) {
         )) /
       2;
     if (norm.dot(toViewer) * norm.dot(toSource) > 0) {
-      return BRDF(toViewer, norm, toSource).lightMult(R);
+      return BRDF!(toViewer, norm, toSource).lightMult(R);
     }
     if (norm.dot(toViewer) * norm.dot(toSource) < 0) {
-      return BTDF(toViewer, norm, toSource, rel_index).lightMult(1 - R);
+      return BTDF!(toViewer, norm, toSource, rel_index).lightMult(1 - R);
     }
-    return null;
+    return Dye.black;
   };
 }
-export function lambertianBRDF(color) {
+export function lambertianBRDF(color: Dye): IBRDF {
   return (toViewer, norm, toSource) => {
     const diffuse_rate = Math.abs(norm.dot(toSource));
     return color.clone().lightMult(diffuse_rate);
   };
 }
-export function phongBRDF(diffuse, specular, exponent) {
+export function phongBRDF(
+  diffuse: Dye,
+  specular: Dye,
+  exponent: number,
+): IBRDF {
   const lambertian = lambertianBRDF(diffuse);
   return (toViewer, norm, toSource) => {
     const reflect_to = Vector.mult(norm, 2 * toSource.dot(norm)).sub(toSource);
@@ -68,7 +88,11 @@ export function phongBRDF(diffuse, specular, exponent) {
     return factor;
   };
 }
-export function blinnphongBRDF(diffuse, specular, exponent) {
+export function blinnphongBRDF(
+  diffuse: Dye,
+  specular: Dye,
+  exponent: number,
+): IBRDF {
   const lambertian = lambertianBRDF(diffuse);
   return (toViewer, norm, toSource) => {
     const half_angle = Vector.add(toViewer, toSource);
@@ -80,7 +104,7 @@ export function blinnphongBRDF(diffuse, specular, exponent) {
     return factor;
   };
 }
-export function phongBTDF(color, exponent) {
+export function phongBTDF(color: Dye, exponent: number): IBTDF {
   return (toViewer, norm, toSource, rel_index) => {
     const cos_i = Math.abs(norm.dot(toViewer));
     const refract_to = toViewer
@@ -101,16 +125,20 @@ export function phongBTDF(color, exponent) {
     return color.clone().lightMult(refract_rate);
   };
 }
-export function defaultInterior(color) {
+export function defaultInterior(color: Dye): IInterior {
   return (from, direction, distance) => color.clone().mult(distance);
 }
 export class Material {
+  emittance: IEmittance | null;
+  bdf: IBDF;
+  interior: IInterior | null;
+  index: number;
   constructor(
-    brdf = null,
-    emittance = null,
-    btdf = null,
-    interior = null,
-    index = 1,
+    brdf: IBRDF | null = null,
+    emittance: IEmittance | null = null,
+    btdf: IBTDF | null = null,
+    interior: IInterior | null = null,
+    index: number = 1,
   ) {
     this.emittance = emittance;
     this.bdf = BDF(brdf, btdf);

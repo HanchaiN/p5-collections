@@ -1,21 +1,21 @@
 import { cubehelix2rgb, rgb2srgb } from "@/script/utils/color";
-import { getMousePos } from "@/script/utils/dom";
+import { getMousePos, kernelGenerator } from "@/script/utils/dom";
 import { lerp } from "@/script/utils/math";
-import GPU from "gpu.js";
-import { xy2d } from "./hilbert";
+import type { IKernelFunctionThis } from "@/script/utils/types";
+import { rot_hilbert as rot, xy2d } from "./hilbert";
 
 export default function execute() {
-  let gpu: GPU.GPU;
-  let main_kernel: GPU.IKernelRunShortcut;
   let audioContext: AudioContext, gainNode: GainNode, oscl: OscillatorNode;
+  let isActive: boolean = false;
+  const iter = 512;
 
-  interface IConstants extends GPU.IConstantsThis {
+  interface IConstants {
     h: number;
     l: number;
   }
 
-  function main(this: GPU.IKernelFunctionThis<IConstants>, n: number) {
-    const d = xy2d(n, this.thread.x, this.thread.y);
+  function main(this: IKernelFunctionThis<IConstants>, n: number) {
+    const d = xy2d(n, this.thread.x, this.thread.y, rot);
     const v = (1.0 * d) / (n * n);
     const c = rgb2srgb(
       cubehelix2rgb([
@@ -29,38 +29,45 @@ export default function execute() {
 
   return {
     start: (canvas: HTMLCanvasElement) => {
+      isActive = true;
       const n = Math.pow(
         2,
         Math.ceil(Math.log2(Math.max(canvas.width, canvas.height))),
       );
-      gpu = new GPU.GPU({ canvas });
-      main_kernel = gpu
-        .createKernel(main)
-        .addFunction(xy2d, {
-          argumentTypes: ["Integer", "Integer", "Integer"],
-          returnType: "Integer",
-        })
-        // .setArgumentTypes(["Integer"])
-        // .setArgumentTypes({
-        //   n: "Integer",
-        // })
-        .setConstants<IConstants>({
+      const ctx = canvas.getContext("2d", {
+        alpha: false,
+        desynchronized: true,
+      })!;
+      canvas.width = n;
+      canvas.height = n;
+      const buffer = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const renderer = kernelGenerator(
+        main,
+        {
           h: 1.5,
           l:
             Number.parseInt(
               getComputedStyle(document.body).getPropertyValue("--tone-base"),
             ) / 100,
-        })
-        .setConstantTypes({
-          h: "Float",
-          l: "Float",
-        })
-        .setOutput([n, n])
-        .setDebug(true)
-        .setGraphical(true);
-      cubehelix2rgb.add(main_kernel);
-      rgb2srgb.add(main_kernel);
-      main_kernel(n);
+        },
+        buffer,
+      );
+      const step = renderer(n);
+      requestAnimationFrame(function draw() {
+        if (!isActive) return;
+        let done = false;
+        for (let _ = 0; _ < iter; _++) {
+          const res = step.next();
+          if (res.done) {
+            done = true;
+            break;
+          }
+        }
+        createImageBitmap(buffer).then((bmp) =>
+          ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height),
+        );
+        if (!done) requestAnimationFrame(draw);
+      });
       canvas.addEventListener("mousedown", (e) => {
         if (typeof audioContext === "undefined") {
           audioContext = new AudioContext();
@@ -77,7 +84,7 @@ export default function execute() {
         gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
         function onMouseMove(e: MouseEvent) {
           const { x, y } = getMousePos(canvas, e);
-          const v = xy2d(n, x, canvas.height - y) / (n * n);
+          const v = xy2d(n, x, canvas.height - y, rot) / (n * n);
           oscl.frequency.value = Math.exp(lerp(v, Math.log(85), Math.log(255)));
         }
         function onMouseLeave() {
@@ -93,8 +100,7 @@ export default function execute() {
       });
     },
     stop: () => {
-      main_kernel?.destroy();
-      gpu?.destroy();
+      isActive = false;
     },
   };
 }

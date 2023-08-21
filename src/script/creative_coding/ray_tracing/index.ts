@@ -1,241 +1,131 @@
-import { maxWorkers } from "@/script/utils/dom";
+import { Vector, map } from "@/script/utils/math";
+import type { TColorRGB } from "./colors";
+import { Light } from "./colors";
 import {
-  createAndLinkProgram,
-  createShader,
-  supportWebGL,
-} from "@/script/utils/webgl";
-const VERTEX_SHADER = await fetch(
-  new URL("./vertex.glsl", import.meta.url),
-).then((r) => r.text());
-const FRAGMENT_SHADER_R = await fetch(
-  new URL("./shader.glsl", import.meta.url),
-).then((r) => r.text());
-const FRAGMENT_SHADER_P = await fetch(
-  new URL("./postprocessing.glsl", import.meta.url),
-).then((r) => r.text());
+  postProcessorGen,
+  reinhard_jodie_lum_ext as tonemaper,
+} from "./postprocessor";
+import { Ray, trace } from "./ray";
+import { CAMERA_POSITION, FOCAL_LENGTH, FRAME_SIZE, SCENE } from "./scene";
+import type { MessageResponse as WhiteMessageResponse } from "./worker_white";
 export default function execute() {
-  let parent: HTMLElement;
-  let canvas: HTMLCanvasElement;
   let workers: Worker[] = [];
-  const size = [512, 512];
   const color = {
-    white: { r: 1, g: 1, b: 1 },
-    bright: { r: 1, g: 1, b: 1 },
+    white: [1, 1, 1] as TColorRGB,
+    bright: [1, 1, 1] as TColorRGB,
   };
   let isActive = false;
-  let draw: FrameRequestCallback;
+  const iter = 2;
+  const scale = 1;
+
+  const postProcessorGen_ = postProcessorGen(tonemaper);
+  let postProcessor = postProcessorGen_(color.bright, color.white);
+
+  function* main(buffer: ImageData): Generator<void, never, void> {
+    let iter = 0;
+    const array = new Array(buffer.width)
+      .fill(null)
+      .map(() => new Array(buffer.height).fill(null).map(() => Light.black));
+    while (true) {
+      for (let j = 0; j < buffer.height; j++) {
+        if (j !== buffer.height - 1)
+          buffer.data.set(
+            new Array(buffer.width * 4).fill(255),
+            (buffer.height - j - 2) * buffer.width * 4,
+          );
+        for (let i = 0; i < buffer.width; i++) {
+          const [r, g, b] = postProcessor(
+            array[i][j]
+              .mix(
+                trace(
+                  new Ray(
+                    CAMERA_POSITION,
+                    new Vector(
+                      map(
+                        i + Math.random() - 0.5,
+                        0,
+                        buffer.width,
+                        -FRAME_SIZE[0] / 2,
+                        FRAME_SIZE[0] / 2,
+                      ),
+                      map(
+                        j + Math.random() - 0.5,
+                        0,
+                        buffer.height,
+                        -FRAME_SIZE[1] / 2,
+                        FRAME_SIZE[1] / 2,
+                      ),
+                      FOCAL_LENGTH,
+                    ),
+                  ),
+                  SCENE,
+                ),
+              )
+              .clone()
+              .mult(1 / iter)
+              .rgb(),
+          );
+          buffer.data.set(
+            [r * 255, g * 255, b * 255],
+            (buffer.height - j - 1) * buffer.width * 4 + i * 4,
+          );
+          yield;
+        }
+      }
+      iter++;
+    }
+  }
 
   return {
-    start: (node: HTMLElement) => {
+    start: (canvas: HTMLCanvasElement) => {
       isActive = true;
-      parent = node;
-      canvas = document.createElement("canvas");
-      canvas.width = size[0];
-      canvas.height = size[1];
-      parent.appendChild(canvas);
-      parent.style.display = "flex";
-      parent.style.justifyContent = "center";
-      parent.style.alignItems = "center";
       const white_calc = new Worker(
-        new URL("./worker_white.js", import.meta.url),
+        new URL("./worker_white.ts", import.meta.url),
       );
       white_calc.postMessage(null);
-      white_calc.addEventListener("message", function (e) {
-        white_calc.postMessage(null);
-        // color.white = e.data.white;
-        color.bright = e.data.bright;
-      });
+      white_calc.addEventListener(
+        "message",
+        function ({ data }: MessageEvent<WhiteMessageResponse>) {
+          white_calc.postMessage(null);
+          // color.white = data.white;
+          color.bright = data.bright;
+          postProcessor = postProcessorGen_(color.bright, color.white);
+        },
+      );
       workers.push(white_calc);
-      if (supportWebGL) {
-        const gl = canvas.getContext("webgl")!;
-        gl.getExtension("OES_texture_float");
-
-        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-
-        const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER)!;
-        const fragmentShader_r = createShader(
-          gl,
-          gl.FRAGMENT_SHADER,
-          FRAGMENT_SHADER_R,
-        )!;
-        const fragmentShader_p = createShader(
-          gl,
-          gl.FRAGMENT_SHADER,
-          FRAGMENT_SHADER_P,
-        )!;
-        const renderer = createAndLinkProgram(
-          gl,
-          vertexShader,
-          fragmentShader_r,
-        )!;
-        const processor = createAndLinkProgram(
-          gl,
-          vertexShader,
-          fragmentShader_p,
-        )!;
-
-        const VERTICES = new Float32Array([
-          -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, -1,
-        ]);
-        const vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, VERTICES, gl.STATIC_DRAW);
-
-        const aPosition_p = gl.getAttribLocation(processor, "a_position");
-        gl.vertexAttribPointer(aPosition_p, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(aPosition_p);
-        const aPosition_r = gl.getAttribLocation(renderer, "a_position");
-        gl.vertexAttribPointer(aPosition_r, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(aPosition_r);
-
-        const init = new Float32Array(
-          new Array(canvas.width * canvas.height * 4),
-        ).map((_, i) => [0, 0, 0, 1][i % 4]);
-        const texture_framebuffer = [init, init].map((init) => {
-          const texture = gl.createTexture();
-          gl.bindTexture(gl.TEXTURE_2D, texture);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-          gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
-            canvas.width,
-            canvas.height,
-            0,
-            gl.RGBA,
-            gl.FLOAT,
-            init,
-          );
-          const framebuffer = gl.createFramebuffer();
-          gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-          gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            gl.COLOR_ATTACHMENT0,
-            gl.TEXTURE_2D,
-            texture,
-            0,
-          );
-          return { texture, framebuffer };
-        });
-        let iter = 0;
-        draw = () => {
-          if (!isActive) return;
-          gl.clearColor(1.0, 1.0, 1.0, 1.0);
-          gl.clear(gl.COLOR_BUFFER_BIT);
-          gl.useProgram(renderer);
-          gl.bindTexture(
-            gl.TEXTURE_2D,
-            texture_framebuffer[iter % texture_framebuffer.length].texture,
-          );
-          gl.uniform2f(
-            gl.getUniformLocation(renderer, "textureSize"),
-            canvas.width,
-            canvas.height,
-          );
-          gl.uniform1i(gl.getUniformLocation(renderer, "frameCount"), iter);
-          gl.uniform1f(
-            gl.getUniformLocation(renderer, "u_seed"),
-            Math.random(),
-          );
-          iter++;
-          gl.bindFramebuffer(
-            gl.FRAMEBUFFER,
-            texture_framebuffer[iter % texture_framebuffer.length].framebuffer,
-          );
-          gl.viewport(0, 0, canvas.width, canvas.height);
-          gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-          gl.useProgram(processor);
-          gl.bindTexture(
-            gl.TEXTURE_2D,
-            texture_framebuffer[iter % texture_framebuffer.length].texture,
-          );
-          gl.uniform2f(
-            gl.getUniformLocation(processor, "textureSize"),
-            canvas.width,
-            canvas.height,
-          );
-          gl.uniform3f(
-            gl.getUniformLocation(processor, "white"),
-            color.white.r,
-            color.white.g,
-            color.white.b,
-          );
-          gl.uniform3f(
-            gl.getUniformLocation(processor, "bright"),
-            color.bright.r,
-            color.bright.g,
-            color.bright.b,
-          );
-          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-          gl.viewport(0, 0, canvas.width, canvas.height);
-          gl.drawArrays(gl.TRIANGLES, 0, 6);
-          requestAnimationFrame(draw);
-        };
-        requestAnimationFrame(draw);
-      } else {
-        const ctx = canvas.getContext("2d", { alpha: false })!;
-        const aspect = size[1] / size[0];
-        const subdivide = [
-          Math.floor(Math.sqrt(maxWorkers / aspect)),
-          Math.floor(Math.sqrt(maxWorkers / aspect) * aspect),
-        ];
-        workers = new Array(subdivide[0] * subdivide[1])
-          .fill(null)
-          .map(
-            () => new Worker(new URL("./worker_render.js", import.meta.url)),
-          );
-        workers.forEach((worker) => {
-          worker.addEventListener("message", function draw(e) {
-            if (isActive)
-              worker.postMessage({
-                render: true,
-                color,
-              });
-            const { buffer, size } = e.data;
-            const image = new ImageData(buffer, size.w, size.h);
-            ctx.putImageData(image, size.dx, size.dy);
-          });
-        });
-        for (let i = 0; i < subdivide[0]; i++)
-          for (let j = 0; j < subdivide[1]; j++) {
-            const worker = new Worker(
-              new URL("./worker_render.js", import.meta.url),
-            );
-            worker.addEventListener("message", function draw(e) {
-              if (isActive)
-                worker.postMessage({
-                  render: true,
-                  color,
-                });
-              const { buffer, size } = e.data;
-              const image = new ImageData(buffer, size.w, size.h);
-              ctx.putImageData(image, size.dx, size.dy);
-            });
-            worker.postMessage({
-              size: {
-                width: Math.ceil(canvas.width / subdivide[0]),
-                height: Math.ceil(canvas.height / subdivide[1]),
-                dx: Math.floor((i * canvas.width) / subdivide[0]),
-                dy: Math.floor((j * canvas.height) / subdivide[1]),
-                sx: canvas.width,
-                sy: canvas.height,
-              },
-            });
-            workers.push(worker);
+      const ctx = canvas.getContext("2d", {
+        alpha: false,
+        desynchronized: true,
+      })!;
+      const buffer = ctx.getImageData(
+        0,
+        0,
+        canvas.width / scale,
+        canvas.height / scale,
+      );
+      const step = main(buffer);
+      requestAnimationFrame(function draw() {
+        if (!isActive) return;
+        let done = false;
+        for (let _ = 0; _ < iter; _++) {
+          const res = step.next();
+          if (res.done) {
+            done = true;
+            break;
           }
-      }
+        }
+        createImageBitmap(buffer).then((bmp) =>
+          ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height),
+        );
+        if (!done) requestAnimationFrame(draw);
+      });
     },
     stop: () => {
-      canvas?.remove();
+      isActive = false;
       workers?.forEach((worker) => {
         worker.terminate();
       });
       workers = [];
-      isActive = false;
     },
   };
 }
