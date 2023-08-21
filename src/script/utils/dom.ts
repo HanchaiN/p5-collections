@@ -9,15 +9,15 @@ export function getParentSize(parent: HTMLElement, canvas: HTMLElement) {
   const rect = parent?.getBoundingClientRect();
   const width = Math.floor(
     rect?.width ||
-    window.innerWidth ||
-    document.documentElement.clientWidth ||
-    document.body.clientWidth,
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth,
   );
   const height = Math.floor(
     rect?.height ||
-    window.innerHeight ||
-    document.documentElement.clientHeight ||
-    document.body.clientHeight,
+      window.innerHeight ||
+      document.documentElement.clientHeight ||
+      document.body.clientHeight,
   );
   if (canvas) canvas.hidden = false;
   return { width, height };
@@ -38,7 +38,7 @@ export function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
 }
 
 export const maxWorkers = window.navigator.hardwareConcurrency
-  ? Math.floor((window.navigator.hardwareConcurrency))
+  ? Math.floor(window.navigator.hardwareConcurrency)
   : 1;
 
 export function kernelGenerator<
