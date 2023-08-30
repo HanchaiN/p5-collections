@@ -2,15 +2,15 @@ import { Light, TColorRGB } from "./colors";
 import { Ray, trace } from "./ray";
 import {
   CAMERA_POSITION,
-  REF_DIRECTION,
-  SCENE_REF,
+  LIGHT_DIRECTION,
+  SCENE,
   WHITE_DIRECTION,
 } from "./scene";
 let iter = 0;
 const white = Light.black,
   bright = Light.black,
   white_ray = new Ray(CAMERA_POSITION, WHITE_DIRECTION),
-  ref_ray = new Ray(CAMERA_POSITION, REF_DIRECTION);
+  ref_ray = new Ray(CAMERA_POSITION, LIGHT_DIRECTION);
 
 export type MessageRequest = Record<string, never>;
 export type MessageResponse = {
@@ -20,8 +20,8 @@ export type MessageResponse = {
 function main(data: MessageRequest) {
   data;
   for (let i = 0; i < 1000; i++) {
-    white.mix(trace(white_ray, SCENE_REF));
-    bright.mix(trace(ref_ray, SCENE_REF));
+    white.mix(trace(white_ray, SCENE));
+    bright.mix(trace(ref_ray, SCENE));
     iter++;
   }
   return {

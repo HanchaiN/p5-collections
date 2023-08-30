@@ -129,10 +129,12 @@ export const SCENE = SceneObject.union(
     W,
   ),
 );
-export const FRAME_SIZE = [0.025, 0.025];
+export const FRAME_SIZE: [number, number] = [0.025, 0.025];
 export const FOCAL_LENGTH = 0.035;
 export const CAMERA_POSITION = new Vector(278, 273, -800);
-export const REF_DIRECTION = new Vector(278.5, 548.8, 279.5)
-  .sub(CAMERA_POSITION)
-  .normalize();
+export const LIGHT_POSITION = new Vector(278.5, 548.8, 279.5);
+export const LIGHT_DIRECTION = Vector.sub(
+  LIGHT_POSITION,
+  CAMERA_POSITION,
+).normalize();
 export const WHITE_DIRECTION = new Vector(0, 0, 1);

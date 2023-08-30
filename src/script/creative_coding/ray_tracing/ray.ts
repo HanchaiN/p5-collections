@@ -1,7 +1,14 @@
 import { Vector } from "@/script/utils/math";
 import { Light } from "./colors";
-import { MAX_DEPTH, MAX_DIST, MIN_DIST } from "./const";
+import {
+  LIGHT_PROB as LIGHT_PROBABILITY,
+  LIGHT_RANGE,
+  MAX_DEPTH,
+  MAX_DIST,
+  MIN_DIST,
+} from "./const";
 import type { SceneObject } from "./object";
+import { LIGHT_POSITION } from "./scene";
 
 export class Ray {
   position: Vector;
@@ -51,7 +58,13 @@ export function trace(ray: Ray, object: SceneObject, depth = 0) {
     light.mix(emit);
   }
   if (material.bdf !== null) {
-    const nextDir = Vector.random3D();
+    const isRigged = Math.random() < LIGHT_PROBABILITY;
+    const nextDir = isRigged
+      ? Vector.sub(LIGHT_POSITION, position)
+          .normalize()
+          .add(Vector.random3D().mult(LIGHT_RANGE))
+          .normalize()
+      : Vector.random3D();
     const bdf = material.bdf(
       toViewer,
       normal,
@@ -61,6 +74,14 @@ export function trace(ray: Ray, object: SceneObject, depth = 0) {
     if (bdf !== null && !bdf.isBlack()) {
       const nextPos = position.copy();
       const next = trace(new Ray(nextPos, nextDir), object, depth + 1);
+      next.mult(
+        1 /
+          (isRigged
+            ? 1 +
+              LIGHT_PROBABILITY /
+                Math.pow(Math.sin(Math.asin(LIGHT_RANGE) / 2), 2)
+            : 1),
+      );
       light.mix(next.apply(bdf));
     }
   }
