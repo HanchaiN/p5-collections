@@ -128,6 +128,25 @@ complex_log.add = (gpu: GPUKernel) => {
     returnType: "Array(2)",
   });
 };
+export function complex_pow(z: TComplex, w: TComplex): TComplex {
+  if (w[1] === 0)
+    return [
+      Math.pow(complex_absSq(z), w[0] / 2) *
+        Math.cos(arctan2(z[1], z[0]) * w[0]),
+      Math.pow(complex_absSq(z), w[0] / 2) *
+        Math.sin(arctan2(z[1], z[0]) * w[0]),
+    ];
+  return complex_exp(complex_mult(complex_log(z), w));
+}
+complex_pow.add = (gpu: GPUKernel) => {
+  complex_exp.add(gpu);
+  complex_log.add(gpu);
+  complex_mult.add(gpu);
+  gpu.addFunction(complex_pow, {
+    argumentTypes: ["Array(2)", "Array(2)"],
+    returnType: "Array(2)",
+  });
+};
 export function complex_gamma(z: TComplex): TComplex {
   let reflected = false;
   // if (z[1] === 0)

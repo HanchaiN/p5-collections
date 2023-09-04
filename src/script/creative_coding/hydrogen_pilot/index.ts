@@ -1,6 +1,5 @@
-import { getParentSize, maxWorkers } from "@/script/utils/dom";
+import { maxWorkers } from "@/script/utils/dom";
 import { constrain } from "@/script/utils/math";
-// import { WorkerPool } from "gatsby-worker";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import type { MessageResponse } from "./worker";
@@ -15,49 +14,35 @@ export default function execute() {
     >,
     clock: THREE.Clock;
   let ended = true;
-  let parent: HTMLElement;
-  let canvas: HTMLCanvasElement;
-  let resizeObserver: ResizeObserver;
   let workers: Worker[];
 
   const counts = 8192;
-  const superposition = [
-    { coeff: { re: 1, im: 0 }, quantum_number: { n: 3, l: 1, m: +1 } },
-  ];
-  const n_max = superposition.reduce(
-    (n_max, { quantum_number: { n } }) => Math.max(n_max, n),
-    0,
-  );
+  const superposition = [{ c: [1, 0], n: 3, l: 1, m: +1 }];
+  const n_max = superposition.reduce((n_max, { n }) => Math.max(n_max, n), 0);
   const unit = Math.pow(n_max, 2);
   const time_scale = 1e4;
 
-  function init(node: HTMLElement) {
+  function init(canvas: HTMLCanvasElement) {
     ended = false;
-    const { width, height } = getParentSize(parent, canvas);
     clock = new THREE.Clock();
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(
+      75,
+      canvas.width / canvas.height,
+      0.1,
+      1000,
+    );
     camera.position.z = 3 * unit;
     camera.up = new THREE.Vector3(0, 0, 1);
 
-    renderer = new THREE.WebGLRenderer();
-    renderer.setSize(width, height);
-    canvas = node.appendChild(renderer.domElement);
+    renderer = new THREE.WebGLRenderer({ canvas });
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enablePan = false;
 
-    resizeObserver = new ResizeObserver(function () {
-      const { width, height } = getParentSize(parent, canvas);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    });
-    resizeObserver.observe(parent);
-
     {
       const nucleus = new THREE.Mesh(
-        new THREE.SphereGeometry(unit / 500, 32, 16),
+        new THREE.SphereGeometry(unit / 100, 32, 16),
         new THREE.MeshPhongMaterial({
           color: 0x804040,
           emissive: 0x302020,
@@ -68,7 +53,7 @@ export default function execute() {
 
     {
       electron_mesh = new THREE.InstancedMesh(
-        new THREE.SphereGeometry(unit / 100, 32, 16),
+        new THREE.SphereGeometry(unit / 50, 32, 16),
         new THREE.MeshPhongMaterial(),
         counts,
       );
@@ -139,15 +124,12 @@ export default function execute() {
   }
 
   return {
-    start: (sketch: HTMLDivElement) => {
-      parent = sketch;
-      init(sketch);
+    start: (canvas: HTMLCanvasElement) => {
+      init(canvas);
       animate();
     },
     stop: () => {
       dispose();
-      canvas?.remove();
-      resizeObserver?.disconnect();
       workers?.forEach((worker) => worker.terminate());
     },
   };

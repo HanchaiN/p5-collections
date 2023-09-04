@@ -1,44 +1,42 @@
 import { hcl2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor, kernelGenerator } from "@/script/utils/dom";
-import { TVector, arctan2, constrain, fpart, map } from "@/script/utils/math";
+import {
+  TComplex,
+  TVector,
+  arctan2,
+  constrain,
+  fpart,
+  map,
+} from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
-import { psi_orbital } from "./psi";
+import { psi_orbital_superposition } from "./psi";
 
 export default function execute() {
   const T = 20_000;
-  const n = 4,
-    l = 2,
-    m = -1,
-    R = Math.pow(n + 2, 2);
+  const R = Math.pow(4 + 2, 2);
   const scale = 4;
   let isActive = false;
+  const state: { c: TComplex; n: number; l: number; m: number }[] = [
+    { c: [1, 0], n: 4, l: 2, m: -1 },
+  ];
 
   interface IConstants {
     R: number;
-    n: number;
-    l: number;
-    m: number;
   }
 
   function psi(this: IKernelFunctionThis<IConstants>, x: TVector, t: number) {
-    return psi_orbital(
-      this.constants.n,
-      this.constants.l,
-      this.constants.m,
-      x,
-      t,
-    );
+    return psi_orbital_superposition(state, x, t);
   }
   function main(this: IKernelFunctionThis<IConstants>, z: number, t: number) {
     const x = map(
-      this.thread.x / this.output.x,
+      (this.thread.x + 0.5) / this.output.x,
       0,
       1,
       -this.constants.R,
       +this.constants.R,
     );
     const y = map(
-      this.thread.y / this.output.y,
+      (this.thread.y + 0.5) / this.output.y,
       0,
       1,
       -this.constants.R,
@@ -71,7 +69,7 @@ export default function execute() {
           canvas.width / scale,
           canvas.height / scale,
         );
-        const renderer = kernelGenerator(main, { R, n, l, m }, buffer);
+        const renderer = kernelGenerator(main, { R }, buffer);
         requestAnimationFrame(function draw(t) {
           if (!isActive) return;
           const z = map(fpart(t / T), 0, 1, -R, +R);

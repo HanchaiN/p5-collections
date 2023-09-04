@@ -72,8 +72,6 @@ jobs:
             ${{ runner.os }}-gatsby-build-
       - name: Install dependencies
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y xserver-xorg-dev libxi-dev libxext-dev
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Lint
         run: |
