@@ -1,206 +1,57 @@
-import type { GPUKernel } from "@/script/utils/types";
-import { arctan2 } from ".";
+import type { TComplex } from "./complex";
 import { randomUniform } from "./random";
 
-export type TVector = number[];
-export function vector_dim(v: TVector) {
+export type TVector2 = [number, number];
+export type TCVector2 = [TComplex, TComplex, TComplex];
+export type TVector3 = [number, number, number];
+export type TCVector3 = [TComplex, TComplex, TComplex];
+export type TVector = TVector2 | TVector3;
+export function vector_dim<T extends TVector>(v: T) {
   return v.length;
 }
-vector_dim.add = (gpu: GPUKernel) => {
-  gpu
-    .addFunction(vector_dim, {
-      argumentTypes: ["Array"],
-      returnType: "Integer",
-    })
-    .addFunction(vector_dim, {
-      argumentTypes: ["Array(2)"],
-      returnType: "Integer",
-    })
-    .addFunction(vector_dim, {
-      argumentTypes: ["Array(3)"],
-      returnType: "Integer",
-    });
-};
-export function vector_add(a: TVector, b: TVector): TVector {
-  // if (vector_dim(a) !== vector_dim(b)) throw new TypeError();
-  return a.map((_, i) => a[i] + b[i]);
+export function vector_add<T extends TVector>(a: T, b: T): T {
+  return a.map((_, i) => a[i] + b[i]) as T;
 }
-vector_add.add = (gpu: GPUKernel) => {
-  // vector_dim.add(gpu);
-  gpu
-    .addFunction(vector_add, {
-      argumentTypes: ["Array", "Array"],
-      returnType: "Array",
-    })
-    .addFunction(vector_add, {
-      argumentTypes: ["Array(2)", "Array(2)"],
-      returnType: "Array(2)",
-    })
-    .addFunction(vector_add, {
-      argumentTypes: ["Array(3)", "Array(3)"],
-      returnType: "Array(3)",
-    });
-};
-export function vector_sub(a: TVector, b: TVector): TVector {
-  // if (vector_dim(a) !== vector_dim(b)) throw new TypeError();
-  return a.map((_, i) => a[i] - b[i]);
+export function vector_sub<T extends TVector>(a: T, b: T): T {
+  return a.map((_, i) => a[i] - b[i]) as T;
 }
-vector_sub.add = (gpu: GPUKernel) => {
-  // vector_dim.add(gpu);
-  gpu
-    .addFunction(vector_sub, {
-      argumentTypes: ["Array", "Array"],
-      returnType: "Array",
-    })
-    .addFunction(vector_sub, {
-      argumentTypes: ["Array(2)", "Array(2)"],
-      returnType: "Array(2)",
-    })
-    .addFunction(vector_sub, {
-      argumentTypes: ["Array(3)", "Array(3)"],
-      returnType: "Array(3)",
-    });
-};
-export function vector_mult(v: TVector, s: number): TVector {
-  return v.map((_, i) => v[i] * s);
+export function vector_mult<T extends TVector>(v: T, s: number): T {
+  return v.map((_, i) => v[i] * s) as T;
 }
-vector_mult.add = (gpu: GPUKernel) => {
-  gpu
-    .addFunction(vector_mult, {
-      argumentTypes: ["Array", "Float"],
-      returnType: "Array",
-    })
-    .addFunction(vector_mult, {
-      argumentTypes: ["Array(2)", "Float"],
-      returnType: "Array(2)",
-    })
-    .addFunction(vector_mult, {
-      argumentTypes: ["Array(3)", "Float"],
-      returnType: "Array(3)",
-    });
-};
-export function vector_div(v: TVector, s: number): TVector {
-  return v.map((_, i) => v[i] / s);
+export function vector_div<T extends TVector>(v: T, s: number): T {
+  return v.map((_, i) => v[i] / s) as T;
 }
-vector_div.add = (gpu: GPUKernel) => {
-  gpu
-    .addFunction(vector_div, {
-      argumentTypes: ["Array", "Float"],
-      returnType: "Array",
-    })
-    .addFunction(vector_div, {
-      argumentTypes: ["Array(2)", "Float"],
-      returnType: "Array(2)",
-    })
-    .addFunction(vector_div, {
-      argumentTypes: ["Array(3)", "Float"],
-      returnType: "Array(3)",
-    });
-};
-export function vector_dot(a: TVector, b: TVector) {
-  // if (vector_dim(a) != vector_dim(b)) throw new TypeError();
+export function vector_dot<T extends TVector>(a: T, b: T) {
   let acc = 0.0;
   for (let i = 0; i < vector_dim(a); i++) acc += a[i] * b[i];
   return acc;
 }
-vector_dot.add = (gpu: GPUKernel) => {
-  vector_dim.add(gpu);
-  gpu
-    .addFunction(vector_dot, {
-      argumentTypes: ["Array", "Array"],
-      returnType: "Float",
-    })
-    .addFunction(vector_dot, {
-      argumentTypes: ["Array(2)", "Array(2)"],
-      returnType: "Float",
-    })
-    .addFunction(vector_dot, {
-      argumentTypes: ["Array(3)", "Array(3)"],
-      returnType: "Float",
-    });
-};
-export function vector_cross(a: TVector, b: TVector): TVector {
-  // if (vector_dim(a) !== 3 || vector_dim(b) !== 3) throw new TypeError();
+export function vector_cross(a: TVector3, b: TVector3): TVector3 {
   return [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
   ];
 }
-vector_cross.add = (gpu: GPUKernel) => {
-  // vector_dim.add(gpu);
-  gpu.addFunction(vector_cross, {
-    argumentTypes: ["Array(3)", "Array(3)"],
-    returnType: "Array(3)",
-  });
-};
-export function vector_magSq(v: TVector) {
+export function vector_magSq<T extends TVector>(v: T) {
   return vector_dot(v, v);
 }
-vector_magSq.add = (gpu: GPUKernel) => {
-  vector_dot.add(gpu);
-  gpu
-    .addFunction(vector_magSq, {
-      argumentTypes: ["Array"],
-      returnType: "Float",
-    })
-    .addFunction(vector_magSq, {
-      argumentTypes: ["Array(2)"],
-      returnType: "Float",
-    })
-    .addFunction(vector_magSq, {
-      argumentTypes: ["Array(3)"],
-      returnType: "Float",
-    });
-};
-export function vector_mag(v: TVector) {
-  return Math.sqrt(vector_dot(v, v));
+export function vector_mag<T extends TVector>(v: T) {
+  return Math.sqrt(vector_magSq(v));
 }
-vector_mag.add = (gpu: GPUKernel) => {
-  vector_magSq.add(gpu);
-  gpu
-    .addFunction(vector_mag, { argumentTypes: ["Array"], returnType: "Float" })
-    .addFunction(vector_mag, {
-      argumentTypes: ["Array(2)"],
-      returnType: "Float",
-    })
-    .addFunction(vector_mag, {
-      argumentTypes: ["Array(3)"],
-      returnType: "Float",
-    });
-};
-export function vector_dist(a: TVector, b: TVector) {
+export function vector_dist<T extends TVector>(a: T, b: T) {
   return vector_mag(vector_sub(a, b));
 }
-vector_dist.add = (gpu: GPUKernel) => {
-  vector_mag.add(gpu);
-  vector_sub.add(gpu);
-  gpu
-    .addFunction(vector_dist, {
-      argumentTypes: ["Array", "Array"],
-      returnType: "Float",
-    })
-    .addFunction(vector_dist, {
-      argumentTypes: ["Array(2)", "Array(2)"],
-      returnType: "Float",
-    })
-    .addFunction(vector_dist, {
-      argumentTypes: ["Array(3)", "Array(3)"],
-      returnType: "Float",
-    });
-};
-export function vector_normalize(v: TVector): TVector {
+export function vector_normalize<T extends TVector>(v: T): T {
   return vector_div(v, vector_mag(v));
 }
-export function vector_setMag(v: TVector, mag: number): TVector {
+export function vector_setMag<T extends TVector>(v: T, mag: number): T {
   return vector_mult(vector_normalize(v), mag);
 }
-export function vector_heading(v: TVector) {
-  if (vector_dim(v) !== 2) throw new TypeError();
-  return arctan2(v[1], v[0]);
+export function vector_heading(v: TVector2) {
+  return Math.atan2(v[1], v[0]);
 }
-export function vector_angleBetween(a: TVector, b: TVector) {
-  if (vector_dim(a) !== vector_dim(b)) throw new TypeError();
+export function vector_angleBetween<T extends TVector>(a: T, b: T) {
   if (vector_dim(a) !== 2)
     return Math.acos(vector_dot(a, b) / (vector_mag(a), vector_mag(b)));
   return (
@@ -208,46 +59,27 @@ export function vector_angleBetween(a: TVector, b: TVector) {
     Math.sign(a[0] * b[1] - a[1] * b[0])
   );
 }
-export function vector_rotate(v: TVector, theta: number): TVector {
-  if (vector_dim(v) !== 2) throw new TypeError();
+export function vector_rotate(v: TVector2, theta: number): TVector2 {
   return [
     Math.cos(theta) * v[0] - Math.sin(theta) * v[1],
     Math.sin(theta) * v[0] + Math.cos(theta) * v[1],
   ];
 }
-export function vector_inclination(v: TVector) {
-  // if (vector_dim(v) !== 3) throw new TypeError();
-  const r = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]); //vector_mag(v);
+export function vector_inclination(v: TVector3) {
+  const r = vector_mag(v);
   return r === 0 ? 0 : Math.acos(v[2] / r);
 }
-vector_inclination.add = (gpu: GPUKernel) => {
-  // vector_dim.add(gpu);
-  // vector_mag.add(gpu);
-  gpu.addFunction(vector_inclination, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Float",
-  });
-};
-export function vector_alzimuth(v: TVector) {
-  // if (vector_dim(v) !== 3) throw new TypeError();
-  return arctan2(v[1], v[0]);
+export function vector_alzimuth(v: TVector3) {
+  return Math.atan2(v[1], v[0]);
 }
-vector_alzimuth.add = (gpu: GPUKernel) => {
-  // vector_dim.add(gpu);
-  arctan2.add(gpu);
-  gpu.addFunction(vector_alzimuth, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Float",
-  });
-};
-export function vector_fromPolar(r: number, heading: number): TVector {
+export function vector_fromPolar(r: number, heading: number): TVector2 {
   return [r * Math.cos(heading), r * Math.sin(heading)];
 }
 export function vector_fromSphere(
   r: number,
   inclination: number,
   alzimuth: number,
-): TVector {
+): TVector3 {
   return [
     r * Math.sin(inclination) * Math.cos(alzimuth),
     r * Math.sin(inclination) * Math.sin(alzimuth),
@@ -258,11 +90,12 @@ export function vector_random2D() {
   const angle = randomUniform(0, Math.PI * 2);
   return vector_fromPolar(1, angle);
 }
-export function random3D() {
+export function vector_random3D() {
   const angle = randomUniform(0, Math.PI * 2);
   const vz = randomUniform(-1, 1);
   return vector_fromSphere(1, Math.acos(vz), angle);
 }
+
 export class Vector {
   private _val!: number[];
   constructor(...val: number[]) {

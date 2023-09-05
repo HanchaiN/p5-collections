@@ -1,13 +1,6 @@
 import { hcl2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor, kernelGenerator } from "@/script/utils/dom";
-import {
-  TComplex,
-  TVector,
-  arctan2,
-  constrain,
-  fpart,
-  map,
-} from "@/script/utils/math";
+import { TComplex, TVector3, constrain, fpart, map } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
 import { psi_orbital_superposition } from "./psi";
 
@@ -24,7 +17,7 @@ export default function execute() {
     R: number;
   }
 
-  function psi(this: IKernelFunctionThis<IConstants>, x: TVector, t: number) {
+  function psi(this: IKernelFunctionThis<IConstants>, x: TVector3, t: number) {
     return psi_orbital_superposition(state, x, t);
   }
   function main(this: IKernelFunctionThis<IConstants>, z: number, t: number) {
@@ -42,10 +35,10 @@ export default function execute() {
       -this.constants.R,
       +this.constants.R,
     );
-    const vec = [x, y, z];
+    const vec: TVector3 = [x, y, z];
     const v = psi.bind(this)(vec, t);
     const prob = 1000 * (v[0] * v[0] + v[1] * v[1]);
-    const phase = arctan2(v[1], v[0]);
+    const phase = Math.atan2(v[1], v[0]);
     const brightness = Math.pow(prob / (prob + 1), 0.5);
     const c = rgb2srgb(
       hcl2rgb([

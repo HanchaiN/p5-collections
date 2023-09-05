@@ -1,152 +1,53 @@
 /* eslint-disable @typescript-eslint/no-loss-of-precision */
-import type { GPUKernel } from "@/script/utils/types";
-import { arctan2, factorial, powneg, product } from ".";
+import { factorial, powneg, product } from ".";
 
 export type TComplex = [re: number, im: number];
 export function complex_conj(z: TComplex): TComplex {
   return [z[0], -z[1]];
 }
-complex_conj.add = (gpu: GPUKernel) => {
-  gpu.addFunction(complex_conj, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_absSq(z: TComplex) {
   return z[0] * z[0] + z[1] * z[1];
 }
-complex_absSq.add = (gpu: GPUKernel) => {
-  gpu.addFunction(complex_absSq, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Float",
-  });
-};
 export function complex_add(z1: TComplex, z2: TComplex): TComplex {
   return [z1[0] + z2[0], z1[1] + z2[1]];
 }
-complex_add.add = (gpu: GPUKernel) => {
-  gpu.addFunction(complex_add, {
-    argumentTypes: ["Array(2)", "Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_scale(z: TComplex, v: number): TComplex {
   return [z[0] * v, z[1] * v];
 }
-complex_scale.add = (gpu: GPUKernel) => {
-  gpu.addFunction(complex_scale, {
-    argumentTypes: ["Array(2)", "Float"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_add_inv(z: TComplex): TComplex {
   return complex_scale(z, -1);
 }
-complex_add_inv.add = (gpu: GPUKernel) => {
-  complex_scale.add(gpu);
-  gpu.addFunction(complex_add_inv, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_sub(z1: TComplex, z2: TComplex): TComplex {
-  // return complex_add(z1, complex_add_inv(z2));
   return [z1[0] - z2[0], z1[1] - z2[1]];
 }
-complex_sub.add = (gpu: GPUKernel) => {
-  // complex_add.add(gpu);
-  // complex_add_inv.add(gpu);
-  gpu.addFunction(complex_sub, {
-    argumentTypes: ["Array(2)", "Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_mult(z1: TComplex, z2: TComplex): TComplex {
   return [z1[0] * z2[0] - z1[1] * z2[1], z1[0] * z2[1] + z1[1] * z2[0]];
 }
-complex_mult.add = (gpu: GPUKernel) => {
-  gpu.addFunction(complex_mult, {
-    argumentTypes: ["Array(2)", "Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_mult_inv(z: TComplex): TComplex {
   return complex_scale(complex_conj(z), 1 / complex_absSq(z));
 }
-complex_mult_inv.add = (gpu: GPUKernel) => {
-  complex_conj.add(gpu);
-  complex_absSq.add(gpu);
-  complex_scale.add(gpu);
-  gpu.addFunction(complex_mult_inv, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_div(z1: TComplex, z2: TComplex): TComplex {
-  // return complex_mult(z1, complex_mult_inv(z2));
-  return complex_scale(
-    complex_mult(z1, [z2[0], -z2[1]]),
-    1 / complex_absSq(z2),
-  );
+  return complex_mult(z1, complex_mult_inv(z2));
 }
-complex_div.add = (gpu: GPUKernel) => {
-  complex_mult.add(gpu);
-  // complex_mult_inv.add(gpu);
-  complex_absSq.add(gpu);
-  complex_scale.add(gpu);
-  gpu.addFunction(complex_div, {
-    argumentTypes: ["Array(2)", "Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_sin(z: TComplex): TComplex {
   return [Math.sin(z[0]) * Math.cosh(z[1]), Math.cos(z[0]) * Math.sinh(z[1])];
 }
-complex_sin.add = (gpu: GPUKernel) => {
-  gpu.addFunction(complex_sin, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_exp(z: TComplex): TComplex {
   return [Math.exp(z[0]) * Math.cos(z[1]), Math.exp(z[0]) * Math.sin(z[1])];
 }
-complex_exp.add = (gpu: GPUKernel) => {
-  gpu.addFunction(complex_exp, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_log(z: TComplex): TComplex {
-  return [Math.log(Math.sqrt(complex_absSq(z))), arctan2(z[1], z[0])];
+  return [Math.log(Math.sqrt(complex_absSq(z))), Math.atan2(z[1], z[0])];
 }
-complex_log.add = (gpu: GPUKernel) => {
-  complex_absSq.add(gpu);
-  arctan2.add(gpu);
-  gpu.addFunction(complex_log, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_pow(z: TComplex, w: TComplex): TComplex {
   if (w[1] === 0)
     return [
       Math.pow(complex_absSq(z), w[0] / 2) *
-        Math.cos(arctan2(z[1], z[0]) * w[0]),
+        Math.cos(Math.atan2(z[1], z[0]) * w[0]),
       Math.pow(complex_absSq(z), w[0] / 2) *
-        Math.sin(arctan2(z[1], z[0]) * w[0]),
+        Math.sin(Math.atan2(z[1], z[0]) * w[0]),
     ];
   return complex_exp(complex_mult(complex_log(z), w));
 }
-complex_pow.add = (gpu: GPUKernel) => {
-  complex_exp.add(gpu);
-  complex_log.add(gpu);
-  complex_mult.add(gpu);
-  gpu.addFunction(complex_pow, {
-    argumentTypes: ["Array(2)", "Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_gamma(z: TComplex): TComplex {
   let reflected = false;
   // if (z[1] === 0)
@@ -228,20 +129,6 @@ export function complex_gamma(z: TComplex): TComplex {
       )
     : result;
 }
-complex_gamma.add = (gpu: GPUKernel) => {
-  // gamma.add(gpu);
-  complex_add.add(gpu);
-  complex_sub.add(gpu);
-  complex_mult.add(gpu);
-  complex_div.add(gpu);
-  complex_exp.add(gpu);
-  complex_log.add(gpu);
-  complex_sin.add(gpu);
-  gpu.addFunction(complex_gamma, {
-    argumentTypes: ["Array(2)"],
-    returnType: "Array(2)",
-  });
-};
 export function complex_zeta(s: TComplex): TComplex;
 export function complex_zeta(s: TComplex, prec: number): TComplex;
 export function complex_zeta(s: TComplex, prec: number = 1e-10): TComplex {
@@ -299,30 +186,7 @@ export function complex_zeta(s: TComplex, prec: number = 1e-10): TComplex {
       )
     : result;
 }
-complex_zeta.add = (gpu: GPUKernel) => {
-  powneg.add(gpu);
-  product.add(gpu);
-  factorial.add(gpu);
-  complex_absSq.add(gpu);
-  complex_add.add(gpu);
-  complex_scale.add(gpu);
-  complex_sub.add(gpu);
-  complex_mult.add(gpu);
-  complex_div.add(gpu);
-  complex_exp.add(gpu);
-  complex_log.add(gpu);
-  complex_sin.add(gpu);
-  complex_gamma.add(gpu);
-  gpu
-    .addFunction(complex_zeta, {
-      argumentTypes: ["Array(2)"],
-      returnType: "Array(2)",
-    })
-    .addFunction(complex_zeta, {
-      argumentTypes: ["Array(2)", "Float"],
-      returnType: "Array(2)",
-    });
-};
+
 export class Complex {
   private _re!: number;
   private _im!: number;

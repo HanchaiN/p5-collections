@@ -16,7 +16,8 @@ import {
   complex_scale,
 } from "@/script/utils/math/complex";
 import {
-  TVector,
+  TCVector3,
+  TVector3,
   vector_alzimuth,
   vector_fromSphere,
   vector_inclination,
@@ -121,7 +122,7 @@ export function psi_orbital(
   n: number,
   l: number,
   m: number,
-  x: TVector,
+  x: TVector3,
   t: number,
 ) {
   const normalize_r = Math.sqrt(
@@ -150,9 +151,9 @@ export function psi_orbital_der(
   n: number,
   l: number,
   m: number,
-  x: TVector,
+  x: TVector3,
   t: number,
-): [TComplex, TComplex, TComplex] {
+): TCVector3 {
   const normalize_r = Math.sqrt(
     Math.pow((2 * Z) / (n * RADIUS_REDUCED), 3.0) /
       (product(n - l, n + l) * 2 * n),
@@ -297,7 +298,7 @@ export function psi_orbital_sample(
 
 export function psi_orbital_superposition(
   state: { c: TComplex; n: number; l: number; m: number }[],
-  x: TVector,
+  x: TVector3,
   t: number,
 ) {
   const total_mag = Math.sqrt(
@@ -320,14 +321,14 @@ export function psi_orbital_superposition(
 }
 export function psi_orbital_superposition_der(
   state: { c: TComplex; n: number; l: number; m: number }[],
-  x: TVector,
+  x: TVector3,
   t: number,
-): [TComplex, TComplex, TComplex] {
+): TCVector3 {
   const total_mag = Math.sqrt(
     state.reduce((prev, { c }) => prev + complex_absSq(c), 0),
   );
   const normalization = total_mag === 0 ? 0 : 1 / total_mag;
-  return state.reduce<[TComplex, TComplex, TComplex]>(
+  return state.reduce(
     ([dx, dy, dz], { c, n, l, m }) => {
       const der = psi_orbital_der(n, l, m, x, t);
       return [
@@ -351,7 +352,7 @@ export function psi_orbital_superposition_sample(
   const MAX_SEED = 0.99;
   const R_MAX = 50;
   const seed = new Array(counts).fill(null).map(() => Math.random() * MAX_SEED);
-  const res: TVector[] = new Array(counts).fill(null);
+  const res: TVector3[] = new Array(counts).fill(null);
   let total_prob = 0;
   const d_r = SAMPLE_RESOLUTION;
   for (let r = SAMPLE_RESOLUTION / 2; r < R_MAX; r += d_r) {
@@ -405,12 +406,9 @@ export function psi_orbital_re(
   return [{ c: [1, 0], n, l, m }];
 }
 
-export function psi_getvel(
-  val: TComplex,
-  der: [TComplex, TComplex, TComplex],
-): TVector {
+export function psi_getvel(val: TComplex, der: TCVector3): TVector3 {
   if (complex_absSq(val) === 0) return [0, 0, 0];
   return der.map<number>(
     (z) => (complex_div(z, val)[1] * H_BAR) / MASS_REDUCED,
-  );
+  ) as TVector3;
 }

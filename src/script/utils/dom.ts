@@ -57,17 +57,21 @@ export function kernelGenerator<
     this: IRenderFunctionThis<IConstants>,
     ...args: Parameters<typeof main>
   ) {
+    const res: IReturnType[][] = new Array(this.output.x)
+      .fill(null)
+      .map(() => new Array(this.output.y).fill(null));
     for (let y = 0; y < this.output.y; y++) {
       for (let x = 0; x < this.output.x; x++) {
-        yield main.bind({
+        yield (res[x][y] = main.bind({
           output: this.output,
           thread: { x, y, z: 0 },
           constants: this.constants,
           color: (r: number, g: number = r, b: number = r, a: number = 1) =>
             this.color(x, y, r, g, b, a),
-        })(...args);
+        })(...args));
       }
     }
+    return res;
   }.bind({
     output: { x: buffer.width, y: buffer.height, z: 0 },
     constants: constants,

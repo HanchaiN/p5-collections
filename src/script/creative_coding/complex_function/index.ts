@@ -1,13 +1,7 @@
 import { cubehelix2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor, kernelGenerator } from "@/script/utils/dom";
 import type { TComplex } from "@/script/utils/math";
-import {
-  arctan2,
-  complex_absSq,
-  complex_zeta,
-  fpart,
-  map,
-} from "@/script/utils/math";
+import { complex_absSq, complex_zeta, fpart, map } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
 
 export default function execute() {
@@ -49,7 +43,7 @@ export default function execute() {
     );
     const z = f([re, im]);
     const r = Math.sqrt(complex_absSq(z));
-    const theta = arctan2(z[1], z[0]);
+    const theta = Math.atan2(z[1], z[0]);
     const hue = (theta < 0.0 ? theta + 2 * Math.PI : theta) / (Math.PI * 2);
     const sat = map(
       fpart(Math.log2(r)) * fpart((-theta * 12) / (Math.PI * 2)),

@@ -1,4 +1,3 @@
-import type { GPUKernel } from "@/script/utils/types";
 export * as d3 from "d3-color";
 
 export function hcl2lab(
@@ -10,12 +9,6 @@ export function hcl2lab(
     hcl[1] * Math.sin(hcl[0] * 2 * Math.PI),
   ];
 }
-hcl2lab.add = (gpu: GPUKernel) => {
-  gpu.addFunction(hcl2lab, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Array(3)",
-  });
-};
 export function lab2xyz(
   lab: [l: number, a: number, b: number],
 ): [x: number, y: number, z: number] {
@@ -31,12 +24,6 @@ export function lab2xyz(
     std[2] * (fz > CBRT_EPSILON ? fz * fz * fz : (1.16 * fz - 0.16) / KAPPA),
   ];
 }
-lab2xyz.add = (gpu: GPUKernel) => {
-  gpu.addFunction(lab2xyz, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Array(3)",
-  });
-};
 export function xyz2rgb(
   xyz: [x: number, y: number, z: number],
 ): [r: number, g: number, b: number] {
@@ -51,12 +38,6 @@ export function xyz2rgb(
     xyz[0] * xyz2rgb[2][0] + xyz[1] * xyz2rgb[2][1] + xyz[2] * xyz2rgb[2][2],
   ];
 }
-xyz2rgb.add = (gpu: GPUKernel) => {
-  gpu.addFunction(xyz2rgb, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Array(3)",
-  });
-};
 export function cubehelix2rgb(
   hsl: [h: number, s: number, l: number],
 ): [r: number, g: number, b: number] {
@@ -72,12 +53,6 @@ export function cubehelix2rgb(
     s = Math.sin(h);
   return [l + a * (A * c + B * s), l + a * (C * c + D * s), l + a * (E * c)];
 }
-cubehelix2rgb.add = (gpu: GPUKernel) => {
-  gpu.addFunction(cubehelix2rgb, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Array(3)",
-  });
-};
 export function rgb2srgb(
   rgb: [r: number, g: number, b: number],
 ): [r: number, g: number, b: number] {
@@ -93,23 +68,8 @@ export function rgb2srgb(
       : 1.055 * Math.pow(rgb[2], 1 / 2.4) - 0.055,
   ];
 }
-rgb2srgb.add = (gpu: GPUKernel) => {
-  gpu.addFunction(rgb2srgb, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Array(3)",
-  });
-};
 export function hcl2rgb(
   hcl: [h: number, c: number, l: number],
 ): [r: number, g: number, b: number] {
   return xyz2rgb(lab2xyz(hcl2lab(hcl)));
 }
-hcl2rgb.add = (gpu: GPUKernel) => {
-  xyz2rgb.add(gpu);
-  lab2xyz.add(gpu);
-  hcl2lab.add(gpu);
-  gpu.addFunction(hcl2rgb, {
-    argumentTypes: ["Array(3)"],
-    returnType: "Array(3)",
-  });
-};

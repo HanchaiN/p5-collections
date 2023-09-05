@@ -1,89 +1,111 @@
-import { getParentSize } from "@/script/utils/dom";
-import p5 from "p5";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Graph } from "./graph";
-import type { p5Extension } from "@/script/utils/types";
+
 export default function execute() {
-  let parent: HTMLElement;
-  let canvas: HTMLCanvasElement;
-  let resizeObserver: ResizeObserver;
+  let camera: THREE.PerspectiveCamera,
+    scene: THREE.Scene,
+    renderer: THREE.WebGLRenderer,
+    controls: OrbitControls,
+    node_mesh: THREE.InstancedMesh<
+      THREE.SphereGeometry,
+      THREE.MeshPhongMaterial
+    >;
+  let ended = true;
+  let workers: Worker[];
+  const mainelem = new Graph<number>();
+  mainelem.addNode(1);
+  mainelem.addNode(2);
+  mainelem.addNode(3);
+  mainelem.addNode(4);
+  mainelem.addEdge(1, 2);
+  mainelem.addEdge(2, 3);
+  mainelem.addEdge(3, 1);
+  mainelem.addEdge(4, 1);
+  mainelem.addEdge(4, 2);
+  mainelem.simplify();
 
-  const sketch = (p: p5) => {
-    const mainelem = new Graph<number>();
-    function parentResized() {
-      const { width, height } = getParentSize(parent, canvas);
-      p.resizeCanvas(width, height);
+  function init(canvas: HTMLCanvasElement) {
+    ended = false;
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(
+      75,
+      canvas.width / canvas.height,
+      0.1,
+      1000,
+    );
+    camera.position.z = 3;
+    camera.up = new THREE.Vector3(0, 0, 1);
+
+    renderer = new THREE.WebGLRenderer({ canvas });
+
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enablePan = false;
+
+    const coord = mainelem.spectral();
+    {
+      node_mesh = new THREE.InstancedMesh(
+        new THREE.SphereGeometry(1 / 50, 32, 16),
+        new THREE.MeshPhongMaterial(),
+        coord.length,
+      );
+      node_mesh.instanceMatrix.setUsage(THREE.StreamDrawUsage);
+      coord.forEach(([x, y, z], i) => {
+        const matrix = new THREE.Matrix4();
+        matrix.setPosition(x, y, z);
+        node_mesh.setMatrixAt(i, matrix);
+        node_mesh.setColorAt(i, new THREE.Color(0xffffff));
+      });
+      node_mesh.instanceColor?.setUsage(THREE.StaticDrawUsage);
+      scene.add(node_mesh);
     }
-    p.setup = function () {
-      const { width, height } = getParentSize(parent, canvas);
-      p.createCanvas(width, height, p.WEBGL);
-      mainelem.addNode(1);
-      mainelem.addNode(2);
-      mainelem.addNode(3);
-      mainelem.addEdge(1, 2);
-      mainelem.addEdge(2, 3);
-      mainelem.addEdge(3, 1);
-      mainelem.simplify();
-      // p.noLoop();
-      resizeObserver = new ResizeObserver(parentResized);
-      resizeObserver.observe(parent);
-    };
+    {
+      coord.forEach(([x0, y0, z0], i) =>
+        coord.forEach(([x1, y1, z1], j) => {
+          if (!mainelem.adj[i][j]) return;
+          const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+          const points = [];
+          points.push(new THREE.Vector3(x0, y0, z0));
+          points.push(new THREE.Vector3(x1, y1, z1));
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
+          const line = new THREE.Line(geometry, material);
+          scene.add(line);
+        }),
+      );
+    }
+    {
+      const light = new THREE.AmbientLight(0x404040);
+      scene.add(light);
+    }
+    {
+      const light = new THREE.HemisphereLight(0xffffff, 0x888888);
+      light.position.set(0, 1, 0);
+      scene.add(light);
+    }
+    const axesHelper = new THREE.AxesHelper(5);
+    scene.add(axesHelper);
+  }
+  function animate() {
+    if (ended) return;
+    controls.update();
+    renderer.render(scene, camera);
+    window.requestAnimationFrame(animate);
+  }
+  function dispose() {
+    ended = true;
+    renderer.dispose();
+    controls.dispose();
+    node_mesh.dispose();
+  }
 
-    p.draw = function () {
-      p.background(220);
-      p.orbitControl();
-      p.debugMode();
-      const coord = mainelem.spectral();
-      const x = 0;
-      const y = coord.length - 1;
-      const z = p.floor(coord.length / 2) + 1;
-      const xmax = coord.reduce((acc, elem) => p.max(acc, p.abs(elem[x])), 0);
-      const ymax = coord.reduce((acc, elem) => p.max(acc, p.abs(elem[y])), 0);
-      const zmax = coord.reduce((acc, elem) => p.max(acc, p.abs(elem[z])), 0);
-      const max_ = p.max([xmax, ymax, zmax]);
-      for (const i in coord) {
-        p.push();
-        p.translate(
-          p.map(coord[i][x], -max_, +max_, -100, +100),
-          p.map(coord[i][y], -max_, +max_, -100, +100),
-          p.map(coord[i][z], -max_, +max_, -100, +100),
-        );
-        p.sphere(10);
-        p.translate(
-          -p.map(coord[i][x], -max_, +max_, -100, +100),
-          -p.map(coord[i][y], -max_, +max_, -100, +100),
-          -p.map(coord[i][z], -max_, +max_, -100, +100),
-        );
-        p.strokeWeight(1);
-        for (const j in coord) {
-          if (mainelem.adj[i][j]) {
-            p.line(
-              p.map(coord[i][x], -max_, +max_, -100, +100),
-              p.map(coord[i][y], -max_, +max_, -100, +100),
-              p.map(coord[i][z], -max_, +max_, -100, +100),
-
-              p.map(coord[j][x], -max_, +max_, -100, +100),
-              p.map(coord[j][y], -max_, +max_, -100, +100),
-              p.map(coord[j][z], -max_, +max_, -100, +100),
-            );
-          }
-        }
-        p.pop();
-      }
-    };
-  };
-
-  let instance: p5Extension;
   return {
-    start: (node: HTMLElement) => {
-      parent = node;
-      instance = new p5(sketch, node) as p5Extension;
-      canvas ??= instance.canvas;
+    start: (canvas: HTMLCanvasElement) => {
+      init(canvas);
+      animate();
     },
     stop: () => {
-      instance?.remove();
-      canvas?.remove();
-      resizeObserver?.disconnect();
-      // parent = canvas = instance = resizeObserver = null;
+      dispose();
+      workers?.forEach((worker) => worker.terminate());
     },
   };
 }

@@ -1,17 +1,7 @@
-import type { GPUKernel } from "@/script/utils/types";
 import { lerp } from "./";
-export function randomUniform(l: number, h: number): number;
 export function randomUniform(l = 0, h = 1) {
   return lerp(Math.random(), l, h);
 }
-randomUniform.add = (gpu: GPUKernel) => {
-  lerp.add(gpu);
-  gpu.addFunction(randomUniform, {
-    argumentTypes: ["Float", "Float"],
-    returnType: "Float",
-  });
-};
-export function randomGaussian(mu: number, sigma: number): number;
 export function randomGaussian(mu = 0, sigma = 1) {
   const U1 = Math.random(),
     U2 = Math.random();
@@ -19,13 +9,6 @@ export function randomGaussian(mu = 0, sigma = 1) {
   // Z1 = Math.sqrt(-2 * Math.log(U1)) * Math.sin(2 * Math.PI * U2);
   return Z0 * sigma + mu;
 }
-randomGaussian.add = (gpu: GPUKernel) => {
-  gpu.addFunction(randomGaussian, {
-    argumentTypes: ["Float", "Float"],
-    returnType: "Float",
-  });
-};
-export function randomChi(alpha: number): number;
 export function randomChi(alpha = 1) {
   if (alpha < 1.0) return 0.0;
   // if (!Number.isInteger(alpha)) {
@@ -51,8 +34,3 @@ export function randomChi(alpha = 1) {
     acc += Math.pow(randomGaussian(0, 1), 2);
   return Math.sqrt(acc);
 }
-randomChi.add = (gpu: GPUKernel) => {
-  randomUniform.add(gpu);
-  randomGaussian.add(gpu);
-  gpu.addFunction(randomChi, { argumentTypes: ["Float"], returnType: "Float" });
-};

@@ -1,8 +1,7 @@
 import {
   TComplex,
-  TVector,
+  TVector3,
   Vector,
-  arctan2,
   complex_absSq,
   constrainMap,
 } from "@/script/utils/math";
@@ -21,9 +20,9 @@ let pretime: number,
   time_scale = 1;
 
 function getColor(pos: Vector, t: number) {
-  const val = psi_orbital_superposition(superposition, pos.val, t);
+  const val = psi_orbital_superposition(superposition, pos.val as TVector3, t);
   const prob = 1000 * complex_absSq(val);
-  const phase = arctan2(val[1], val[0]);
+  const phase = Math.atan2(val[1], val[0]);
   const brightness = Math.pow(prob / (prob + 1), 0.01);
   const saturation_b = Math.pow(prob / (prob + 1), 0.05);
   const lightness = brightness * (1 - saturation_b / 2);
@@ -59,7 +58,7 @@ export function main(data: MessageRequest) {
   if (data.addStates)
     states.push(
       ...psi_orbital_superposition_sample(superposition, data.addStates).map(
-        (pos: TVector) => new HigherOrderState(new Vector(...pos)),
+        (pos: TVector3) => new HigherOrderState(new Vector(...pos)),
       ),
     );
   if (data.resetState) states = [];
@@ -74,8 +73,16 @@ export function main(data: MessageRequest) {
           (t: number, [pos]: Vector[]) => {
             return new Vector(
               ...psi_getvel(
-                psi_orbital_superposition(superposition, pos.val, t),
-                psi_orbital_superposition_der(superposition, pos.val, t),
+                psi_orbital_superposition(
+                  superposition,
+                  pos.val as TVector3,
+                  t,
+                ),
+                psi_orbital_superposition_der(
+                  superposition,
+                  pos.val as TVector3,
+                  t,
+                ),
               ),
             );
           },

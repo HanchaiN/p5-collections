@@ -1,37 +1,34 @@
+import { kernelGenerator } from "@/script/utils/dom";
 import { constrain } from "@/script/utils/math";
-import GPU from "gpu.js";
+import type { IKernelFunctionThis } from "@/script/utils/types";
 
 export default function execute() {
-  let gpu: GPU.GPU;
-  let init_kernel: GPU.IKernelRunShortcut;
-  let update_kernel: GPU.IKernelRunShortcut;
-  let draw_kernel: GPU.IKernelRunShortcut;
   let isActive = false;
   const DIFFUSION_RATE = [1, 0.5];
   const ADDER = 0.0545;
   const REMOVER = 0.062;
-  let grid: GPU.Texture;
+  const scale = 1;
 
-  interface IUpdateConstants extends GPU.IConstantsThis {
+  interface IUpdateConstants {
     ADDER: number;
     REMOVER: number;
     DIFFUSION_RATE: number[];
   }
 
-  function init(this: GPU.IKernelFunctionThis) {
+  function init(this: IKernelFunctionThis): [number, number] {
     if (
       Math.pow(Math.abs(this.thread.x - this.output.x / 2), 2) +
         Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
-      Math.pow(10, 2)
+      Math.pow(10 / scale, 2)
     )
       return [1, 1];
     return [1, 0];
   }
   function update(
-    this: GPU.IKernelFunctionThis<IUpdateConstants>,
+    this: IKernelFunctionThis<IUpdateConstants>,
     grid: [number, number][][],
     dt: number,
-  ) {
+  ): [number, number] {
     const v = grid[this.thread.y][this.thread.x];
     const rxn = v[0] * v[1] * v[1];
     const reaction = [
@@ -84,7 +81,7 @@ export default function execute() {
       constrain(v[1] + dt * delta[1], 0, 1),
     ];
   }
-  function draw(this: GPU.IKernelFunctionThis, grid: [number, number][][]) {
+  function draw(this: IKernelFunctionThis, grid: [number, number][][]) {
     const v = grid[this.thread.y][this.thread.x];
     const c = constrain(v[0] - v[1], 0, 1);
     this.color(c, c, c, 1);
@@ -93,66 +90,59 @@ export default function execute() {
   return {
     start: (canvas: HTMLCanvasElement) => {
       isActive = true;
-      gpu = new GPU.GPU({});
-      init_kernel = gpu
-        .createKernel(init)
-        .setPipeline(true)
-        .setOutput([canvas.width, canvas.height, 2]);
-      update_kernel = gpu
-        .createKernel(update)
-        // .setArgumentTypes({
-        //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //   // @ts-ignore
-        //   grid: "ArrayTexture(2)",
-        //   dt: "Float",
-        // })
-        .setConstants<IUpdateConstants>({
+      const ctx = canvas.getContext("2d", {
+        alpha: false,
+        desynchronized: true,
+      })!;
+      const buffer = ctx.createImageData(
+        canvas.width / scale,
+        canvas.height / scale,
+      );
+      const init_kernel = kernelGenerator(init, {}, buffer);
+      const update_kernel = kernelGenerator(
+        update,
+        {
           ADDER,
           REMOVER,
           DIFFUSION_RATE,
-        })
-        .setConstantTypes({
-          ADDER: "Float",
-          REMOVER: "Float",
-          DIFFUSION_RATE: "Array(2)",
-        })
-        .setPipeline(true)
-        .setImmutable(true)
-        .setOutput([canvas.width, canvas.height, 2]);
-      constrain.add(update_kernel);
-      draw_kernel = gpu
-        .createKernel(draw)
-        // .setArgumentTypes({
-        //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //   // @ts-ignore
-        //   grid: "ArrayTexture(2)",
-        // })
-        .setGraphical(true)
-        .setOutput([canvas.width, canvas.height]);
-      constrain.add(draw_kernel);
-      grid = init_kernel() as GPU.Texture;
-      requestAnimationFrame(function callback() {
+        },
+        buffer,
+      );
+      const draw_kernel = kernelGenerator(draw, {}, buffer);
+      let grid = (() => {
+        const step = init_kernel();
+        let res;
+        do res = step.next();
+        while (!res.done);
+        return res.value;
+      })();
+
+      requestAnimationFrame(function draw() {
         if (!isActive) return;
-        draw_kernel(grid);
-        const _grid = grid;
-        grid = update_kernel(_grid, 1) as GPU.Texture;
-        _grid.delete();
-        canvas
-          .getContext("2d")
-          ?.drawImage(
-            draw_kernel.canvas,
-            0,
-            canvas.height - draw_kernel.canvas.height,
-          );
-        requestAnimationFrame(callback);
+        new Promise<ImageBitmap>((resolve) => {
+          const step = draw_kernel(grid);
+          let res;
+          do res = step.next();
+          while (!res.done);
+          createImageBitmap(buffer).then((bmp) => resolve(bmp));
+          return res.value;
+        }).then((bmp) => ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height));
+        requestAnimationFrame(draw);
+      });
+      requestIdleCallback(function update() {
+        if (!isActive) return;
+        grid = (() => {
+          const step = update_kernel(grid, 1);
+          let res;
+          do res = step.next();
+          while (!res.done);
+          return res.value;
+        })();
+        requestIdleCallback(update);
       });
     },
     stop: () => {
       isActive = false;
-      init_kernel?.destroy();
-      update_kernel?.destroy();
-      draw_kernel?.destroy();
-      gpu?.destroy();
     },
   };
 }
