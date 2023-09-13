@@ -34,6 +34,9 @@ export function sigm(x: number) {
 export function gaus(x: number) {
   return Math.exp(-x * x);
 }
+export function ricker(x: number) {
+  return (1 - x * x) * Math.exp((-x * x) / 2);
+}
 export function symlog(x: number) {
   return x > 0 ? Math.log(1 + x) : -Math.log(1 - x);
 }

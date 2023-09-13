@@ -34,3 +34,78 @@ export function randomChi(alpha = 1) {
     acc += Math.pow(randomGaussian(0, 1), 2);
   return Math.sqrt(acc);
 }
+
+// Alea random number generator.
+//----------------------------------------------------------------------------//
+
+// From http://baagoe.com/en/RandomMusings/javascript/
+export class Alea {
+  static version = "Alea 0.9";
+  s0: number;
+  s1: number;
+  s2: number;
+  c: number;
+  seed: string[];
+  constructor(...seed: string[]) {
+    // Johannes BaagÃ¸e <baagoe@baagoe.com>, 2010
+    this.c = 1;
+
+    if (seed.length == 0) {
+      seed = [(+new Date()).toString()];
+    }
+    this.s0 = Mash.mash(" ");
+    this.s1 = Mash.mash(" ");
+    this.s2 = Mash.mash(" ");
+
+    for (let i = 0; i < seed.length; i++) {
+      this.s0 -= Mash.mash(seed[i]);
+      if (this.s0 < 0) {
+        this.s0 += 1;
+      }
+      this.s1 -= Mash.mash(seed[i]);
+      if (this.s1 < 0) {
+        this.s1 += 1;
+      }
+      this.s2 -= Mash.mash(seed[i]);
+      if (this.s2 < 0) {
+        this.s2 += 1;
+      }
+    }
+    this.seed = seed;
+  }
+  random() {
+    const t = 2091639 * this.s0 + this.c * 2.3283064365386963e-10; // 2^-32
+    this.s0 = this.s1;
+    this.s1 = this.s2;
+    return (this.s2 = t - (this.c = t | 0));
+  }
+  random_uint32() {
+    return this.random() * 0x100000000; // 2^32
+  }
+  random_frac53() {
+    return (
+      this.random() + ((this.random() * 0x200000) | 0) * 1.1102230246251565e-16
+    ); // 2^-53
+  }
+}
+
+// From http://baagoe.com/en/RandomMusings/javascript/
+// Johannes BaagÃ¸e <baagoe@baagoe.com>, 2010
+export class Mash {
+  static n = 0xefc8249d;
+  static version = "Mash 0.9";
+
+  static mash(data: string) {
+    for (let i = 0; i < data.length; i++) {
+      this.n += data.charCodeAt(i);
+      let h = 0.02519603282416938 * this.n;
+      this.n = h >>> 0;
+      h -= this.n;
+      h *= this.n;
+      this.n = h >>> 0;
+      h -= this.n;
+      this.n += h * 0x100000000; // 2^32
+    }
+    return (this.n >>> 0) * 2.3283064365386963e-10; // 2^-32
+  }
+}

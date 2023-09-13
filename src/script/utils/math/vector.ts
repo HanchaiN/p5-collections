@@ -5,7 +5,9 @@ export type TVector2 = [number, number];
 export type TCVector2 = [TComplex, TComplex, TComplex];
 export type TVector3 = [number, number, number];
 export type TCVector3 = [TComplex, TComplex, TComplex];
-export type TVector = TVector2 | TVector3;
+export type TVector4 = [number, number, number, number];
+export type TCVector4 = [TComplex, TComplex, TComplex, TComplex];
+export type TVector = TVector2 | TVector3 | TVector4;
 export function vector_dim<T extends TVector>(v: T) {
   return v.length;
 }
