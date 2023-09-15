@@ -15,6 +15,7 @@ import type { IKernelFunctionThis } from "@/script/utils/types";
 
 export default function execute() {
   let isActive = false;
+  let isDrawing = false;
   const scale = 1;
   let dithering = false;
 
@@ -162,26 +163,12 @@ export default function execute() {
         );
       const renderer = kernelGenerator(main, constants, buffer);
       let i = 0;
+      isDrawing = true;
       requestAnimationFrame(function draw() {
         if (!isActive) return;
-        if (generator) {
-          const value = generator.next().value;
-          const { x, y } = acc.reduce<{ x: number; y: number; d: number }>(
-            ({ x, y, d }, row, i) =>
-              row.reduce<{ x: number; y: number; d: number }>(
-                ({ x, y, d }, val, j) =>
-                  vector_dist(value, val) < d
-                    ? { x: i, y: j, d: vector_dist(value, val) }
-                    : { x, y, d },
-                { x, y, d },
-              ),
-            { x: -1, y: -1, d: Infinity },
-          );
-          const bmu: TVector2 = [x, y];
-          const step = renderer(acc, bmu, value, i++);
-          let res;
-          while (!(res = step.next()).done) continue;
-          acc = res.value;
+        if (!isDrawing) {
+          requestAnimationFrame(draw);
+          return;
         }
         if (dithering) {
           for (let j = 0; j < buffer.height; j++) {
@@ -223,10 +210,35 @@ export default function execute() {
             }
           }
         }
+        isDrawing = false;
         createImageBitmap(buffer).then((bmp) =>
           ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height),
         );
         requestAnimationFrame(draw);
+      });
+      requestIdleCallback(function update() {
+        if (!isActive) return;
+        if (generator) {
+          const value = generator.next().value;
+          const { x, y } = acc.reduce<{ x: number; y: number; d: number }>(
+            ({ x, y, d }, row, i) =>
+              row.reduce<{ x: number; y: number; d: number }>(
+                ({ x, y, d }, val, j) =>
+                  vector_dist(value, val) < d
+                    ? { x: i, y: j, d: vector_dist(value, val) }
+                    : { x, y, d },
+                { x, y, d },
+              ),
+            { x: -1, y: -1, d: Infinity },
+          );
+          const bmu: TVector2 = [x, y];
+          const step = renderer(acc, bmu, value, i++);
+          let res;
+          while (!(res = step.next()).done) continue;
+          acc = res.value;
+          isDrawing = true;
+        }
+        requestIdleCallback(update);
       });
       canvas.addEventListener("click", function onClick() {
         dithering = !dithering;

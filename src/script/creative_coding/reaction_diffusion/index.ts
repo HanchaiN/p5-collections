@@ -4,6 +4,7 @@ import type { IKernelFunctionThis } from "@/script/utils/types";
 
 export default function execute() {
   let isActive = false;
+  let isDrawing = false;
   const DIFFUSION_RATE = [1, 0.5];
   const ADDER = 0.0545;
   const REMOVER = 0.062;
@@ -117,16 +118,22 @@ export default function execute() {
         return res.value;
       })();
 
+      isDrawing = true;
       requestAnimationFrame(function draw() {
         if (!isActive) return;
-        new Promise<ImageBitmap>((resolve) => {
-          const step = draw_kernel(grid);
-          let res;
-          do res = step.next();
-          while (!res.done);
-          createImageBitmap(buffer).then((bmp) => resolve(bmp));
-          return res.value;
-        }).then((bmp) => ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height));
+        if (isDrawing) {
+          new Promise<ImageBitmap>((resolve) => {
+            const step = draw_kernel(grid);
+            let res;
+            do res = step.next();
+            while (!res.done);
+            createImageBitmap(buffer).then((bmp) => resolve(bmp));
+            return res.value;
+          }).then((bmp) =>
+            ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height),
+          );
+          isDrawing = false;
+        }
         requestAnimationFrame(draw);
       });
       requestIdleCallback(function update() {
@@ -138,6 +145,7 @@ export default function execute() {
           while (!res.done);
           return res.value;
         })();
+        isDrawing = true;
         requestIdleCallback(update);
       });
     },
