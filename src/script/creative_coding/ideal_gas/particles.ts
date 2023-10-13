@@ -7,7 +7,8 @@ export const SETTING = {
   DIAMETER: 500,
   BOLTZMANN: 1,
   MASS: 1,
-  DOF: 2,
+  DOF_TRANS: 2,
+  DOF_EXTRA: 0,
   UPDATE_RATE: 1,
   RECALL_RATE: 0.01,
 };
@@ -32,11 +33,11 @@ export class Particle {
   addAccel(v: Vector) {
     this._accel.add(v);
   }
-  get KE() {
+  get KineticEnergy() {
     return ParticleSystem.getKE(this.vel.magSq());
   }
   get Temperature() {
-    return ParticleSystem.getTemp(this.KE);
+    return ParticleSystem.getTemp(this.KineticEnergy);
   }
 }
 
@@ -79,7 +80,7 @@ export class ParticleSystem {
           map(Math.random(), -padding, 1 + padding, 0, w),
           map(Math.random(), -padding, 1 + padding, 0, h),
         ),
-        new Vector(...new Array(SETTING.DOF).fill(0)),
+        new Vector(...new Array(SETTING.DOF_TRANS).fill(0)),
       );
     });
     this.Temperature = temp;
@@ -92,14 +93,26 @@ export class ParticleSystem {
   get h() {
     return this.wall.bottom - this.wall.top;
   }
-  get KE() {
+  get Volume() {
+    return this.w * this.h;
+  }
+  get KineticEnergy() {
     return (
-      this.particles.reduce((acc, particle) => acc + particle.KE, 0) /
-      this.particles.length
+      this.particles.reduce(
+        (acc, particle) => acc + particle.KineticEnergy,
+        0,
+      ) / this.particles.length
+    );
+  }
+  get InternalEnergy() {
+    return (
+      ((SETTING.DOF_TRANS + SETTING.DOF_EXTRA) / 2) *
+      SETTING.BOLTZMANN *
+      this.Temperature
     );
   }
   get Temperature() {
-    return ParticleSystem.getTemp(this.KE);
+    return ParticleSystem.getTemp(this.KineticEnergy);
   }
   set Temperature(temp) {
     const T0 = this.Temperature;
@@ -117,7 +130,7 @@ export class ParticleSystem {
       this.particles.forEach((particle) => {
         particle.vel.add(
           new Vector(
-            ...new Array(SETTING.DOF)
+            ...new Array(SETTING.DOF_TRANS)
               .fill(null)
               .map(() => randomGaussian(0, 1)),
           ).mult(factor),
@@ -125,11 +138,16 @@ export class ParticleSystem {
       });
     }
   }
+  get Entropy() {
+    return (
+      (this.KineticEnergy + this.Pressure * this.Volume) / this.Temperature
+    );
+  }
   static getKE(velSq: number) {
     return 0.5 * SETTING.MASS * velSq;
   }
-  static getTemp(KE: number) {
-    return KE / ((2 / SETTING.DOF) * SETTING.BOLTZMANN);
+  static getTemp(kineticEnergy: number) {
+    return kineticEnergy / ((2 / SETTING.DOF_TRANS) * SETTING.BOLTZMANN);
   }
   resetStat(r = SETTING.RECALL_RATE) {
     if (this._dt > 0) {
@@ -203,7 +221,9 @@ export class ParticleSystem {
     if (particle.pos.x - SETTING.DIAMETER < this.wall.left) {
       if (this.wall_temp.left != null) {
         const vel = new Vector(
-          ...new Array(SETTING.DOF).fill(null).map(() => randomGaussian(0, 1)),
+          ...new Array(SETTING.DOF_TRANS)
+            .fill(null)
+            .map(() => randomGaussian(0, 1)),
         ).mult(
           Math.sqrt((SETTING.BOLTZMANN * this.wall_temp.left) / SETTING.MASS),
         );
@@ -222,7 +242,9 @@ export class ParticleSystem {
     if (particle.pos.x + SETTING.DIAMETER > this.wall.right) {
       if (this.wall_temp.right != null) {
         const vel = new Vector(
-          ...new Array(SETTING.DOF).fill(null).map(() => randomGaussian(0, 1)),
+          ...new Array(SETTING.DOF_TRANS)
+            .fill(null)
+            .map(() => randomGaussian(0, 1)),
         ).mult(
           Math.sqrt((SETTING.BOLTZMANN * this.wall_temp.right) / SETTING.MASS),
         );
@@ -241,7 +263,9 @@ export class ParticleSystem {
     if (particle.pos.y - SETTING.DIAMETER < this.wall.top) {
       if (this.wall_temp.top != null) {
         const vel = new Vector(
-          ...new Array(SETTING.DOF).fill(null).map(() => randomGaussian(0, 1)),
+          ...new Array(SETTING.DOF_TRANS)
+            .fill(null)
+            .map(() => randomGaussian(0, 1)),
         ).mult(
           Math.sqrt((SETTING.BOLTZMANN * this.wall_temp.top) / SETTING.MASS),
         );
@@ -260,7 +284,9 @@ export class ParticleSystem {
     if (particle.pos.y + SETTING.DIAMETER > this.wall.bottom) {
       if (this.wall_temp.bottom != null) {
         const vel = new Vector(
-          ...new Array(SETTING.DOF).fill(null).map(() => randomGaussian(0, 1)),
+          ...new Array(SETTING.DOF_TRANS)
+            .fill(null)
+            .map(() => randomGaussian(0, 1)),
         ).mult(
           Math.sqrt((SETTING.BOLTZMANN * this.wall_temp.bottom) / SETTING.MASS),
         );

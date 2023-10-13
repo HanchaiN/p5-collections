@@ -1,3 +1,4 @@
+import { getColor } from "@/script/utils/dom";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Graph } from "./graph";
@@ -28,6 +29,9 @@ export default function execute() {
   function init(canvas: HTMLCanvasElement) {
     ended = false;
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(
+      getColor("--md-sys-color-surface", "#000").formatHex(),
+    );
     camera = new THREE.PerspectiveCamera(
       75,
       canvas.width / canvas.height,
@@ -54,7 +58,12 @@ export default function execute() {
         const matrix = new THREE.Matrix4();
         matrix.setPosition(x, y, z);
         node_mesh.setMatrixAt(i, matrix);
-        node_mesh.setColorAt(i, new THREE.Color(0xffffff));
+        node_mesh.setColorAt(
+          i,
+          new THREE.Color(
+            getColor("--md-sys-color-on-surface", "#FFF").formatHex(),
+          ),
+        );
       });
       node_mesh.instanceColor?.setUsage(THREE.StaticDrawUsage);
       scene.add(node_mesh);
@@ -63,7 +72,12 @@ export default function execute() {
       coord.forEach(([x0, y0, z0], i) =>
         coord.forEach(([x1, y1, z1], j) => {
           if (!mainelem.adj[i][j]) return;
-          const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+          const material = new THREE.LineBasicMaterial({
+            color: getColor(
+              "--md-sys-color-on-surface-variant",
+              "#FFF",
+            ).formatHex(),
+          });
           const points = [];
           points.push(new THREE.Vector3(x0, y0, z0));
           points.push(new THREE.Vector3(x1, y1, z1));

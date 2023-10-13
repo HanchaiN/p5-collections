@@ -6,6 +6,7 @@ import {
   textContainer,
 } from "@/styles/main.module.css";
 import React, { Suspense, useEffect, useRef } from "react";
+import { InlineMath } from "react-katex";
 
 const Preview = React.lazy(async () => {
   const main =
@@ -59,10 +60,13 @@ export default function Body() {
         <p className={`${textContainer} ${bodyMedium}`}>
           In the solution to the Schrödinger equation, which is
           non-relativistic, hydrogen-like atomic orbitals are eigenfunctions of
-          the one-electron angular momentum operator L and its z component Lz. A
-          hydrogen-like atomic orbital is uniquely identified by the values of
-          the principal quantum number n, the angular momentum quantum number l,
-          and the magnetic quantum number m.
+          the one-electron angular momentum operator <InlineMath>L</InlineMath>{" "}
+          and its <InlineMath>z</InlineMath> component{" "}
+          <InlineMath>L_z</InlineMath>. A hydrogen-like atomic orbital is
+          uniquely identified by the values of the principal quantum number{" "}
+          <InlineMath>n</InlineMath>, the angular momentum quantum number{" "}
+          <InlineMath>l</InlineMath>, and the magnetic quantum number{" "}
+          <InlineMath>m</InlineMath>.
         </p>
       </article>
     </>

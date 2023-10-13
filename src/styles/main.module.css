@@ -1,181 +1,190 @@
 .primary {
-  background-color: var(--color-primary);
-  color: var(--color-on-primary);
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .primary-container {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-on-secondary);
+  background-color: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .secondary-container {
-  background-color: var(--color-secondary-container);
-  color: var(--color-on-secondary-container);
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .tertiary {
-  background-color: var(--color-tertiary);
-  color: var(--color-on-tertiary);
+  background-color: var(--md-sys-color-tertiary);
+  color: var(--md-sys-color-on-tertiary);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .tertiary-container {
-  background-color: var(--color-tertiary-container);
-  color: var(--color-on-tertiary-container);
+  background-color: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .error {
-  background-color: var(--color-error);
-  color: var(--color-on-error);
+  background-color: var(--md-sys-color-error);
+  color: var(--md-sys-color-on-error);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .error-container {
-  background-color: var(--color-error-container);
-  color: var(--color-on-error-container);
+  background-color: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .surface {
-  background-color: var(--color-surface);
-  color: var(--color-on-surface);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  outline-color: var(--md-sys-color-outline);
 }
 
 .display-large {
-  /* Brand Typeface */
-  font-size: 3.5625rem;
+  font-family: var(--md-sys-typescale-display-large-font);
+  font-weight: var(--md-sys-typescale-display-large-line-weight);
+  font-size: var(--md-sys-typescale-display-large-size);
   font-optical-sizing: 57;
-  font-weight: 400;
-  line-height: 4rem;
-  letter-spacing: -0.015625rem;
+  letter-spacing: var(--md-sys-typescale-display-large-tracking);
+  line-height: var(--md-sys-typescale-display-large-line-height);
 }
 
 .display-medium {
-  /* Brand Typeface */
-  font-size: 2.8125rem;
+  font-family: var(--md-sys-typescale-display-medium-font);
+  font-weight: var(--md-sys-typescale-display-medium-line-weight);
+  font-size: var(--md-sys-typescale-display-medium-size);
   font-optical-sizing: 45;
-  font-weight: 400;
-  line-height: 3.25rem;
-  letter-spacing: 0rem;
+  letter-spacing: var(--md-sys-typescale-display-medium-tracking);
+  line-height: var(--md-sys-typescale-display-medium-line-height);
 }
 
 .display-small {
-  /* Brand Typeface */
-  font-size: 2.25rem;
+  font-family: var(--md-sys-typescale-display-small-font);
+  font-weight: var(--md-sys-typescale-display-small-line-weight);
+  font-size: var(--md-sys-typescale-display-small-size);
   font-optical-sizing: 36;
-  font-weight: 400;
-  line-height: 2.75rem;
-  letter-spacing: 0rem;
+  letter-spacing: var(--md-sys-typescale-display-small-tracking);
+  line-height: var(--md-sys-typescale-display-small-line-height);
 }
 
 .headline-large {
-  /* Brand Typeface */
-  font-size: 2rem;
+  font-family: var(--md-sys-typescale-headline-large-font);
+  font-weight: var(--md-sys-typescale-headline-large-line-weight);
+  font-size: var(--md-sys-typescale-headline-large-size);
   font-optical-sizing: 32;
-  font-weight: 400;
-  line-height: 2.5rem;
-  letter-spacing: 0rem;
+  letter-spacing: var(--md-sys-typescale-headline-large-tracking);
+  line-height: var(--md-sys-typescale-headline-large-line-height);
 }
 
 .headline-medium {
-  /* Brand Typeface */
-  font-size: 1.75rem;
+  font-family: var(--md-sys-typescale-headline-medium-font);
+  font-weight: var(--md-sys-typescale-headline-medium-line-weight);
+  font-size: var(--md-sys-typescale-headline-medium-size);
   font-optical-sizing: 28;
-  font-weight: 400;
-  line-height: 2.25rem;
-  letter-spacing: 0rem;
+  letter-spacing: var(--md-sys-typescale-headline-medium-tracking);
+  line-height: var(--md-sys-typescale-headline-medium-line-height);
 }
 
 .headline-small {
-  /* Brand Typeface */
-  font-size: 1.5rem;
+  font-family: var(--md-sys-typescale-headline-small-font);
+  font-weight: var(--md-sys-typescale-headline-small-line-weight);
+  font-size: var(--md-sys-typescale-headline-small-size);
   font-optical-sizing: 24;
-  font-weight: 400;
-  line-height: 2rem;
-  letter-spacing: 0rem;
+  letter-spacing: var(--md-sys-typescale-headline-small-tracking);
+  line-height: var(--md-sys-typescale-headline-small-line-height);
 }
 
 .title-large {
-  /* Brand Typeface */
-  font-size: 1.375rem;
+  font-family: var(--md-sys-typescale-title-large-font);
+  font-weight: var(--md-sys-typescale-title-large-line-weight);
+  font-size: var(--md-sys-typescale-title-large-size);
   font-optical-sizing: 22;
-  font-weight: 400;
-  line-height: 1.75rem;
-  letter-spacing: 0rem;
+  letter-spacing: var(--md-sys-typescale-title-large-tracking);
+  line-height: var(--md-sys-typescale-title-large-line-height);
 }
 
 .title-medium {
-  /* Plain Typeface */
-  font-size: 1rem;
+  font-family: var(--md-sys-typescale-title-medium-font);
+  font-weight: var(--md-sys-typescale-title-medium-line-weight);
+  font-size: var(--md-sys-typescale-title-medium-size);
   font-optical-sizing: 16;
-  font-weight: 500;
-  line-height: 1.5rem;
-  letter-spacing: 0.009375rem;
+  letter-spacing: var(--md-sys-typescale-title-medium-tracking);
+  line-height: var(--md-sys-typescale-title-medium-line-height);
 }
 
 .title-small {
-  /* Plain Typeface */
-  font-size: 0.875rem;
+  font-family: var(--md-sys-typescale-title-small-font);
+  font-weight: var(--md-sys-typescale-title-small-line-weight);
+  font-size: var(--md-sys-typescale-title-small-size);
   font-optical-sizing: 14;
-  font-weight: 500;
-  line-height: 1.25rem;
-  letter-spacing: 0.00625rem;
-}
-
-.label-large {
-  /* Plain Typeface */
-  font-size: 0.875rem;
-  font-optical-sizing: 14;
-  font-weight: 500;
-  line-height: 1.25rem;
-  letter-spacing: 0.00625rem;
-}
-
-.label-medium {
-  /* Plain Typeface */
-  font-size: 0.75rem;
-  font-optical-sizing: 12;
-  font-weight: 500;
-  line-height: 1rem;
-  letter-spacing: 0.03125rem;
-}
-
-.label-small {
-  /* Plain Typeface */
-  font-size: 0.6875rem;
-  font-optical-sizing: 11;
-  font-weight: 500;
-  line-height: 1rem;
-  letter-spacing: 0.03125rem;
+  letter-spacing: var(--md-sys-typescale-title-small-tracking);
+  line-height: var(--md-sys-typescale-title-small-line-height);
 }
 
 .body-large {
-  /* Plain Typeface */
-  font-size: 1rem;
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-weight: var(--md-sys-typescale-body-large-line-weight);
+  font-size: var(--md-sys-typescale-body-large-size);
   font-optical-sizing: 16;
-  font-weight: 400;
-  line-height: 1.5rem;
-  letter-spacing: 0.03125rem;
+  letter-spacing: var(--md-sys-typescale-body-large-tracking);
+  line-height: var(--md-sys-typescale-body-large-line-height);
 }
 
 .body-medium {
-  /* Plain Typeface */
-  font-size: 0.875rem;
+  font-family: var(--md-sys-typescale-body-medium-font);
+  font-weight: var(--md-sys-typescale-body-medium-line-weight);
+  font-size: var(--md-sys-typescale-body-medium-size);
   font-optical-sizing: 14;
-  font-weight: 400;
-  line-height: 1.25rem;
-  letter-spacing: 0.015625rem;
+  letter-spacing: var(--md-sys-typescale-body-medium-tracking);
+  line-height: var(--md-sys-typescale-body-medium-line-height);
 }
 
 .body-small {
-  /* Plain Typeface */
-  font-size: 0.75rem;
+  font-family: var(--md-sys-typescale-body-small-font);
+  font-weight: var(--md-sys-typescale-body-small-line-weight);
+  font-size: var(--md-sys-typescale-body-small-size);
   font-optical-sizing: 12;
-  font-weight: 400;
-  line-height: 1rem;
-  letter-spacing: 0.025rem;
+  letter-spacing: var(--md-sys-typescale-body-small-tracking);
+  line-height: var(--md-sys-typescale-body-small-line-height);
+}
+
+.label-large {
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-weight: var(--md-sys-typescale-label-large-line-weight);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-optical-sizing: 14;
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+}
+
+.label-medium {
+  font-family: var(--md-sys-typescale-label-medium-font);
+  font-weight: var(--md-sys-typescale-label-medium-line-weight);
+  font-size: var(--md-sys-typescale-label-medium-size);
+  font-optical-sizing: 12;
+  letter-spacing: var(--md-sys-typescale-label-medium-tracking);
+  line-height: var(--md-sys-typescale-label-medium-line-height);
+}
+
+.label-small {
+  font-family: var(--md-sys-typescale-label-small-font);
+  font-weight: var(--md-sys-typescale-label-small-line-weight);
+  font-size: var(--md-sys-typescale-label-small-size);
+  font-optical-sizing: 11;
+  letter-spacing: var(--md-sys-typescale-label-small-tracking);
+  line-height: var(--md-sys-typescale-label-small-line-height);
 }
 
 .text-container {

@@ -80,12 +80,12 @@ export class CA {
     for (let i = 0; i < this.cells.length; i++) {
       if (!this.looped && (i < this.h || i > this.cells.length - this.h)) {
         if (this.cells[i] === 1)
-          p.fill(getColor("--color-on-surface-var").formatHex8());
-        else p.fill(getColor("--color-surface-container-2").formatHex8());
+          p.fill(getColor("--color-on-surface-variant").formatHex8());
+        else p.fill(getColor("--color-surface-container-low").formatHex8());
       } else {
         if (this.cells[i] === 1)
           p.fill(getColor("--color-on-surface").formatHex8());
-        else p.fill(getColor("--color-surface-container-3").formatHex8());
+        else p.fill(getColor("--color-surface-container").formatHex8());
       }
       p.noStroke();
       if (this.looped)

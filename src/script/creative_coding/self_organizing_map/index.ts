@@ -73,7 +73,18 @@ export default function execute() {
         : hcl2rgb([
             randomUniform(0, 1),
             randomUniform(0.45, 0.55),
-            randomUniform(0.75, 0.8),
+            randomUniform(
+              Number.parseInt(
+                getComputedStyle(document.body).getPropertyValue(
+                  "--tone-surface-dim",
+                ),
+              ) / 100,
+              Number.parseInt(
+                getComputedStyle(document.body).getPropertyValue(
+                  "--tone-surface-bright",
+                ),
+              ) / 100,
+            ),
           ]);
     }
   }

@@ -1,3 +1,5 @@
+import "katex";
+import "katex/dist/katex.min.css";
 import React, { PropsWithChildren } from "react";
 import Navbar from "./navbar";
 

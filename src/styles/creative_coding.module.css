@@ -6,8 +6,8 @@
 
   .sketch {
     border-radius: 5px;
-    border: 1px solid var(--color-outline);
-    box-shadow: 1px 1px 3px var(--color-outline);
+    border: 1px solid var(--md-sys-color-outline);
+    box-shadow: 1px 1px 3px var(--md-sys-color-outline);
   }
 
   .data-container {

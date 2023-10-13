@@ -12,143 +12,152 @@
   --chroma-error: 100%;
   --hue-neutral: 38;
   --chroma-neutral: 25%;
-  --hue-neutral-var: 21;
-  --chroma-neutral-var: 12.5%;
+  --hue-neutral-variant: 21;
+  --chroma-neutral-variant: 12.5%;
 
-  --color-primary: hsl(
+  --state-opacity-hover: 8%;
+  --state-opacity-focus: 10%;
+  --state-opacity-press: 10%;
+  --state-opacity-drag: 16%;
+
+  --md-sys-color-primary: hsl(
     var(--hue-primary),
     var(--chroma-primary),
     var(--tone-base)
   );
-  --color-on-primary: hsl(
+  --md-sys-color-on-primary: hsl(
     var(--hue-primary),
     var(--chroma-primary),
     var(--tone-on-base)
   );
-  --color-primary-container: hsl(
+  --md-sys-color-primary-container: hsl(
     var(--hue-primary),
     var(--chroma-primary),
     var(--tone-container)
   );
-  --color-on-primary-container: hsl(
+  --md-sys-color-on-primary-container: hsl(
     var(--hue-primary),
     var(--chroma-primary),
     var(--tone-on-container)
   );
-  --color-secondary: hsl(
+  --md-sys-color-secondary: hsl(
     var(--hue-secondary),
     var(--chroma-secondary),
     var(--tone-base)
   );
-  --color-on-secondary: hsl(
+  --md-sys-color-on-secondary: hsl(
     var(--hue-secondary),
     var(--chroma-secondary),
     var(--tone-on-base)
   );
-  --color-secondary-container: hsl(
+  --md-sys-color-secondary-container: hsl(
     var(--hue-secondary),
     var(--chroma-secondary),
     var(--tone-container)
   );
-  --color-on-secondary-container: hsl(
+  --md-sys-color-on-secondary-container: hsl(
     var(--hue-secondary),
     var(--chroma-secondary),
     var(--tone-on-container)
   );
-  --color-tertiary: hsl(
+  --md-sys-color-tertiary: hsl(
     var(--hue-tertiary),
     var(--chroma-tertiary),
     var(--tone-base)
   );
-  --color-on-tertiary: hsl(
+  --md-sys-color-on-tertiary: hsl(
     var(--hue-tertiary),
     var(--chroma-tertiary),
     var(--tone-on-base)
   );
-  --color-tertiary-container: hsl(
+  --md-sys-color-tertiary-container: hsl(
     var(--hue-tertiary),
     var(--chroma-tertiary),
     var(--tone-container)
   );
-  --color-on-tertiary-container: hsl(
+  --md-sys-color-on-tertiary-container: hsl(
     var(--hue-tertiary),
     var(--chroma-tertiary),
     var(--tone-on-container)
   );
-  --color-error: hsl(var(--hue-error), var(--chroma-error), var(--tone-base));
-  --color-on-error: hsl(
+  --md-sys-color-error: hsl(
+    var(--hue-error),
+    var(--chroma-error),
+    var(--tone-base)
+  );
+  --md-sys-color-on-error: hsl(
     var(--hue-error),
     var(--chroma-error),
     var(--tone-on-base)
   );
-  --color-error-container: hsl(
+  --md-sys-color-error-container: hsl(
     var(--hue-error),
     var(--chroma-error),
     var(--tone-container)
   );
-  --color-on-error-container: hsl(
+  --md-sys-color-on-error-container: hsl(
     var(--hue-error),
     var(--chroma-error),
     var(--tone-on-container)
   );
-  --color-surface-dim: hsl(
+  --md-sys-color-surface-dim: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
     var(--tone-surface-dim)
   );
-  --color-surface: hsl(
+  --md-sys-color-surface: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
     var(--tone-surface)
   );
-  --color-surface-bright: hsl(
+  --md-sys-color-surface-bright: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
     var(--tone-surface-bright)
   );
-  --color-surface-container-1: hsl(
+  --md-sys-color-surface-container-lowest: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
-    var(--tone-surface-container-1)
+    var(--tone-surface-container-low)
   );
-  --color-surface-container-2: hsl(
+  --md-sys-color-surface-container-low: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
-    var(--tone-surface-container-2)
+    var(--tone-surface-container-low)
   );
-  --color-surface-container-3: hsl(
+  --md-sys-color-surface-container: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
-    var(--tone-surface-container-3)
+    var(--tone-surface-container)
   );
-  --color-surface-container-4: hsl(
+  --md-sys-color-surface-container-high: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
-    var(--tone-surface-container-4)
+    var(--tone-surface-container-high)
   );
-  --color-surface-container-5: hsl(
+  --md-sys-color-surface-container-highest: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
-    var(--tone-surface-container-5)
+    var(--tone-surface-container-highest)
   );
-  --color-on-surface: hsl(
+  --md-sys-color-on-surface: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
     var(--tone-on-surface)
   );
-  --color-on-surface-var: hsl(
-    var(--hue-neutral-var),
-    var(--chroma-neutral-var),
-    var(--tone-on-surface-var)
+  --md-sys-color-on-surface-variant: hsl(
+    var(--hue-neutral-variant),
+    var(--chroma-neutral-variant),
+    var(--tone-on-surface-variant)
   );
-  --color-outline: hsl(
-    var(--hue-neutral-var),
-    var(--chroma-neutral-var),
+  --md-sys-color-outline: hsl(
+    var(--hue-neutral-variant),
+    var(--chroma-neutral-variant),
     var(--tone-outline)
   );
-  --color-outline-var: hsl(
-    var(--hue-neutral-var),
-    var(--chroma-neutral-var),
+  --md-sys-color-outline-variant: hsl(
+    var(--hue-neutral-variant),
+    var(--chroma-neutral-variant),
     var(--tone-outline-var)
   );
   --target-size: 3rem;
@@ -163,13 +172,13 @@
     --tone-surface-dim: 57%;
     --tone-surface: 98%;
     --tone-surface-bright: 98%;
-    --tone-surface-container-1: 100%;
-    --tone-surface-container-2: 96%;
-    --tone-surface-container-3: 94%;
-    --tone-surface-container-4: 92%;
-    --tone-surface-container-5: 90%;
+    --tone-surface-container-low: 100%;
+    --tone-surface-container-low: 96%;
+    --tone-surface-container: 94%;
+    --tone-surface-container-high: 92%;
+    --tone-surface-container-highest: 90%;
     --tone-on-surface: 10%;
-    --tone-on-surface-var: 30%;
+    --tone-on-surface-variant: 30%;
     --tone-outline: 50%;
     --tone-outline-var: 80%;
   }
@@ -184,16 +193,138 @@
     --tone-surface-dim: 6%;
     --tone-surface: 6%;
     --tone-surface-bright: 24%;
-    --tone-surface-container-1: 4%;
-    --tone-surface-container-2: 10%;
-    --tone-surface-container-3: 12%;
-    --tone-surface-container-4: 17%;
-    --tone-surface-container-5: 22%;
+    --tone-surface-container-low: 4%;
+    --tone-surface-container-low: 10%;
+    --tone-surface-container: 12%;
+    --tone-surface-container-high: 17%;
+    --tone-surface-container-highest: 22%;
     --tone-on-surface: 90%;
-    --tone-on-surface-var: 80%;
+    --tone-on-surface-variant: 80%;
     --tone-outline: 60%;
     --tone-outline-var: 30%;
   }
+}
+
+:root {
+  --md-ref-typeface-brand: "Roboto Flex", "Trebuchet MS", "Lucida Sans Unicode",
+    "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  --md-ref-typeface-plain: "Roboto Flex", "Trebuchet MS", "Lucida Sans Unicode",
+    "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  --md-ref-typeface-weight-regular: 400;
+  --md-ref-typeface-weight-medium: 500;
+  --md-ref-typeface-weight-bold: 700;
+
+  --md-sys-typescale-display-large-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-display-large-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-display-large-size: 3.5625rem;
+  --md-sys-tyepscale-display-large-tracking: -0.015625rem;
+  --md-sys-typescale-display-large-line-height: 4rem;
+  --md-sys-typescale-display-medium-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-display-medium-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-display-medium-size: 2.8125rem;
+  --md-sys-tyepscale-display-medium-tracking: 0rem;
+  --md-sys-typescale-display-medium-line-height: 3.25rem;
+  --md-sys-typescale-display-small-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-display-small-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-display-small-size: 2.25rem;
+  --md-sys-tyepscale-display-small-tracking: 0rem;
+  --md-sys-typescale-display-small-line-height: 2.75rem;
+  --md-sys-typescale-headline-large-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-headline-large-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-headline-large-size: 2rem;
+  --md-sys-tyepscale-headline-large-tracking: 0rem;
+  --md-sys-typescale-headline-large-line-height: 2.5rem;
+  --md-sys-typescale-headline-medium-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-headline-medium-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-headline-medium-size: 1.75rem;
+  --md-sys-typescale-headline-medium-tracking: 0rem;
+  --md-sys-typescale-headline-medium-line-height: 2.25rem;
+  --md-sys-typescale-headline-small-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-headline-small-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-headline-small-size: 1.5rem;
+  --md-sys-typescale-headline-small-tracking: 0rem;
+  --md-sys-typescale-headline-small-line-height: 2rem;
+  --md-sys-typescale-title-large-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-title-large-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-title-large-size: 1.375rem;
+  --md-sys-typescale-title-large-tracking: 0rem;
+  --md-sys-typescale-title-large-line-height: 1.75rem;
+  --md-sys-typescale-title-medium-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-title-medium-line-weight: var(
+    --md-ref-typeface-weight-medium
+  );
+  --md-sys-typescale-title-medium-size: 1rem;
+  --md-sys-typescale-title-medium-tracking: 0.009375rem;
+  --md-sys-typescale-title-medium-line-height: 1.5rem;
+  --md-sys-typescale-title-small-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-title-small-line-weight: var(
+    --md-ref-typeface-weight-medium
+  );
+  --md-sys-typescale-title-small-size: 0.875rem;
+  --md-sys-typescale-title-small-tracking: 0.00625rem;
+  --md-sys-typescale-title-small-line-height: 1.25rem;
+  --md-sys-typescale-body-large-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-body-large-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-body-large-size: 1rem;
+  --md-sys-typescale-body-large-tracking: 0.03125rem;
+  --md-sys-typescale-body-large-line-height: 1.5rem;
+  --md-sys-typescale-body-medium-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-body-medium-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-body-medium-size: 0.875rem;
+  --md-sys-typescale-body-medium-tracking: 0.015625rem;
+  --md-sys-typescale-body-medium-line-height: 1.25rem;
+  --md-sys-typescale-body-small-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-body-small-line-weight: var(
+    --md-ref-typeface-weight-regular
+  );
+  --md-sys-typescale-body-small-size: 0.75rem;
+  --md-sys-typescale-body-small-tracking: 0.025rem;
+  --md-sys-typescale-body-small-line-height: 1rem;
+  --md-sys-typescale-label-large-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-label-large-line-weight: var(
+    --md-ref-typeface-weight-medium
+  );
+  --md-sys-typescale-label-large-line-weight-prominent: var(
+    --md-ref-typeface-weight-bold
+  );
+  --md-sys-typescale-label-large-size: 0.875rem;
+  --md-sys-typescale-label-large-tracking: 0.00625rem;
+  --md-sys-typescale-label-large-line-height: 1.25rem;
+  --md-sys-typescale-label-medium-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-label-medium-line-weight: var(
+    --md-ref-typeface-weight-medium
+  );
+  --md-sys-typescale-label-medium-line-weight-prominent: var(
+    --md-ref-typeface-weight-bold
+  );
+  --md-sys-typescale-label-medium-size: 0.75rem;
+  --md-sys-typescale-label-medium-tracking: 0.03125rem;
+  --md-sys-typescale-label-medium-line-height: 1rem;
+  --md-sys-typescale-label-small-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-label-small-line-weight: var(
+    --md-ref-typeface-weight-medium
+  );
+  --md-sys-typescale-label-small-size: 0.6875rem;
+  --md-sys-typescale-label-small-tracking: 0.03125rem;
+  --md-sys-typescale-label-small-line-height: 1rem;
 }
 
 @media only screen and (max-width: 3.75in) {
@@ -221,8 +352,6 @@ html {
 body {
   margin: 0 var(--spacer);
   height: 100%;
-  font-family: "Roboto Flex", "Trebuchet MS", "Lucida Sans Unicode",
-    "Lucida Grande", "Lucida Sans", Arial, sans-serif;
 }
 
 .material-symbols-rounded {

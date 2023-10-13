@@ -52,6 +52,10 @@ const Preview = React.lazy(async () => {
               Pressure: <slot id="pressure-value"></slot>
             </label>
             <input id="pressure" type="range" step="1e-16" readOnly disabled />
+            <label htmlFor="entropy" className={labelMedium}>
+              Entropy: <slot id="entropy-value"></slot>
+            </label>
+            <input id="entropy" type="range" step="1e-16" readOnly disabled />
           </form>
         </div>
       );

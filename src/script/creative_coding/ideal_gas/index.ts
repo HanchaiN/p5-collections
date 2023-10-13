@@ -11,8 +11,10 @@ export default function execute() {
   let temperature_value: HTMLSlotElement;
   let pressure_slider: HTMLInputElement;
   let pressure_value: HTMLSlotElement;
+  let entropy_slider: HTMLInputElement;
+  let entropy_value: HTMLSlotElement;
   let system: ParticleSystem;
-  const background = () => getColor("--color-surface-container-3", "#000");
+  const background = () => getColor("--md-sys-color-surface-container", "#000");
   const n = 1024;
   const time_scale = 1;
   const max_dt = (1 / 8) * time_scale;
@@ -33,24 +35,25 @@ export default function execute() {
       Math.pow(SETTING.DIAMETER, 2)
     ).toString();
     volume_slider.max = ((canvas.height / scale) * system.w).toString();
-    volume_slider.value = (system.h * system.w).toString();
+    volume_slider.value = system.Volume.toString();
     temperature_slider.min = symlog(SETTING.TempMin).toString();
     temperature_slider.max = symlog(SETTING.TempMax).toString();
     temperature_slider.value = symlog(system.Temperature).toString();
     pressure_slider.min = symlog(
-      ((1 / 3) *
-        n *
-        SETTING.TempMin *
-        ((2 / SETTING.DOF) * SETTING.BOLTZMANN)) /
-        parseFloat(volume_slider.max),
+      (n * SETTING.TempMin * SETTING.BOLTZMANN) / parseFloat(volume_slider.max),
     ).toString();
     pressure_slider.max = symlog(
-      ((1 / 3) *
-        n *
-        SETTING.TempMax *
-        ((2 / SETTING.DOF) * SETTING.BOLTZMANN)) /
-        parseFloat(volume_slider.min),
+      (n * SETTING.TempMax * SETTING.BOLTZMANN) / parseFloat(volume_slider.min),
     ).toString();
+    entropy_slider.min = symlog(
+      ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) /
+        1000,
+    ).toString();
+    entropy_slider.max = symlog(
+      ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) *
+        1000,
+    ).toString();
+    entropy_slider.value = symlog(system.Entropy).toString();
   }
 
   function draw(time: number) {
@@ -76,7 +79,7 @@ export default function execute() {
           1.5,
           Number.parseInt(
             getComputedStyle(document.body).getPropertyValue(
-              "--tone-on-surface-var",
+              "--tone-on-surface-variant",
             ),
           ) / 100,
         )
@@ -92,15 +95,17 @@ export default function execute() {
       ctx.fill();
     });
     temperature_value.innerText = system.Temperature.toExponential(2);
-    pressure_slider.value = symlog((1 / 3) * system.Pressure).toString();
+    pressure_slider.value = symlog(system.Pressure).toString();
     pressure_value.innerText = system.Pressure.toExponential(2);
+    entropy_slider.value = symlog(system.Entropy).toString();
+    entropy_value.innerText = system.Entropy.toExponential(2);
     requestAnimationFrame(draw);
   }
 
   function volume_handler() {
     const value = parseFloat(volume_slider.value) / system.w;
     system.wall.bottom = value;
-    volume_value.innerText = (system.w * system.h).toExponential(2);
+    volume_value.innerText = system.Volume.toExponential(2);
   }
   function temperature_handler() {
     const value = symlog_inv(parseFloat(temperature_slider.value));
@@ -122,6 +127,8 @@ export default function execute() {
       temperature_value = config.querySelector("#temperature-value")!;
       pressure_slider = config.querySelector("#pressure")!;
       pressure_value = config.querySelector("#pressure-value")!;
+      entropy_slider = config.querySelector("#entropy")!;
+      entropy_value = config.querySelector("#entropy-value")!;
       volume_slider.addEventListener("input", volume_handler);
       temperature_slider.addEventListener("input", temperature_handler);
       volume_slider.addEventListener("change", () => system.resetStat(0));

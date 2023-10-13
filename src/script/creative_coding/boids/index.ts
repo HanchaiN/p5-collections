@@ -5,10 +5,15 @@ export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let system: BoidSystem;
-  const background = () => getColor("--color-surface-container-3", "#000");
+  const background = () => getColor("--md-sys-color-surface-container", "#000");
   const foreground = () => {
-    const c = getColor("--color-on-surface", "#FFF");
-    c.opacity = 0.0075;
+    const c = getColor("--md-sys-color-on-surface-variant", "#FFF");
+    c.opacity =
+      Number.parseInt(
+        getComputedStyle(document.body).getPropertyValue(
+          "--state-opacity-hover",
+        ),
+      ) / 100;
     return c;
   };
   const time_scale = 1;
@@ -67,7 +72,7 @@ export default function execute() {
           1.5,
           Number.parseInt(
             getComputedStyle(document.body).getPropertyValue(
-              "--tone-on-surface-var",
+              "--tone-on-surface-variant",
             ),
           ) / 100,
           1,

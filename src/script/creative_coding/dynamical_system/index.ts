@@ -20,7 +20,7 @@ export default function execute() {
 
   function setup() {
     if (!canvas) return;
-    background = getColor("--color-surface-container-3", "#000");
+    background = getColor("--color-surface-container", "#000");
     ctx.lineWidth = 0;
     ctx.fillStyle = background.formatHex8();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -87,9 +87,6 @@ export default function execute() {
     start: (sketch: HTMLCanvasElement) => {
       canvas = sketch;
       ctx = canvas.getContext("2d", { alpha: false })!;
-      ctx.lineWidth = 0;
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
       setup();
       workers = new Array(maxWorkers)
         .fill(null)
@@ -108,7 +105,7 @@ export default function execute() {
               0.75 * 2,
               Number.parseInt(
                 getComputedStyle(document.body).getPropertyValue(
-                  "--tone-on-surface",
+                  "--tone-on-surface-variant",
                 ),
               ) / 100,
             )

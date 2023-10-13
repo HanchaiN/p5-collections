@@ -136,18 +136,21 @@ export default function execute() {
         }
         requestAnimationFrame(draw);
       });
-      requestIdleCallback(function update() {
-        if (!isActive) return;
-        grid = (() => {
-          const step = update_kernel(grid, 1);
-          let res;
-          do res = step.next();
-          while (!res.done);
-          return res.value;
-        })();
-        isDrawing = true;
-        requestIdleCallback(update);
-      });
+      requestIdleCallback(
+        function update() {
+          if (!isActive) return;
+          grid = (() => {
+            const step = update_kernel(grid, 1);
+            let res;
+            do res = step.next();
+            while (!res.done);
+            return res.value;
+          })();
+          isDrawing = true;
+          requestIdleCallback(update);
+        },
+        { timeout: 500 },
+      );
     },
     stop: () => {
       isActive = false;

@@ -91,7 +91,7 @@
         right: var(--spacer);
         top: 0;
         z-index: 101;
-        color: var(--color-on-surface-var);
+        color: var(--md-sys-color-on-surface-var);
       }
     }
 
@@ -113,7 +113,7 @@
           & a {
             visibility: hidden;
             text-transform: capitalize;
-            color: var(--color-on-surface);
+            color: var(--md-sys-color-on-surface);
             text-decoration: none;
             padding: 0 0 0 0.3125rem;
 
@@ -133,7 +133,7 @@
           }
         }
 
-        & li:hover:not(:has(li:hover)) > a:after {
+        & li:not(:has(li:hover)):hover > a:after {
           transform: scaleX(1);
         }
       }
@@ -142,7 +142,7 @@
     &:checked {
       & ~ label:before {
         content: "";
-        background: var(--color-surface-container-3);
+        background: var(--md-sys-color-surface-container);
         position: fixed;
         left: 0;
         top: 0;

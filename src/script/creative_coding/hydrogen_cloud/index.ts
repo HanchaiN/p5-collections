@@ -88,12 +88,12 @@ export default function execute() {
           for (let i = 0; i <= R; i++) {
             if (Number.isInteger(Math.sqrt(i)))
               ctx.strokeStyle = getColor(
-                "--color-primary",
+                "--md-sys-color-outline",
                 "#00F",
               ).formatHex8();
             else
               ctx.strokeStyle = getColor(
-                "--color-on-primary",
+                "--md-sys-color-outline-variant",
                 "#0FF",
               ).formatHex8();
             ctx.beginPath();
