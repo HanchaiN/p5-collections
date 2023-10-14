@@ -14,7 +14,7 @@ export default function execute() {
   let entropy_slider: HTMLInputElement;
   let entropy_value: HTMLSlotElement;
   let system: ParticleSystem;
-  const background = () => getColor("--md-sys-color-surface-container", "#000");
+  const background = () => getColor("--md-sys-color-surface", "#000");
   const n = 1024;
   const time_scale = 1;
   const max_dt = (1 / 8) * time_scale;
@@ -47,11 +47,11 @@ export default function execute() {
     ).toString();
     entropy_slider.min = symlog(
       ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) /
-        1000,
+      1000,
     ).toString();
     entropy_slider.max = symlog(
       ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) *
-        1000,
+      1000,
     ).toString();
     entropy_slider.value = symlog(system.Entropy).toString();
   }

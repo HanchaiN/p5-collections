@@ -17,7 +17,7 @@ export function constrainMap(
   l_: number,
   h_: number,
 ) {
-  return constrain(map(v, l, h, l_, h_), l_, h_);
+  return lerp(constrain(map(v, l, h, 0, 1), 0, 1), l_, h_);
 }
 export function constrainLerp(v: number, l: number, h: number) {
   return constrainMap(v, 0, 1, l, h);

@@ -118,7 +118,7 @@
   --md-sys-color-surface-container-lowest: hsl(
     var(--hue-neutral),
     var(--chroma-neutral),
-    var(--tone-surface-container-low)
+    var(--tone-surface-container-lowest)
   );
   --md-sys-color-surface-container-low: hsl(
     var(--hue-neutral),
@@ -172,7 +172,7 @@
     --tone-surface-dim: 57%;
     --tone-surface: 98%;
     --tone-surface-bright: 98%;
-    --tone-surface-container-low: 100%;
+    --tone-surface-container-lowest: 100%;
     --tone-surface-container-low: 96%;
     --tone-surface-container: 94%;
     --tone-surface-container-high: 92%;
@@ -193,7 +193,7 @@
     --tone-surface-dim: 6%;
     --tone-surface: 6%;
     --tone-surface-bright: 24%;
-    --tone-surface-container-low: 4%;
+    --tone-surface-container-lowest: 4%;
     --tone-surface-container-low: 10%;
     --tone-surface-container: 12%;
     --tone-surface-container-high: 17%;

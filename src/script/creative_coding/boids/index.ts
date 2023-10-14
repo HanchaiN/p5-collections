@@ -5,7 +5,7 @@ export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let system: BoidSystem;
-  const background = () => getColor("--md-sys-color-surface-container", "#000");
+  const background = () => getColor("--md-sys-color-surface", "#000");
   const foreground = () => {
     const c = getColor("--md-sys-color-on-surface-variant", "#FFF");
     c.opacity =

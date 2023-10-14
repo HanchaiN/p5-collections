@@ -91,7 +91,7 @@ export default function execute() {
         desynchronized: true,
       })!;
       ctx.fillStyle = getColor(
-        "--color-surface-container-3",
+        "--md-sys-color-surface",
         "#000",
       ).formatHex8();
       ctx.fillRect(0, 0, canvas.width, canvas.height);

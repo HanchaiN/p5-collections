@@ -16,13 +16,23 @@ export default function execute() {
     Number.parseInt(
       getComputedStyle(document.body).getPropertyValue("--tone-surface-bright"),
     ) / 100;
+  const s0 =
+    2 / 2 * Number.parseInt(
+      getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
+    ) / 100;
+  const s1 =
+    2 * Number.parseInt(
+      getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
+    ) / 100;
   function f(z: TComplex) {
     return complex_zeta(z);
   }
 
   interface IConstants {
     R: number;
+    s0: number;
     l0: number;
+    s1: number;
     l1: number;
   }
 
@@ -49,8 +59,8 @@ export default function execute() {
       fpart(Math.log2(r)) * fpart((-theta * 12) / (Math.PI * 2)),
       0,
       1,
-      0.5,
-      1,
+      this.constants.s0,
+      this.constants.s1,
     );
     const lum = map(
       1 - 1 / (Math.pow(r, Math.log10(3)) + 1),
@@ -70,12 +80,12 @@ export default function execute() {
         desynchronized: true,
       })!;
       ctx.fillStyle = getColor(
-        "--md-sys-color-surface-container",
+        "--md-sys-color-surface",
         "#000",
       ).formatHex8();
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const renderer = kernelGenerator(main, { R, l0, l1 }, buffer);
+      const renderer = kernelGenerator(main, { R, l0, l1, s0, s1 }, buffer);
       const step = renderer();
       requestAnimationFrame(function draw() {
         if (!isActive) return;

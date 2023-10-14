@@ -1,5 +1,5 @@
 import { cubehelix2rgb, rgb2srgb } from "@/script/utils/color";
-import { getMousePos, kernelGenerator } from "@/script/utils/dom";
+import { getColor, getMousePos, kernelGenerator } from "@/script/utils/dom";
 import { lerp } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
 import { rot_hilbert as rot, xy2d } from "./hilbert";
@@ -10,7 +10,7 @@ export default function execute() {
   const iter = 512;
 
   interface IConstants {
-    h: number;
+    s: number;
     l: number;
   }
 
@@ -20,7 +20,7 @@ export default function execute() {
     const c = rgb2srgb(
       cubehelix2rgb([
         v,
-        this.constants.h as number,
+        this.constants.s as number,
         this.constants.l as number,
       ]),
     );
@@ -40,14 +40,21 @@ export default function execute() {
       })!;
       canvas.width = n;
       canvas.height = n;
+      ctx.fillStyle = getColor(
+        "--md-sys-color-surface",
+        "#000",
+      ).formatHex8();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const renderer = kernelGenerator(
         main,
         {
-          h: 1.5,
+          s: 2 * Number.parseInt(
+            getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
+          ) / 100,
           l:
             Number.parseInt(
-              getComputedStyle(document.body).getPropertyValue("--tone-base"),
+              getComputedStyle(document.body).getPropertyValue("--tone-surface-container"),
             ) / 100,
         },
         buffer,

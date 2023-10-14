@@ -37,6 +37,14 @@ const config: GatsbyConfig = {
         openAnalyzer: false,
       },
     },
+    "gatsby-plugin-mdx",
+    {
+      resolve: "gatsby-source-filesystem",
+      options: {
+        name: "posts",
+        path: `${__dirname}/src/posts/`,
+      },
+    },
   ],
 };
 

@@ -1,5 +1,5 @@
-import { kernelGenerator } from "@/script/utils/dom";
-import { constrain } from "@/script/utils/math";
+import { getColor, kernelGenerator } from "@/script/utils/dom";
+import { constrain, constrainLerp } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
 
 export default function execute() {
@@ -15,11 +15,15 @@ export default function execute() {
     REMOVER: number;
     DIFFUSION_RATE: number[];
   }
+  interface IDrawConstants {
+    BASE_COLOR: [number, number, number];
+    CONC_COLOR: [number, number, number];
+  }
 
   function init(this: IKernelFunctionThis): [number, number] {
     if (
       Math.pow(Math.abs(this.thread.x - this.output.x / 2), 2) +
-        Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
+      Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
       Math.pow(10 / scale, 2)
     )
       return [1, 1];
@@ -82,10 +86,14 @@ export default function execute() {
       constrain(v[1] + dt * delta[1], 0, 1),
     ];
   }
-  function draw(this: IKernelFunctionThis, grid: [number, number][][]) {
+  function draw(this: IKernelFunctionThis<IDrawConstants>, grid: [number, number][][]) {
     const v = grid[this.thread.y][this.thread.x];
-    const c = constrain(v[0] - v[1], 0, 1);
-    this.color(c, c, c, 1);
+    this.color(
+      constrainLerp(v[0] - v[1], this.constants.CONC_COLOR[0], this.constants.BASE_COLOR[0]),
+      constrainLerp(v[0] - v[1], this.constants.CONC_COLOR[1], this.constants.BASE_COLOR[1]),
+      constrainLerp(v[0] - v[1], this.constants.CONC_COLOR[2], this.constants.BASE_COLOR[2]),
+      1
+    );
   }
 
   return {
@@ -109,7 +117,18 @@ export default function execute() {
         },
         buffer,
       );
-      const draw_kernel = kernelGenerator(draw, {}, buffer);
+      const draw_kernel = kernelGenerator(draw, {
+        BASE_COLOR: [
+          getColor("--md-sys-color-surface", "#000").rgb().r / 255,
+          getColor("--md-sys-color-surface", "#000").rgb().g / 255,
+          getColor("--md-sys-color-surface", "#000").rgb().b / 255,
+        ],
+        CONC_COLOR: [
+          getColor("--md-sys-color-on-surface-variant", "#FFF").rgb().r / 255,
+          getColor("--md-sys-color-on-surface-variant", "#FFF").rgb().g / 255,
+          getColor("--md-sys-color-on-surface-variant", "#FFF").rgb().b / 255,
+        ],
+      }, buffer);
       let grid = (() => {
         const step = init_kernel();
         let res;
@@ -149,7 +168,7 @@ export default function execute() {
           isDrawing = true;
           requestIdleCallback(update);
         },
-        { timeout: 500 },
+        { timeout: 100 },
       );
     },
     stop: () => {
