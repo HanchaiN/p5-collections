@@ -40,21 +40,25 @@ export default function execute() {
       })!;
       canvas.width = n;
       canvas.height = n;
-      ctx.fillStyle = getColor(
-        "--md-sys-color-surface",
-        "#000",
-      ).formatHex8();
+      ctx.fillStyle = getColor("--md-sys-color-surface", "#000").formatHex8();
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const renderer = kernelGenerator(
         main,
         {
-          s: 2 * Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
-          ) / 100,
+          s:
+            (2 *
+              Number.parseInt(
+                getComputedStyle(document.body).getPropertyValue(
+                  "--chroma-neutral",
+                ),
+              )) /
+            100,
           l:
             Number.parseInt(
-              getComputedStyle(document.body).getPropertyValue("--tone-surface-container"),
+              getComputedStyle(document.body).getPropertyValue(
+                "--tone-surface-container",
+              ),
             ) / 100,
         },
         buffer,

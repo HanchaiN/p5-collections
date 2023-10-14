@@ -93,8 +93,8 @@ export default function execute() {
         .map(() => new Worker(new URL("./worker.ts", import.meta.url)));
       workers.forEach((worker, i) => {
         const index =
-          i * Math.floor(count / maxWorkers) +
-          Math.min(i, count % maxWorkers),
+            i * Math.floor(count / maxWorkers) +
+            Math.min(i, count % maxWorkers),
           counts =
             Math.floor(count / maxWorkers) + (i < count % maxWorkers ? 1 : 0);
         const states = new Array(counts).fill(null).map((_, i) => ({

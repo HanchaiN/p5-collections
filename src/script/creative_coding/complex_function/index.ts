@@ -17,13 +17,17 @@ export default function execute() {
       getComputedStyle(document.body).getPropertyValue("--tone-surface-bright"),
     ) / 100;
   const s0 =
-    2 / 2 * Number.parseInt(
-      getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
-    ) / 100;
+    ((2 / 2) *
+      Number.parseInt(
+        getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
+      )) /
+    100;
   const s1 =
-    2 * Number.parseInt(
-      getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
-    ) / 100;
+    (2 *
+      Number.parseInt(
+        getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
+      )) /
+    100;
   function f(z: TComplex) {
     return complex_zeta(z);
   }
@@ -79,10 +83,7 @@ export default function execute() {
         alpha: false,
         desynchronized: true,
       })!;
-      ctx.fillStyle = getColor(
-        "--md-sys-color-surface",
-        "#000",
-      ).formatHex8();
+      ctx.fillStyle = getColor("--md-sys-color-surface", "#000").formatHex8();
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const renderer = kernelGenerator(main, { R, l0, l1, s0, s1 }, buffer);

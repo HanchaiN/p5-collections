@@ -1,9 +1,4 @@
-import {
-  TComplex,
-  TVector3,
-  Vector,
-  constrainMap
-} from "@/script/utils/math";
+import { TComplex, TVector3, Vector, constrainMap } from "@/script/utils/math";
 import { HigherOrderState } from "../dynamical_system/dynamic";
 import {
   psi_getvel,

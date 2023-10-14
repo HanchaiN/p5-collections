@@ -28,7 +28,9 @@ export default function execute() {
     ended = false;
     clock = new THREE.Clock();
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(getColor("--md-sys-color-surface", "#000").formatHex());
+    scene.background = new THREE.Color(
+      getColor("--md-sys-color-surface", "#000").formatHex(),
+    );
     camera = new THREE.PerspectiveCamera(
       75,
       canvas.width / canvas.height,
@@ -91,8 +93,8 @@ export default function execute() {
         "message",
         function listener({ data }: MessageEvent<MessageResponse>) {
           const index =
-            i * Math.floor(counts / maxWorkers) +
-            Math.min(i, counts % maxWorkers),
+              i * Math.floor(counts / maxWorkers) +
+              Math.min(i, counts % maxWorkers),
             target_counts =
               Math.floor(counts / maxWorkers) +
               (i < counts % maxWorkers ? 1 : 0);
@@ -104,13 +106,22 @@ export default function execute() {
             const matrix = new THREE.Matrix4();
             matrix.setPosition(x, y, z);
             electron_mesh.setMatrixAt(index + i, matrix);
-            electron_mesh.setColorAt(index + i, new THREE.Color(d3.cubehelix(
-              h,
-              2,
-              Number.parseInt(
-                getComputedStyle(document.body).getPropertyValue("--tone-on-surface"),
-              ) / 100,
-            ).formatHex()));
+            electron_mesh.setColorAt(
+              index + i,
+              new THREE.Color(
+                d3
+                  .cubehelix(
+                    h,
+                    2,
+                    Number.parseInt(
+                      getComputedStyle(document.body).getPropertyValue(
+                        "--tone-on-surface",
+                      ),
+                    ) / 100,
+                  )
+                  .formatHex(),
+              ),
+            );
           });
           electron_mesh.instanceMatrix.needsUpdate = true;
           if (electron_mesh.instanceColor)

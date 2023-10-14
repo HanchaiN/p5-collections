@@ -47,11 +47,11 @@ export default function execute() {
     ).toString();
     entropy_slider.min = symlog(
       ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) /
-      1000,
+        1000,
     ).toString();
     entropy_slider.max = symlog(
       ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) *
-      1000,
+        1000,
     ).toString();
     entropy_slider.value = symlog(system.Entropy).toString();
   }
