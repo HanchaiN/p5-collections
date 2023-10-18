@@ -147,7 +147,8 @@ export class ParticleSystem {
       temperature * SETTING.BOLTZMANN * (2 / SETTING.DOF_TRANS);
     return (
       SETTING.BOLTZMANN *
-      (+Math.log(volume) +
+      this.particles.length *
+      (Math.log(volume) +
         (SETTING.DOF_TRANS / 2) * Math.log(2 * SETTING.MASS * kineticEnergy) +
         (SETTING.DOF_TRANS / 2) * Math.log(Math.PI) -
         (SETTING.DOF_TRANS / 2) *
