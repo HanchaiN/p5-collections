@@ -15,7 +15,7 @@ export default function execute() {
   let entropy_value: HTMLSlotElement;
   let system: ParticleSystem;
   const background = () => getColor("--md-sys-color-surface", "#000");
-  const n = 1024;
+  const n = 2048;
   const time_scale = 1;
   const max_dt = (1 / 8) * time_scale;
   let isActive = false;
@@ -40,20 +40,18 @@ export default function execute() {
     temperature_slider.max = symlog(SETTING.TempMax).toString();
     temperature_slider.value = symlog(system.Temperature).toString();
     pressure_slider.min = symlog(
-      (n * SETTING.TempMin * SETTING.BOLTZMANN) / parseFloat(volume_slider.max),
+      system.getPressure(Number.parseFloat(volume_slider.max), SETTING.TempMin),
     ).toString();
     pressure_slider.max = symlog(
-      (n * SETTING.TempMax * SETTING.BOLTZMANN) / parseFloat(volume_slider.min),
+      system.getPressure(Number.parseFloat(volume_slider.min), SETTING.TempMax),
     ).toString();
     entropy_slider.min = symlog(
-      ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) /
-        1000,
+      system.getEntropy(Number.parseFloat(volume_slider.min), SETTING.TempMin),
     ).toString();
     entropy_slider.max = symlog(
-      ((2 / SETTING.DOF_EXTRA) * SETTING.BOLTZMANN + n * SETTING.BOLTZMANN) *
-        1000,
+      system.getEntropy(Number.parseFloat(volume_slider.max), SETTING.TempMax),
     ).toString();
-    entropy_slider.value = symlog(system.Entropy).toString();
+    entropy_slider.value = system.Entropy.toString();
   }
 
   function draw(time: number) {
@@ -88,7 +86,7 @@ export default function execute() {
       ctx.arc(
         particle.pos.x * scale,
         particle.pos.y * scale,
-        3,
+        (SETTING.DIAMETER / 2) * scale,
         0,
         2 * Math.PI,
       );

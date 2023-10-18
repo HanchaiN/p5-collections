@@ -2,10 +2,11 @@ import { Vector, map } from "@/script/utils/math";
 import { randomGaussian, randomUniform } from "@/script/utils/math/random";
 
 export const SETTING = {
-  TempMax: 1e10,
-  TempMin: 0,
-  DIAMETER: 500,
+  TempMax: 1e7,
+  TempMin: 1e-20,
+  DIAMETER: 200,
   BOLTZMANN: 1,
+  PLANKS: 1,
   MASS: 1,
   DOF_TRANS: 2,
   DOF_EXTRA: 0,
@@ -106,9 +107,8 @@ export class ParticleSystem {
   }
   get InternalEnergy() {
     return (
-      ((SETTING.DOF_TRANS + SETTING.DOF_EXTRA) / 2) *
-      SETTING.BOLTZMANN *
-      this.Temperature
+      (this.KineticEnergy * (SETTING.DOF_TRANS + SETTING.DOF_EXTRA)) /
+      SETTING.DOF_TRANS
     );
   }
   get Temperature() {
@@ -139,8 +139,45 @@ export class ParticleSystem {
     }
   }
   get Entropy() {
+    return this.getEntropy();
+  }
+  getEntropy(volume = this.Volume, temperature = this.Temperature) {
+    // Sackur–Tetrode equation
+    const kineticEnergy =
+      temperature * SETTING.BOLTZMANN * (2 / SETTING.DOF_TRANS);
     return (
-      (this.KineticEnergy + this.Pressure * this.Volume) / this.Temperature
+      SETTING.BOLTZMANN *
+      (+Math.log(volume) +
+        (SETTING.DOF_TRANS / 2) * Math.log(2 * SETTING.MASS * kineticEnergy) +
+        (SETTING.DOF_TRANS / 2) * Math.log(Math.PI) -
+        (SETTING.DOF_TRANS / 2) *
+          Math.log((SETTING.DOF_TRANS * this.particles.length) / 2) +
+        SETTING.DOF_TRANS / 2 -
+        Math.log(this.particles.length) +
+        1 -
+        3 * Math.log(SETTING.PLANKS))
+    ); // Approx. for large N = this.particles.length
+    /*
+    SETTING.BOLTZMANN * Math.log(
+      (
+        Math.pow(this.Volume, this.particles.length) // Possible Locations
+        * (2 * Math.pow(Math.PI, SETTING.DOF_TRANS * this.particles.length / 2)
+          / gamma(SETTING.DOF_TRANS * this.particles.length / 2 + 1)) // Surface Area of unit-hypersphere
+        * Math.pow(Math.sqrt(2 * SETTING.MASS * this.KineticEnergy), SETTING.DOF_TRANS * this.particles.length - 1) // Possible Momentums
+        * Math.sqrt(SETTING.MASS / (2 * this.KineticEnergy)) * 1 // Extra uncertainty (Exact value is unknown but unrelated to the result)
+        / gamma(this.particles.length + 1) // Permutations
+      ) / Math.pow(SETTING.PLANKS, 3 * this.particles.length) // Smallest possible unit
+    );
+    */
+  }
+  getPressure(volume = this.Volume, temperature = this.Temperature) {
+    // Van der Waals equation
+    const a = 0;
+    const b = Math.PI * Math.pow(SETTING.DIAMETER / 2, 2);
+    return (
+      (this.particles.length * SETTING.BOLTZMANN * temperature) /
+        (volume - this.particles.length * b) -
+      a * Math.pow(this.particles.length / volume, 2)
     );
   }
   static getKE(velSq: number) {
