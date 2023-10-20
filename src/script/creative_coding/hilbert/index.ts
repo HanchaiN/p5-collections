@@ -57,7 +57,7 @@ export default function execute() {
           l:
             Number.parseInt(
               getComputedStyle(document.body).getPropertyValue(
-                "--tone-surface-container",
+                "--tone-outline",
               ),
             ) / 100,
         },

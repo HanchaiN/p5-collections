@@ -28,9 +28,6 @@ export default function execute() {
     ended = false;
     clock = new THREE.Clock();
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(
-      getColor("--md-sys-color-surface", "#000").formatHex(),
-    );
     camera = new THREE.PerspectiveCamera(
       75,
       canvas.width / canvas.height,
@@ -115,7 +112,7 @@ export default function execute() {
                     2,
                     Number.parseInt(
                       getComputedStyle(document.body).getPropertyValue(
-                        "--tone-on-surface",
+                        "--tone-outline",
                       ),
                     ) / 100,
                   )
@@ -132,6 +129,9 @@ export default function execute() {
   }
   function animate() {
     if (ended) return;
+    scene.background = new THREE.Color(
+      getColor("--md-sys-color-surface", "#000").formatHex(),
+    );
     controls.update();
     renderer.render(scene, camera);
     window.requestAnimationFrame(animate);

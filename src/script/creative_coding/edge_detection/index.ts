@@ -12,13 +12,13 @@ import {
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
-  const background = () => getColor("--md-sys-color-surface", "#000");
+  const getBackground = () => getColor("--md-sys-color-surface", "#000");
   let isActive = false;
 
   function setup() {
     if (!canvas) return;
     ctx.lineWidth = 0;
-    ctx.fillStyle = background().formatHex8();
+    ctx.fillStyle = getBackground().formatHex8();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 

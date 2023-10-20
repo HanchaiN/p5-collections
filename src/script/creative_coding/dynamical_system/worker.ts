@@ -3,19 +3,19 @@ import { Vector } from "@/script/utils/math";
 import { HigherOrderState } from "./dynamic";
 
 export type MessageRequest = {
-  states?: { state: number[][]; color: string }[];
+  states?: { state: number[][]; hue: number }[];
   param?: typeof param;
   time?: number;
   time_scale?: number;
 };
 export type MessageResponse = {
   subdivide?: number;
-  states?: { state: number[]; color: string }[];
+  states?: { state: number[]; hue: number }[];
 };
 
 // const messenger = getMessenger<MessageRequest, MessageResponse>();
 
-let states: { state: HigherOrderState; color: string }[] = [];
+let states: { state: HigherOrderState; hue: number }[] = [];
 let pretime: number,
   time_scale = 1;
 let param = {
@@ -33,9 +33,9 @@ function f(time: number, state: Vector[]) {
 export function main(data: MessageRequest) {
   const response: MessageResponse = {};
   if (data.states)
-    states = data.states.map(({ state, color }) => ({
+    states = data.states.map(({ state, hue }) => ({
       state: new HigherOrderState(new Vector(...state[0])),
-      color,
+      hue,
     }));
   if (data.param) param = { ...param, ...data.param };
   if (data.time && pretime) {
@@ -52,9 +52,9 @@ export function main(data: MessageRequest) {
   }
   if (data.time_scale) time_scale = data.time_scale;
   if (data.time) pretime = data.time;
-  response.states = states.map(({ state, color }) => ({
+  response.states = states.map(({ state, hue }) => ({
     state: state.state[0].val,
-    color,
+    hue,
   }));
   return response;
 }

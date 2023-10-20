@@ -29,9 +29,6 @@ export default function execute() {
   function init(canvas: HTMLCanvasElement) {
     ended = false;
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(
-      getColor("--md-sys-color-surface", "#000").formatHex(),
-    );
     camera = new THREE.PerspectiveCamera(
       75,
       canvas.width / canvas.height,
@@ -61,7 +58,7 @@ export default function execute() {
         node_mesh.setColorAt(
           i,
           new THREE.Color(
-            getColor("--md-sys-color-on-surface", "#FFF").formatHex(),
+            getColor("--md-sys-color-outline", "#FFF").formatHex(),
           ),
         );
       });
@@ -74,7 +71,7 @@ export default function execute() {
           if (!mainelem.adj[i][j]) return;
           const material = new THREE.LineBasicMaterial({
             color: getColor(
-              "--md-sys-color-on-surface-variant",
+              "--md-sys-color-outline-variant",
               "#FFF",
             ).formatHex(),
           });
@@ -101,6 +98,9 @@ export default function execute() {
   }
   function animate() {
     if (ended) return;
+    scene.background = new THREE.Color(
+      getColor("--md-sys-color-surface", "#000").formatHex(),
+    );
     controls.update();
     renderer.render(scene, camera);
     window.requestAnimationFrame(animate);

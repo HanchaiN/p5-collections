@@ -4,7 +4,7 @@ export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let gen: ReturnType<typeof generateDungeon>;
-  const palette = [
+  const getPalette = () => [
     getColor("--md-sys-color-surface-container", "#1C0B40").formatHex8(),
     getColor("--md-sys-color-surface", "#142273").formatHex8(),
     getColor("--md-sys-color-outline", "#0F71F2").formatHex8(),
@@ -24,7 +24,7 @@ export default function execute() {
     const { value, done } = gen.next();
     if (done) return;
     setTimeout(() => requestAnimationFrame(drawStep), 0);
-    drawDungeon(value, ctx, unit, palette);
+    drawDungeon(value, ctx, unit, getPalette());
   }
   function redraw() {
     generate_and_draw(size);

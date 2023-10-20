@@ -1,14 +1,13 @@
 import { getColor, maxWorkers } from "@/script/utils/dom";
 import { Vector, constrainMap } from "@/script/utils/math";
 import * as d3 from "d3-color";
-// import { WorkerPool } from "gatsby-worker";
 import type { MessageResponse } from "./worker";
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let workers: Worker[];
   let isActive = false;
-  let background: d3.Color;
+  const getBackground = () => getColor("--md-sys-color-surface", "#000");
   const param = {
     rho: 28,
     sigma: 10,
@@ -20,9 +19,8 @@ export default function execute() {
 
   function setup() {
     if (!canvas) return;
-    background = getColor("--md-sys-color-surface", "#000");
     ctx.lineWidth = 0;
-    ctx.fillStyle = background.formatHex8();
+    ctx.fillStyle = getBackground().formatHex8();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
@@ -69,12 +67,22 @@ export default function execute() {
     );
     const r = 1;
     ctx.lineWidth = 0;
-    ctx.fillStyle = background.formatHex8();
+    ctx.fillStyle = getBackground().formatHex8();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     result.forEach(({ states }) => {
-      states!.forEach(({ state, color }) => {
+      states!.forEach(({ state, hue }) => {
         const pos = project(...state);
-        ctx.fillStyle = color;
+        ctx.fillStyle = d3
+          .cubehelix(
+            hue,
+            0.75 * 2,
+            Number.parseInt(
+              getComputedStyle(document.body).getPropertyValue(
+                "--tone-on-surface-variant",
+              ),
+            ) / 100,
+          )
+          .formatHex8();
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, r, 0, 2 * Math.PI);
         ctx.fill();
@@ -99,17 +107,7 @@ export default function execute() {
             Math.floor(count / maxWorkers) + (i < count % maxWorkers ? 1 : 0);
         const states = new Array(counts).fill(null).map((_, i) => ({
           state: [[constrainMap(index + i, 0, count, -err, +err), 2, 20]],
-          color: d3
-            .cubehelix(
-              constrainMap(index + i, 0, count, 0, 360),
-              0.75 * 2,
-              Number.parseInt(
-                getComputedStyle(document.body).getPropertyValue(
-                  "--tone-on-surface-variant",
-                ),
-              ) / 100,
-            )
-            .formatHex8(),
+          hue: constrainMap(index + i, 0, count, 0, 360),
         }));
         worker.postMessage({ time_scale, param, states });
         worker.addEventListener("message", function listener() {
