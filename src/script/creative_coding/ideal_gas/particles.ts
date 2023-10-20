@@ -2,7 +2,7 @@ import { Vector, map } from "@/script/utils/math";
 import { randomGaussian, randomUniform } from "@/script/utils/math/random";
 
 export const SETTING = {
-  TempMax: 1e7,
+  TempMax: 1e10,
   TempMin: 1e-20,
   DIAMETER: 200,
   BOLTZMANN: 1,

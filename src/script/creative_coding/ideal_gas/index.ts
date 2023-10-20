@@ -1,5 +1,5 @@
 import { getColor } from "@/script/utils/dom";
-import { constrainMap, symlog, symlog_inv } from "@/script/utils/math";
+import { constrainMap, gamma, symlog, symlog_inv } from "@/script/utils/math";
 import * as d3 from "d3-color";
 import { ParticleSystem, SETTING } from "./particles";
 export default function execute() {
@@ -28,14 +28,20 @@ export default function execute() {
     ctx.fillStyle = background().formatHex8();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     system.wall.right = canvas.width / scale;
-    volume_slider.min = (
-      0.5 *
-      n *
-      Math.PI *
-      Math.pow(SETTING.DIAMETER, 2)
-    ).toString();
-    volume_slider.max = ((canvas.height / scale) * system.w).toString();
-    volume_slider.value = system.Volume.toString();
+    {
+      const volumePerParticle =
+        (Math.pow(Math.PI, SETTING.DOF_TRANS / 2) /
+          gamma(SETTING.DOF_TRANS / 2 + 1)) *
+        Math.pow(SETTING.DIAMETER / 2, 2);
+      // lower bound on densest pack: volumePerParticle * Math.pow((SETTING.DOF_TRANS / (2 * Math.PI * Math.E)) / 4, SETTING.DOF_TRANS / 2);
+      const maxPackingDensity = 0.886441; // Random pack in 2D
+      volume_slider.min = (
+        (n * volumePerParticle) /
+        maxPackingDensity
+      ).toString();
+      volume_slider.max = ((canvas.height / scale) * system.w).toString();
+      volume_slider.value = system.Volume.toString();
+    }
     temperature_slider.min = symlog(SETTING.TempMin).toString();
     temperature_slider.max = symlog(SETTING.TempMax).toString();
     temperature_slider.value = symlog(system.Temperature).toString();
@@ -45,12 +51,12 @@ export default function execute() {
     pressure_slider.max = symlog(
       system.getPressure(Number.parseFloat(volume_slider.min), SETTING.TempMax),
     ).toString();
-    entropy_slider.min = symlog(
-      system.getEntropy(Number.parseFloat(volume_slider.min), SETTING.TempMin),
-    ).toString();
-    entropy_slider.max = symlog(
-      system.getEntropy(Number.parseFloat(volume_slider.max), SETTING.TempMax),
-    ).toString();
+    entropy_slider.min = system
+      .getEntropy(Number.parseFloat(volume_slider.min), SETTING.TempMin)
+      .toString();
+    entropy_slider.max = system
+      .getEntropy(Number.parseFloat(volume_slider.max), SETTING.TempMax)
+      .toString();
     entropy_slider.value = system.Entropy.toString();
   }
 
@@ -92,10 +98,19 @@ export default function execute() {
       );
       ctx.fill();
     });
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = getColor(
+      "--md-sys-color-on-surface",
+      "#fff",
+    ).formatHex8();
+    ctx.beginPath();
+    ctx.moveTo(0, system.h * scale);
+    ctx.lineTo(canvas.width, system.h * scale);
+    ctx.stroke();
     temperature_value.innerText = system.Temperature.toExponential(2);
     pressure_slider.value = symlog(system.Pressure).toString();
     pressure_value.innerText = system.Pressure.toExponential(2);
-    entropy_slider.value = symlog(system.Entropy).toString();
+    entropy_slider.value = system.Entropy.toString();
     entropy_value.innerText = system.Entropy.toExponential(2);
     requestAnimationFrame(draw);
   }
@@ -113,6 +128,16 @@ export default function execute() {
     start: (sketch: HTMLCanvasElement, config: HTMLFormElement) => {
       canvas = sketch;
       ctx = canvas.getContext("2d", { alpha: false, desynchronized: true })!;
+      {
+        const velMax = (10 * SETTING.DIAMETER) / max_dt;
+        const velMin = 0.1 / scale / max_dt;
+        SETTING.TempMax =
+          (Math.pow(velMax, 2) * SETTING.MASS) /
+          (SETTING.BOLTZMANN * (SETTING.DOF_TRANS - 1));
+        SETTING.TempMin =
+          (Math.pow(velMin, 2) * SETTING.MASS) /
+          (SETTING.BOLTZMANN * (SETTING.DOF_TRANS - 1));
+      }
       system = new ParticleSystem(
         canvas.width / scale,
         canvas.height / scale,
