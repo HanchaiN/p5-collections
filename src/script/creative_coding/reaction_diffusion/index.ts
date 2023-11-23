@@ -1,10 +1,11 @@
 import { getColor, kernelGenerator } from "@/script/utils/dom";
 import { constrain, constrainLerp } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
+import * as color from "@thi.ng/color";
 
 export default function execute() {
   let isActive = false;
-  let isDrawing = false;
+  let isDrawing = 0;
   const DIFFUSION_RATE = [1, 0.5];
   const ADDER = 0.0545;
   const REMOVER = 0.062;
@@ -23,7 +24,7 @@ export default function execute() {
   function init(this: IKernelFunctionThis): [number, number] {
     if (
       Math.pow(Math.abs(this.thread.x - this.output.x / 2), 2) +
-        Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
+      Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
       Math.pow(10 / scale, 2)
     )
       return [1, 1];
@@ -135,16 +136,8 @@ export default function execute() {
       const draw_kernel = kernelGenerator(
         draw,
         {
-          BASE_COLOR: [
-            getColor("--md-sys-color-surface", "#000").rgb().r / 255,
-            getColor("--md-sys-color-surface", "#000").rgb().g / 255,
-            getColor("--md-sys-color-surface", "#000").rgb().b / 255,
-          ],
-          CONC_COLOR: [
-            getColor("--md-sys-color-on-surface-variant", "#FFF").rgb().r / 255,
-            getColor("--md-sys-color-on-surface-variant", "#FFF").rgb().g / 255,
-            getColor("--md-sys-color-on-surface-variant", "#FFF").rgb().b / 255,
-          ],
+          BASE_COLOR: color.rgb(getColor("--md-sys-color-surface", "#000")).xyz,
+          CONC_COLOR: color.rgb(getColor("--md-sys-color-on-surface", "#FFF")).xyz,
         },
         buffer,
       );
@@ -156,10 +149,10 @@ export default function execute() {
         return res.value;
       })();
 
-      isDrawing = true;
+      isDrawing = 1;
       requestAnimationFrame(function draw() {
         if (!isActive) return;
-        if (isDrawing) {
+        if (isDrawing >= 1) {
           new Promise<ImageBitmap>((resolve) => {
             const step = draw_kernel(grid);
             let res;
@@ -170,25 +163,18 @@ export default function execute() {
           }).then((bmp) =>
             ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height),
           );
-          isDrawing = false;
+          isDrawing = 0;
         }
+        grid = (() => {
+          const step = update_kernel(grid, 1);
+          let res;
+          do res = step.next();
+          while (!res.done);
+          return res.value;
+        })();
+        isDrawing += 1 / 100;
         requestAnimationFrame(draw);
       });
-      requestIdleCallback(
-        function update() {
-          if (!isActive) return;
-          grid = (() => {
-            const step = update_kernel(grid, 1);
-            let res;
-            do res = step.next();
-            while (!res.done);
-            return res.value;
-          })();
-          isDrawing = true;
-          requestIdleCallback(update);
-        },
-        { timeout: 100 },
-      );
     },
     stop: () => {
       isActive = false;

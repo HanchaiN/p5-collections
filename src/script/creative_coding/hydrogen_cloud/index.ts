@@ -1,7 +1,7 @@
-import { hcl2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor, kernelGenerator } from "@/script/utils/dom";
 import { TComplex, TVector3, constrain, fpart, map } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
+import * as color from "@thi.ng/color";
 import { psi_orbital_superposition } from "./psi";
 
 export default function execute() {
@@ -37,17 +37,17 @@ export default function execute() {
     );
     const vec: TVector3 = [x, y, z];
     const v = psi.bind(this)(vec, t);
-    const prob = 1000 * (v[0] * v[0] + v[1] * v[1]);
+    const prob = 5000 * (v[0] * v[0] + v[1] * v[1]);
     const phase = Math.atan2(v[1], v[0]);
     const brightness = Math.pow(prob / (prob + 1), 0.5);
-    const c = rgb2srgb(
-      hcl2rgb([
+    const c = color.srgb(
+      color.oklch([
+        constrain(brightness, 0, 1),
+        0.05,
         (phase < 0.0 ? phase + 2 * Math.PI : phase) / (2.0 * Math.PI),
-        constrain(brightness, 0, 1),
-        constrain(brightness, 0, 1),
       ]),
     );
-    this.color(c[0], c[1], c[2], 1);
+    this.color(c.r, c.g, c.b, 1);
   }
 
   return {
@@ -90,12 +90,12 @@ export default function execute() {
               ctx.strokeStyle = getColor(
                 "--md-sys-color-outline",
                 "#00F",
-              ).formatHex8();
+              );
             else
               ctx.strokeStyle = getColor(
                 "--md-sys-color-outline-variant",
                 "#0FF",
-              ).formatHex8();
+              );
             ctx.beginPath();
             ctx.arc(
               foreground.width / 2,

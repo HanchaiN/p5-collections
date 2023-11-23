@@ -1,6 +1,6 @@
 import { useSiteMetadata } from "@/hooks/use-site-metadata";
-import "@/styles/main.css";
-import { bodyMedium, surface } from "@/styles/main.module.css";
+import { bodyMedium, surface } from "@/styles/main.module.scss";
+import "@/styles/main.scss";
 import React, { PropsWithChildren } from "react";
 
 type Props = {
@@ -33,16 +33,6 @@ export default function Header({
       )}
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="supported-color-schemes" content="light dark" />
-      <meta
-        name="theme-color"
-        content="#b36619"
-        media="(prefers-color-scheme: light)"
-      />
-      <meta
-        name="theme-color"
-        content="#f2cca6"
-        media="(prefers-color-scheme: dark)"
-      />
       <body className={`${surface} ${bodyMedium}`} />
       {children}
     </>

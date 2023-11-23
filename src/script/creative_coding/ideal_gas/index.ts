@@ -1,7 +1,8 @@
 import { getColor } from "@/script/utils/dom";
 import { constrainMap, gamma, symlog, symlog_inv } from "@/script/utils/math";
-import * as d3 from "d3-color";
+import * as color from "@thi.ng/color";
 import { ParticleSystem, SETTING } from "./particles";
+
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
@@ -14,7 +15,7 @@ export default function execute() {
   let entropy_slider: HTMLInputElement;
   let entropy_value: HTMLSlotElement;
   let system: ParticleSystem;
-  const background = () => getColor("--md-sys-color-surface", "#000");
+  const getBackground = () => getColor("--md-sys-color-surface", "#000");
   const n = 2048;
   const time_scale = 1;
   const max_dt = (1 / 8) * time_scale;
@@ -25,7 +26,7 @@ export default function execute() {
   function setup() {
     if (!canvas) return;
     ctx.lineWidth = 0;
-    ctx.fillStyle = background().formatHex8();
+    ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     system.wall.right = canvas.width / scale;
     {
@@ -68,26 +69,24 @@ export default function execute() {
     }
     pretime = time;
     ctx.lineWidth = 0;
-    ctx.fillStyle = background().formatHex8();
+    ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     system.particles.forEach((particle) => {
-      ctx.fillStyle = d3
-        .cubehelix(
-          constrainMap(
-            symlog(particle.Temperature),
-            symlog(SETTING.TempMin),
-            symlog(SETTING.TempMax),
-            180,
-            360,
+      ctx.fillStyle = color.css(color.oklch(
+        Number.parseInt(
+          getComputedStyle(document.body).getPropertyValue(
+            "--tone-on-surface-variant",
           ),
-          1.5,
-          Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue(
-              "--tone-on-surface-variant",
-            ),
-          ) / 100,
-        )
-        .formatHex8();
+        ) / 100,
+        .1,
+        constrainMap(
+          symlog(particle.Temperature),
+          symlog(SETTING.TempMin),
+          symlog(SETTING.TempMax),
+          2 / 3,
+          1,
+        ),
+      ));
       ctx.beginPath();
       ctx.arc(
         particle.pos.x * scale,
@@ -102,7 +101,7 @@ export default function execute() {
     ctx.strokeStyle = getColor(
       "--md-sys-color-on-surface",
       "#fff",
-    ).formatHex8();
+    );
     ctx.beginPath();
     ctx.moveTo(0, system.h * scale);
     ctx.lineTo(canvas.width, system.h * scale);

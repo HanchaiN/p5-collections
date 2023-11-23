@@ -11,7 +11,8 @@
 			"dbaeumer.vscode-eslint",
 			"GraphQL.vscode-graphql",
 			"GraphQL.vscode-graphql-syntax",
-			"slevesque.shader"
+			"slevesque.shader",
+			"syler.sass-indented"
 		]
 	}
 }

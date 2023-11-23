@@ -2,8 +2,8 @@ import {
   dataContainer,
   previewContainer,
   sketch,
-} from "@/styles/creative_coding.module.css";
-import { labelMedium } from "@/styles/main.module.css";
+} from "@/styles/creative_coding.module.scss";
+import { labelMedium } from "@/styles/main.module.scss";
 import React, { useEffect, useRef } from "react";
 
 export default React.lazy(async () => {

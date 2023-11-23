@@ -1,20 +1,20 @@
-import { d3 } from "@/script/utils/color";
 import { getColor } from "@/script/utils/dom";
+import * as color from "@thi.ng/color";
 import { BoidSystem, SETTING } from "./boid";
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let system: BoidSystem;
-  const background = () => getColor("--md-sys-color-surface", "#000");
-  const foreground = () => {
-    const c = getColor("--md-sys-color-on-surface-variant", "#FFF");
-    c.opacity =
+  const getBackground = () => getColor("--md-sys-color-surface", "#000");
+  const getForeground = () => {
+    const c = color.srgb(getColor("--md-sys-color-on-surface-variant", "#FFF"));
+    c.alpha =
       Number.parseInt(
         getComputedStyle(document.body).getPropertyValue(
           "--state-opacity-hover",
         ),
       ) / 100;
-    return c;
+    return color.css(c);
   };
   const time_scale = 1;
   let isActive = false;
@@ -24,7 +24,7 @@ export default function execute() {
   function setup() {
     if (!canvas) return;
     ctx.lineWidth = 0;
-    ctx.fillStyle = background().formatHex8();
+    ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     system.wall.right = canvas.width / scale;
     system.wall.bottom = canvas.height / scale;
@@ -40,10 +40,10 @@ export default function execute() {
     }
     pretime = time;
     ctx.lineWidth = 0;
-    ctx.fillStyle = background().formatHex8();
+    ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     system.data().forEach(({ p, d }) => {
-      ctx.fillStyle = foreground().formatHex8();
+      ctx.fillStyle = getForeground();
       ctx.beginPath();
       ctx.arc(
         p.x * scale,
@@ -66,18 +66,15 @@ export default function execute() {
       ctx.fill();
     });
     system.data().forEach(({ c, p }) => {
-      ctx.fillStyle = d3
-        .cubehelix(
-          c,
-          1.5,
-          Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue(
-              "--tone-on-surface-variant",
-            ),
-          ) / 100,
-          1,
-        )
-        .formatHex8();
+      ctx.fillStyle = color.css(color.oklch([
+        Number.parseInt(
+          getComputedStyle(document.body).getPropertyValue(
+            "--tone-on-surface-variant",
+          ),
+        ) / 100,
+        .125,
+        c / 360,
+      ]));
       ctx.beginPath();
       ctx.arc(p.x * scale, p.y * scale, 3, 0, 2 * Math.PI);
       ctx.fill();

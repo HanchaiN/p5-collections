@@ -1,5 +1,5 @@
 import Header from "@/components/header";
-import * as style from "@/styles/main.module.css";
+import * as style from "@/styles/main.module.scss";
 import { MDXProvider } from "@mdx-js/react";
 import type { Components } from "@mdx-js/react/lib";
 import { HeadProps, Link, PageProps, graphql } from "gatsby";
@@ -8,22 +8,22 @@ import { BlockMath, InlineMath } from "react-katex";
 
 const components: Components = {
   h1: ({ className, ..._props }) => (
-    <h1 className={`${style.headlineLarge} ${className}`} {..._props} />
+    <h1 className={`${style.titleLarge} ${className ?? ''}`} {..._props} />
   ),
   h2: ({ className, ..._props }) => (
-    <h2 className={`${style.headlineMedium} ${className}`} {..._props} />
+    <h2 className={`${style.titleMedium} ${className ?? ''}`} {..._props} />
   ),
   h3: ({ className, ..._props }) => (
-    <h3 className={`${style.headlineSmall} ${className}`} {..._props} />
+    <h3 className={`${style.titleSmall} ${className ?? ''}`} {..._props} />
   ),
   h4: ({ className, ..._props }) => (
-    <h4 className={`${style.titleLarge} ${className}`} {..._props} />
+    <h4 className={`${style.titleSmall} ${className ?? ''}`} {..._props} />
   ),
   h5: ({ className, ..._props }) => (
-    <h5 className={`${style.titleMedium} ${className}`} {..._props} />
+    <h5 className={`${style.titleSmall} ${className ?? ''}`} {..._props} />
   ),
   h6: ({ className, ..._props }) => (
-    <h6 className={`${style.titleSmall} ${className}`} {..._props} />
+    <h6 className={`${style.titleSmall} ${className ?? ''}`} {..._props} />
   ),
   p: ({ className, ..._props }) => (
     <p

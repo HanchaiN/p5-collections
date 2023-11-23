@@ -1,12 +1,6 @@
-import {
-  hcl2rgb,
-  lab2hcl,
-  rgb2srgb,
-  rgb2xyz,
-  srgb2rgb,
-  xyz2lab,
-} from "@/script/utils/color";
+import { getColor } from "@/script/utils/dom";
 import { map } from "@/script/utils/math";
+import * as color from "@thi.ng/color";
 
 export function deepCopyImageData(imageData: ImageData): ImageData {
   const newImageData = new ImageData(imageData.width, imageData.height);
@@ -37,19 +31,9 @@ export function getLuminance(imageData: ImageData, outIndex: number = 3) {
   for (let y = 0; y < imageData.height; y++) {
     for (let x = 0; x < imageData.width; x++) {
       const index = (y * imageData.width + x) * 4;
-      const [h, c, l] = lab2hcl(
-        xyz2lab(
-          rgb2xyz(
-            srgb2rgb([
-              imageData.data[index] / 255,
-              imageData.data[index + 1] / 255,
-              imageData.data[index + 2] / 255,
-            ]),
-          ),
-        ),
-      );
-      h;
-      c;
+      const l = color.oklch(color.srgb(imageData.data[index] / 255,
+        imageData.data[index + 1] / 255,
+        imageData.data[index + 2] / 255)).l;
       if (outIndex < 0) {
         imageData.data[index] = l * 255;
         imageData.data[index + 1] = l * 255;
@@ -208,8 +192,8 @@ export function getMaximumMask(
               magIndex,
             ) >= mag,
         ).length /
-          radius.length >
-          0.5
+        radius.length >
+        0.5
       )
         mask[y * imageData.width + x] &&= false;
     }
@@ -258,6 +242,7 @@ export function visualizeGradient(
   magIndex: number = 2,
   maskIndex: number = 3,
 ) {
+  const foreground = color.srgb(getColor("--md-sys-color-outline", "#FFF"));
   for (let y = 0; y < imageData.height; y++) {
     for (let x = 0; x < imageData.width; x++) {
       const index = (y * imageData.width + x) * 4;
@@ -266,10 +251,16 @@ export function visualizeGradient(
       const mag = imageData.data[index + magIndex];
       const mask = imageData.data[index + maskIndex];
       const dir = map(Math.atan2(dy, dx), -Math.PI, +Math.PI, 0, 1);
-      const [r, g, b] = rgb2srgb(hcl2rgb([dir, mag / 255, mag / 255]));
-      imageData.data[index] = mask === 255 ? 255 : 255 * r;
-      imageData.data[index + 1] = mask === 255 ? 255 : 255 * g;
-      imageData.data[index + 2] = mask === 255 ? 255 : 255 * b;
+      if (mask === 255) {
+        imageData.data[index] = foreground.r * 255;
+        imageData.data[index + 1] = foreground.g * 255;
+        imageData.data[index + 2] = foreground.b * 255;
+      } else {
+        const [r, g, b] = color.srgb(color.oklch([mag / 255, .25, dir]));
+        imageData.data[index] = 255 * r;
+        imageData.data[index + 1] = 255 * g;
+        imageData.data[index + 2] = 255 * b;
+      }
       imageData.data[index + 3] = 255;
     }
   }

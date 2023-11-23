@@ -1,3 +1,4 @@
+import "@material/web/all";
 import "katex";
 import "katex/dist/katex.min.css";
 import React, { PropsWithChildren } from "react";

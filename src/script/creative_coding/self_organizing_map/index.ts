@@ -1,4 +1,3 @@
-import { hcl2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor, kernelGenerator } from "@/script/utils/dom";
 import {
   TVector2,
@@ -10,8 +9,9 @@ import {
   vector_sub,
 } from "@/script/utils/math";
 import { PerlinNoise } from "@/script/utils/math/noise";
-import { randomUniform } from "@/script/utils/math/random";
+import { randomGaussian, randomUniform } from "@/script/utils/math/random";
 import type { IKernelFunctionThis } from "@/script/utils/types";
+import * as color from "@thi.ng/color";
 
 export default function execute() {
   let isActive = false;
@@ -70,22 +70,18 @@ export default function execute() {
     while (true) {
       yield Math.random() < 0.125
         ? color_palette[Math.floor(Math.random() * color_palette.length)]
-        : hcl2rgb([
-            randomUniform(0, 1),
-            randomUniform(0.45, 0.55),
-            randomUniform(
-              Number.parseInt(
-                getComputedStyle(document.body).getPropertyValue(
-                  "--tone-surface-dim",
-                ),
-              ) / 100,
-              Number.parseInt(
-                getComputedStyle(document.body).getPropertyValue(
-                  "--tone-surface-bright",
-                ),
-              ) / 100,
-            ),
-          ]);
+        : color.rgb(color.oklch([
+          randomGaussian(
+            Number.parseInt(
+              getComputedStyle(document.body).getPropertyValue(
+                "--tone-base",
+              ),
+            ) / 100,
+            .125,
+          ),
+          randomUniform(0.05, 0.10),
+          randomUniform(0, 1),
+        ])).xyz;
     }
   }
   const generator: Generator<TVector3, never, void> | null = elementGenerator();
@@ -101,16 +97,16 @@ export default function execute() {
       (v, i) =>
         v +
         this.constants.learning_rate *
-          Math.exp(-this.constants.learning_decay_rate * iter) *
-          gaus(
-            vector_dist([this.thread.x, this.thread.y], best_matching) /
-              (this.output.x *
-                this.constants.range *
-                Math.exp(-this.constants.range_decay_rate * iter)),
-          ) *
-          (element[i] - v),
+        Math.exp(-this.constants.learning_decay_rate * iter) *
+        gaus(
+          vector_dist([this.thread.x, this.thread.y], best_matching) /
+          (this.output.x *
+            this.constants.range *
+            Math.exp(-this.constants.range_decay_rate * iter)),
+        ) *
+        (element[i] - v),
     ) as TVector3;
-    const [r, g, b] = rgb2srgb(val_);
+    const [r, g, b] = color.srgb(val_[0], val_[1], val_[2]).xyz;
     this.color(r, g, b, 1);
     return val_;
   }
@@ -125,7 +121,7 @@ export default function execute() {
       ctx.fillStyle = getColor(
         "--color-surface-container-3",
         "#000",
-      ).formatHex8();
+      );
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.createImageData(
         canvas.width / scale,

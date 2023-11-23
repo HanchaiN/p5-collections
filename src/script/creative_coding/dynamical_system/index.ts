@@ -1,6 +1,6 @@
 import { getColor, maxWorkers } from "@/script/utils/dom";
 import { Vector, constrainMap } from "@/script/utils/math";
-import * as d3 from "d3-color";
+import * as color from "@thi.ng/color";
 import type { MessageResponse } from "./worker";
 export default function execute() {
   let canvas: HTMLCanvasElement;
@@ -20,7 +20,7 @@ export default function execute() {
   function setup() {
     if (!canvas) return;
     ctx.lineWidth = 0;
-    ctx.fillStyle = getBackground().formatHex8();
+    ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
@@ -67,22 +67,24 @@ export default function execute() {
     );
     const r = 1;
     ctx.lineWidth = 0;
-    ctx.fillStyle = getBackground().formatHex8();
+    ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     result.forEach(({ states }) => {
       states!.forEach(({ state, hue }) => {
         const pos = project(...state);
-        ctx.fillStyle = d3
-          .cubehelix(
-            hue,
-            0.75 * 2,
-            Number.parseInt(
-              getComputedStyle(document.body).getPropertyValue(
-                "--tone-on-surface-variant",
-              ),
-            ) / 100,
-          )
-          .formatHex8();
+        ctx.fillStyle = color.css(color.oklch(
+          Number.parseInt(
+            getComputedStyle(document.body).getPropertyValue(
+              "--tone-base",
+            ),
+          ) / 100,
+          Number.parseInt(
+            getComputedStyle(document.body).getPropertyValue(
+              "--chroma-primary",
+            ),
+          ) / 100,
+          hue / 360,
+        ));
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, r, 0, 2 * Math.PI);
         ctx.fill();
@@ -101,8 +103,8 @@ export default function execute() {
         .map(() => new Worker(new URL("./worker.ts", import.meta.url)));
       workers.forEach((worker, i) => {
         const index =
-            i * Math.floor(count / maxWorkers) +
-            Math.min(i, count % maxWorkers),
+          i * Math.floor(count / maxWorkers) +
+          Math.min(i, count % maxWorkers),
           counts =
             Math.floor(count / maxWorkers) + (i < count % maxWorkers ? 1 : 0);
         const states = new Array(counts).fill(null).map((_, i) => ({

@@ -1,6 +1,6 @@
 import { getColor, maxWorkers } from "@/script/utils/dom";
 import { constrain } from "@/script/utils/math";
-import * as d3 from "d3-color";
+import * as color from "@thi.ng/color";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import type { MessageResponse } from "./worker";
@@ -90,8 +90,8 @@ export default function execute() {
         "message",
         function listener({ data }: MessageEvent<MessageResponse>) {
           const index =
-              i * Math.floor(counts / maxWorkers) +
-              Math.min(i, counts % maxWorkers),
+            i * Math.floor(counts / maxWorkers) +
+            Math.min(i, counts % maxWorkers),
             target_counts =
               Math.floor(counts / maxWorkers) +
               (i < counts % maxWorkers ? 1 : 0);
@@ -106,17 +106,17 @@ export default function execute() {
             electron_mesh.setColorAt(
               index + i,
               new THREE.Color(
-                d3
-                  .cubehelix(
-                    h,
-                    2,
+                color.css(
+                  color.oklch(
                     Number.parseInt(
                       getComputedStyle(document.body).getPropertyValue(
                         "--tone-outline",
                       ),
                     ) / 100,
+                    .2,
+                    h / 360,
                   )
-                  .formatHex(),
+                ),
               ),
             );
           });
@@ -130,7 +130,7 @@ export default function execute() {
   function animate() {
     if (ended) return;
     scene.background = new THREE.Color(
-      getColor("--md-sys-color-surface", "#000").formatHex(),
+      getColor("--md-sys-color-surface", "#000"),
     );
     controls.update();
     renderer.render(scene, camera);

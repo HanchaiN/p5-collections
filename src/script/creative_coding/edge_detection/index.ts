@@ -18,7 +18,7 @@ export default function execute() {
   function setup() {
     if (!canvas) return;
     ctx.lineWidth = 0;
-    ctx.fillStyle = getBackground().formatHex8();
+    ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 

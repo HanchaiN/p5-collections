@@ -1,164 +1,166 @@
+// @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..500&display=swap');
+// @import url('https://fonts.googleapis.com/css2?family=Merienda:wght@400..500&display=swap');
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@12..57,400..500&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
 
 :root {
-  --hue-primary: 30;
-  --chroma-primary: 75%;
-  --hue-secondary: 344;
-  --chroma-secondary: 75%;
-  --hue-tertiary: 162;
-  --chroma-tertiary: 75%;
-  --hue-error: 13;
-  --chroma-error: 100%;
-  --hue-neutral: 38;
-  --chroma-neutral: 25%;
-  --hue-neutral-variant: 21;
-  --chroma-neutral-variant: 12.5%;
+  --hue-primary: 279deg;
+  --chroma-primary: 25%;
+  --hue-secondary: 240deg;
+  --chroma-secondary: 25%;
+  --hue-tertiary: 334deg;
+  --chroma-tertiary: 25%;
+  --hue-error: 15deg;
+  --chroma-error: 50%;
+  --hue-neutral: 259deg;
+  --chroma-neutral: 5%;
+  --hue-neutral-variant: 229deg;
+  --chroma-neutral-variant: 2.5%;
 
   --state-opacity-hover: 8%;
   --state-opacity-focus: 10%;
   --state-opacity-press: 10%;
   --state-opacity-drag: 16%;
 
-  --md-sys-color-primary: hsl(
-    var(--hue-primary),
-    var(--chroma-primary),
+  --md-sys-color-primary: oklch(
     var(--tone-base)
+    var(--chroma-primary)
+    var(--hue-primary)
   );
-  --md-sys-color-on-primary: hsl(
-    var(--hue-primary),
-    var(--chroma-primary),
+  --md-sys-color-on-primary: oklch(
     var(--tone-on-base)
+    var(--chroma-primary)
+    var(--hue-primary)
   );
-  --md-sys-color-primary-container: hsl(
-    var(--hue-primary),
-    var(--chroma-primary),
+  --md-sys-color-primary-container: oklch(
     var(--tone-container)
+    var(--chroma-primary)
+    var(--hue-primary)
   );
-  --md-sys-color-on-primary-container: hsl(
-    var(--hue-primary),
-    var(--chroma-primary),
+  --md-sys-color-on-primary-container: oklch(
     var(--tone-on-container)
+    var(--chroma-primary)
+    var(--hue-primary)
   );
-  --md-sys-color-secondary: hsl(
-    var(--hue-secondary),
-    var(--chroma-secondary),
+  --md-sys-color-secondary: oklch(
     var(--tone-base)
+    var(--chroma-secondary)
+    var(--hue-secondary)
   );
-  --md-sys-color-on-secondary: hsl(
-    var(--hue-secondary),
-    var(--chroma-secondary),
+  --md-sys-color-on-secondary: oklch(
     var(--tone-on-base)
+    var(--chroma-secondary)
+    var(--hue-secondary)
   );
-  --md-sys-color-secondary-container: hsl(
-    var(--hue-secondary),
-    var(--chroma-secondary),
+  --md-sys-color-secondary-container: oklch(
     var(--tone-container)
+    var(--chroma-secondary)
+    var(--hue-secondary)
   );
-  --md-sys-color-on-secondary-container: hsl(
-    var(--hue-secondary),
-    var(--chroma-secondary),
+  --md-sys-color-on-secondary-container: oklch(
     var(--tone-on-container)
+    var(--chroma-secondary)
+    var(--hue-secondary)
   );
-  --md-sys-color-tertiary: hsl(
-    var(--hue-tertiary),
-    var(--chroma-tertiary),
+  --md-sys-color-tertiary: oklch(
     var(--tone-base)
+    var(--chroma-tertiary)
+    var(--hue-tertiary)
   );
-  --md-sys-color-on-tertiary: hsl(
-    var(--hue-tertiary),
-    var(--chroma-tertiary),
+  --md-sys-color-on-tertiary: oklch(
     var(--tone-on-base)
+    var(--chroma-tertiary)
+    var(--hue-tertiary)
   );
-  --md-sys-color-tertiary-container: hsl(
-    var(--hue-tertiary),
-    var(--chroma-tertiary),
+  --md-sys-color-tertiary-container: oklch(
     var(--tone-container)
+    var(--chroma-tertiary)
+    var(--hue-tertiary)
   );
-  --md-sys-color-on-tertiary-container: hsl(
-    var(--hue-tertiary),
-    var(--chroma-tertiary),
+  --md-sys-color-on-tertiary-container: oklch(
     var(--tone-on-container)
+    var(--chroma-tertiary)
+    var(--hue-tertiary)
   );
-  --md-sys-color-error: hsl(
-    var(--hue-error),
-    var(--chroma-error),
+  --md-sys-color-error: oklch(
     var(--tone-base)
+    var(--chroma-error)
+    var(--hue-error)
   );
-  --md-sys-color-on-error: hsl(
-    var(--hue-error),
-    var(--chroma-error),
+  --md-sys-color-on-error: oklch(
     var(--tone-on-base)
+    var(--chroma-error)
+    var(--hue-error)
   );
-  --md-sys-color-error-container: hsl(
-    var(--hue-error),
-    var(--chroma-error),
+  --md-sys-color-error-container: oklch(
     var(--tone-container)
+    var(--chroma-error)
+    var(--hue-error)
   );
-  --md-sys-color-on-error-container: hsl(
-    var(--hue-error),
-    var(--chroma-error),
+  --md-sys-color-on-error-container: oklch(
     var(--tone-on-container)
+    var(--chroma-error)
+    var(--hue-error)
   );
-  --md-sys-color-surface-dim: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface-dim: oklch(
     var(--tone-surface-dim)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-surface: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface: oklch(
     var(--tone-surface)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-surface-bright: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface-bright: oklch(
     var(--tone-surface-bright)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-surface-container-lowest: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface-container-lowest: oklch(
     var(--tone-surface-container-lowest)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-surface-container-low: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface-container-low: oklch(
     var(--tone-surface-container-low)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-surface-container: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface-container: oklch(
     var(--tone-surface-container)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-surface-container-high: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface-container-high: oklch(
     var(--tone-surface-container-high)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-surface-container-highest: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-surface-container-highest: oklch(
     var(--tone-surface-container-highest)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-on-surface: hsl(
-    var(--hue-neutral),
-    var(--chroma-neutral),
+  --md-sys-color-on-surface: oklch(
     var(--tone-on-surface)
+    var(--chroma-neutral)
+    var(--hue-neutral)
   );
-  --md-sys-color-on-surface-variant: hsl(
-    var(--hue-neutral-variant),
-    var(--chroma-neutral-variant),
+  --md-sys-color-on-surface-variant: oklch(
     var(--tone-on-surface-variant)
+    var(--chroma-neutral-variant)
+    var(--hue-neutral-variant)
   );
-  --md-sys-color-outline: hsl(
-    var(--hue-neutral-variant),
-    var(--chroma-neutral-variant),
+  --md-sys-color-outline: oklch(
     var(--tone-outline)
+    var(--chroma-neutral-variant)
+    var(--hue-neutral-variant)
   );
-  --md-sys-color-outline-variant: hsl(
-    var(--hue-neutral-variant),
-    var(--chroma-neutral-variant),
+  --md-sys-color-outline-variant: oklch(
     var(--tone-outline-var)
+    var(--chroma-neutral-variant)
+    var(--hue-neutral-variant)
   );
   --target-size: 3rem;
 }
@@ -206,10 +208,21 @@
 }
 
 :root {
-  --md-ref-typeface-brand: "Roboto Flex", "Trebuchet MS", "Lucida Sans Unicode",
-    "Lucida Grande", "Lucida Sans", Arial, sans-serif;
-  --md-ref-typeface-plain: "Roboto Flex", "Trebuchet MS", "Lucida Sans Unicode",
-    "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  --md-ref-typeface-brand: "Dancing Script",
+    "Trebuchet MS",
+    "Lucida Sans Unicode",
+    "Lucida Grande",
+    "Lucida Sans",
+    Arial,
+    sans-serif;
+    --md-ref-typeface-plain: "Merienda",
+    "Roboto Flex", 
+    "Trebuchet MS", 
+    "Lucida Sans Unicode",
+    "Lucida Grande", 
+    "Lucida Sans", 
+    Arial, 
+    sans-serif;
   --md-ref-typeface-weight-regular: 400;
   --md-ref-typeface-weight-medium: 500;
   --md-ref-typeface-weight-bold: 700;
@@ -219,29 +232,33 @@
     --md-ref-typeface-weight-regular
   );
   --md-sys-typescale-display-large-size: 3.5625rem;
-  --md-sys-tyepscale-display-large-tracking: -0.015625rem;
+  --md-sys-typescale-display-large-tracking: -0.015625rem;
   --md-sys-typescale-display-large-line-height: 4rem;
+
   --md-sys-typescale-display-medium-font: var(--md-ref-typeface-brand);
   --md-sys-typescale-display-medium-line-weight: var(
     --md-ref-typeface-weight-regular
   );
   --md-sys-typescale-display-medium-size: 2.8125rem;
-  --md-sys-tyepscale-display-medium-tracking: 0rem;
+  --md-sys-typescale-display-medium-tracking: 0rem;
   --md-sys-typescale-display-medium-line-height: 3.25rem;
+
   --md-sys-typescale-display-small-font: var(--md-ref-typeface-brand);
   --md-sys-typescale-display-small-line-weight: var(
     --md-ref-typeface-weight-regular
   );
   --md-sys-typescale-display-small-size: 2.25rem;
-  --md-sys-tyepscale-display-small-tracking: 0rem;
+  --md-sys-typescale-display-small-tracking: 0rem;
   --md-sys-typescale-display-small-line-height: 2.75rem;
+
   --md-sys-typescale-headline-large-font: var(--md-ref-typeface-brand);
   --md-sys-typescale-headline-large-line-weight: var(
     --md-ref-typeface-weight-regular
   );
   --md-sys-typescale-headline-large-size: 2rem;
-  --md-sys-tyepscale-headline-large-tracking: 0rem;
+  --md-sys-typescale-headline-large-tracking: 0rem;
   --md-sys-typescale-headline-large-line-height: 2.5rem;
+
   --md-sys-typescale-headline-medium-font: var(--md-ref-typeface-brand);
   --md-sys-typescale-headline-medium-line-weight: var(
     --md-ref-typeface-weight-regular
@@ -249,6 +266,7 @@
   --md-sys-typescale-headline-medium-size: 1.75rem;
   --md-sys-typescale-headline-medium-tracking: 0rem;
   --md-sys-typescale-headline-medium-line-height: 2.25rem;
+
   --md-sys-typescale-headline-small-font: var(--md-ref-typeface-brand);
   --md-sys-typescale-headline-small-line-weight: var(
     --md-ref-typeface-weight-regular
@@ -256,6 +274,7 @@
   --md-sys-typescale-headline-small-size: 1.5rem;
   --md-sys-typescale-headline-small-tracking: 0rem;
   --md-sys-typescale-headline-small-line-height: 2rem;
+
   --md-sys-typescale-title-large-font: var(--md-ref-typeface-brand);
   --md-sys-typescale-title-large-line-weight: var(
     --md-ref-typeface-weight-regular
@@ -263,6 +282,7 @@
   --md-sys-typescale-title-large-size: 1.375rem;
   --md-sys-typescale-title-large-tracking: 0rem;
   --md-sys-typescale-title-large-line-height: 1.75rem;
+
   --md-sys-typescale-title-medium-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-title-medium-line-weight: var(
     --md-ref-typeface-weight-medium
@@ -270,6 +290,7 @@
   --md-sys-typescale-title-medium-size: 1rem;
   --md-sys-typescale-title-medium-tracking: 0.009375rem;
   --md-sys-typescale-title-medium-line-height: 1.5rem;
+
   --md-sys-typescale-title-small-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-title-small-line-weight: var(
     --md-ref-typeface-weight-medium
@@ -277,6 +298,7 @@
   --md-sys-typescale-title-small-size: 0.875rem;
   --md-sys-typescale-title-small-tracking: 0.00625rem;
   --md-sys-typescale-title-small-line-height: 1.25rem;
+
   --md-sys-typescale-body-large-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-body-large-line-weight: var(
     --md-ref-typeface-weight-regular
@@ -284,6 +306,7 @@
   --md-sys-typescale-body-large-size: 1rem;
   --md-sys-typescale-body-large-tracking: 0.03125rem;
   --md-sys-typescale-body-large-line-height: 1.5rem;
+
   --md-sys-typescale-body-medium-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-body-medium-line-weight: var(
     --md-ref-typeface-weight-regular
@@ -291,6 +314,7 @@
   --md-sys-typescale-body-medium-size: 0.875rem;
   --md-sys-typescale-body-medium-tracking: 0.015625rem;
   --md-sys-typescale-body-medium-line-height: 1.25rem;
+
   --md-sys-typescale-body-small-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-body-small-line-weight: var(
     --md-ref-typeface-weight-regular
@@ -298,6 +322,7 @@
   --md-sys-typescale-body-small-size: 0.75rem;
   --md-sys-typescale-body-small-tracking: 0.025rem;
   --md-sys-typescale-body-small-line-height: 1rem;
+
   --md-sys-typescale-label-large-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-label-large-line-weight: var(
     --md-ref-typeface-weight-medium
@@ -308,6 +333,7 @@
   --md-sys-typescale-label-large-size: 0.875rem;
   --md-sys-typescale-label-large-tracking: 0.00625rem;
   --md-sys-typescale-label-large-line-height: 1.25rem;
+
   --md-sys-typescale-label-medium-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-label-medium-line-weight: var(
     --md-ref-typeface-weight-medium
@@ -318,6 +344,7 @@
   --md-sys-typescale-label-medium-size: 0.75rem;
   --md-sys-typescale-label-medium-tracking: 0.03125rem;
   --md-sys-typescale-label-medium-line-height: 1rem;
+
   --md-sys-typescale-label-small-font: var(--md-ref-typeface-plain);
   --md-sys-typescale-label-small-line-weight: var(
     --md-ref-typeface-weight-medium

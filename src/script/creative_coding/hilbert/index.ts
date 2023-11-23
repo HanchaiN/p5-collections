@@ -1,7 +1,7 @@
-import { cubehelix2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor, getMousePos, kernelGenerator } from "@/script/utils/dom";
 import { lerp } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
+import * as color from "@thi.ng/color";
 import { rot_hilbert as rot, xy2d } from "./hilbert";
 
 export default function execute() {
@@ -10,21 +10,21 @@ export default function execute() {
   const iter = 512;
 
   interface IConstants {
-    s: number;
+    c: number;
     l: number;
   }
 
   function main(this: IKernelFunctionThis<IConstants>, n: number) {
     const d = xy2d(n, this.thread.x, this.thread.y, rot);
     const v = (1.0 * d) / (n * n);
-    const c = rgb2srgb(
-      cubehelix2rgb([
-        v,
-        this.constants.s as number,
+    const c = color.rgb(
+      color.oklch([
         this.constants.l as number,
+        this.constants.c as number,
+        v,
       ]),
     );
-    this.color(c[0], c[1], c[2], 1);
+    this.color(c.r, c.g, c.b, 1);
   }
 
   return {
@@ -40,26 +40,18 @@ export default function execute() {
       })!;
       canvas.width = n;
       canvas.height = n;
-      ctx.fillStyle = getColor("--md-sys-color-surface", "#000").formatHex8();
+      ctx.fillStyle = getColor("--md-sys-color-surface", "#000");
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const renderer = kernelGenerator(
         main,
         {
-          s:
-            (2 *
-              Number.parseInt(
-                getComputedStyle(document.body).getPropertyValue(
-                  "--chroma-neutral",
-                ),
-              )) /
-            100,
-          l:
-            Number.parseInt(
-              getComputedStyle(document.body).getPropertyValue(
-                "--tone-outline",
-              ),
-            ) / 100,
+          c: .05,
+          l: Number.parseInt(
+            getComputedStyle(document.body).getPropertyValue(
+              "--tone-base",
+            ),
+          ) / 100,
         },
         buffer,
       );

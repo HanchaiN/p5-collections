@@ -90,7 +90,7 @@ export default function execute() {
         alpha: false,
         desynchronized: true,
       })!;
-      ctx.fillStyle = getColor("--md-sys-color-surface", "#000").formatHex8();
+      ctx.fillStyle = getColor("--md-sys-color-surface", "#000");
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.getImageData(
         0,

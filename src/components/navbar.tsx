@@ -1,16 +1,17 @@
 import { unslugify } from "@/script/utils/strings";
-import { bodyMedium } from "@/styles/main.module.css";
+import { bodyMedium } from "@/styles/main.module.scss";
 import {
   menu,
   menuToggle,
   navbar,
   submenuToggle,
-} from "@/styles/navbar.module.css";
+} from "@/styles/navbar.module.scss";
 import { Link, graphql, useStaticQuery } from "gatsby";
 import React, { useRef } from "react";
 
 type Directory = {
-  name?: string;
+  name: string;
+  path: string;
   href?: string;
   parent?: Directory;
   child: Directory[];
@@ -22,19 +23,18 @@ interface CSSPropertiesExtended extends React.CSSProperties {
 function generateNav(
   parent: Directory,
   menuToggle: React.RefObject<HTMLInputElement>,
+  initialHue: number = 0,
 ) {
   return (
     <ul style={{ "--delay": ".5s" } as CSSPropertiesExtended}>
-      {parent.child.map((child, i) => {
+      {parent.child.sort((a, b) => a.path.localeCompare(b.path)).map((child, i) => {
         return (
           <li
             key={child.name}
             style={
               {
                 "--delay": `${(0.5 * i) / parent.child.length}s`,
-                "--color": `lch(var(--tone-container) 50 ${
-                  (360 * i) / parent.child.length
-                })`,
+                "--color": `oklch(var(--tone-outline) var(--chroma-primary) ${initialHue + (360 * (i + 0.5)) / parent.child.length}deg)`,
               } as CSSPropertiesExtended
             }
           >
@@ -54,11 +54,11 @@ function generateNav(
             {child.child.length ? (
               <>
                 <input
-                  id={child.name}
+                  id={child.path}
                   className={submenuToggle}
                   type="checkbox"
                 />
-                <label htmlFor={child.name}>
+                <label htmlFor={child.path}>
                   <span className="material-symbols-rounded" id="icon_menu">
                     menu
                   </span>
@@ -70,7 +70,7 @@ function generateNav(
                   className={menu}
                   style={{ "--delay": ".5s" } as CSSPropertiesExtended}
                 >
-                  {generateNav(child, menuToggle)}
+                  {generateNav(child, menuToggle, initialHue + (360 * (i + 0.5)) / parent.child.length)}
                 </div>
               </>
             ) : (
@@ -91,7 +91,9 @@ export default function Navbar() {
   );
   const map = new Map<string, Directory>();
   const root: Directory = {
+    name: "",
     child: [],
+    path: "/",
   };
   for (const route of paths) {
     let path = "";
@@ -106,6 +108,7 @@ export default function Navbar() {
           path,
           (node = {
             name: unslugify(name),
+            path,
             parent,
             child: [],
           }),

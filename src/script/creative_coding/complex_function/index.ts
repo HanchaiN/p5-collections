@@ -1,32 +1,24 @@
-import { cubehelix2rgb, rgb2srgb } from "@/script/utils/color";
 import { getColor, kernelGenerator } from "@/script/utils/dom";
 import type { TComplex } from "@/script/utils/math";
 import { complex_absSq, complex_zeta, fpart, map } from "@/script/utils/math";
 import type { IKernelFunctionThis } from "@/script/utils/types";
+import * as color from "@thi.ng/color";
 
 export default function execute() {
   const R = 20;
   const iter = 500;
   let isActive: boolean = false;
-  const l0 =
-    Number.parseInt(
-      getComputedStyle(document.body).getPropertyValue("--tone-surface-dim"),
-    ) / 100;
-  const l1 =
-    Number.parseInt(
-      getComputedStyle(document.body).getPropertyValue("--tone-surface-bright"),
-    ) / 100;
+  const l0 = .25;
+  const l1 = .75;
   const s0 =
-    ((2 / 2) *
-      Number.parseInt(
-        getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
-      )) /
+    2 * (Number.parseInt(
+      getComputedStyle(document.body).getPropertyValue("--chroma-neutral-variant"),
+    )) /
     100;
   const s1 =
-    (2 *
-      Number.parseInt(
-        getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
-      )) /
+    2 * (Number.parseInt(
+      getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
+    )) /
     100;
   function f(z: TComplex) {
     return complex_zeta(z);
@@ -73,7 +65,7 @@ export default function execute() {
       this.constants.l0,
       this.constants.l1,
     );
-    const c = rgb2srgb(cubehelix2rgb([hue, sat * 2, lum]));
+    const c = color.srgb(color.oklch([lum, sat, hue]));
     this.color(c[0], c[1], c[2], 1);
   }
   return {
@@ -83,7 +75,8 @@ export default function execute() {
         alpha: false,
         desynchronized: true,
       })!;
-      ctx.fillStyle = getColor("--md-sys-color-surface", "#000").formatHex8();
+      ctx.fillStyle = getColor("--md-sys-color-surface", "#000");
+      console.log(ctx.fillStyle);
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const buffer = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const renderer = kernelGenerator(main, { R, l0, l1, s0, s1 }, buffer);

@@ -11,6 +11,7 @@ const config: GatsbyConfig = {
   },
   plugins: [
     "gatsby-plugin-sitemap",
+    "gatsby-plugin-sass",
     {
       resolve: "gatsby-plugin-manifest",
       options: {

@@ -5,11 +5,11 @@ export default function execute() {
   let ctx: CanvasRenderingContext2D;
   let gen: ReturnType<typeof generateDungeon>;
   const getPalette = () => [
-    getColor("--md-sys-color-surface-container", "#1C0B40").formatHex8(),
-    getColor("--md-sys-color-surface", "#142273").formatHex8(),
-    getColor("--md-sys-color-outline", "#0F71F2").formatHex8(),
-    getColor("--md-sys-color-on-surface", "#0F9BF2").formatHex8(),
-    getColor("--md-sys-color-primary", "#F222A9").formatHex8(),
+    getColor("--md-sys-color-surface-container", "#1C0B40"),
+    getColor("--md-sys-color-surface", "#142273"),
+    getColor("--md-sys-color-outline", "#0F71F2"),
+    getColor("--md-sys-color-on-surface", "#0F9BF2"),
+    getColor("--md-sys-color-primary", "#F222A9"),
   ];
   const unit = { x: 5, y: 5 };
   let size = { x: 0, y: 0 };

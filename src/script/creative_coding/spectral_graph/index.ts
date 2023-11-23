@@ -58,7 +58,7 @@ export default function execute() {
         node_mesh.setColorAt(
           i,
           new THREE.Color(
-            getColor("--md-sys-color-outline", "#FFF").formatHex(),
+            getColor("--md-sys-color-outline", "#FFF"),
           ),
         );
       });
@@ -73,7 +73,7 @@ export default function execute() {
             color: getColor(
               "--md-sys-color-outline-variant",
               "#FFF",
-            ).formatHex(),
+            ),
           });
           const points = [];
           points.push(new THREE.Vector3(x0, y0, z0));
@@ -99,7 +99,7 @@ export default function execute() {
   function animate() {
     if (ended) return;
     scene.background = new THREE.Color(
-      getColor("--md-sys-color-surface", "#000").formatHex(),
+      getColor("--md-sys-color-surface", "#000"),
     );
     controls.update();
     renderer.render(scene, camera);

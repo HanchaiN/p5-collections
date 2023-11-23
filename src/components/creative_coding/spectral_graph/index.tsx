@@ -1,4 +1,4 @@
-import { previewContainer, sketch } from "@/styles/creative_coding.module.css";
+import { previewContainer, sketch } from "@/styles/creative_coding.module.scss";
 import React, { useEffect, useRef } from "react";
 
 export default React.lazy(async () => {
