@@ -8,17 +8,21 @@ export default function execute() {
   const R = 20;
   const iter = 500;
   let isActive: boolean = false;
-  const l0 = .25;
-  const l1 = .75;
+  const l0 = 0.25;
+  const l1 = 0.75;
   const s0 =
-    2 * (Number.parseInt(
-      getComputedStyle(document.body).getPropertyValue("--chroma-neutral-variant"),
-    )) /
+    (2 *
+      Number.parseInt(
+        getComputedStyle(document.body).getPropertyValue(
+          "--chroma-neutral-variant",
+        ),
+      )) /
     100;
   const s1 =
-    2 * (Number.parseInt(
-      getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
-    )) /
+    (2 *
+      Number.parseInt(
+        getComputedStyle(document.body).getPropertyValue("--chroma-neutral"),
+      )) /
     100;
   function f(z: TComplex) {
     return complex_zeta(z);

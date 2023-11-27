@@ -1,4 +1,11 @@
-import * as math from "mathjs";
+import {
+  MathNumericType,
+  diag,
+  eigs,
+  matrix,
+  subtract,
+  transpose,
+} from "mathjs";
 
 export class Graph<T> {
   node: T[];
@@ -53,9 +60,9 @@ export class Graph<T> {
     return true;
   }
   spectral() {
-    const lap = math.subtract(math.diag(this.degree()), math.matrix(this.adj));
-    return math
-      .transpose(math.eigs(lap).vectors as math.Matrix)
-      .toArray() as number[][];
+    const lap = subtract(diag(this.degree()), matrix(this.adj));
+    return transpose(
+      eigs(lap).eigenvectors.map(({ vector }) => vector as MathNumericType[]),
+    ) as number[][];
   }
 }

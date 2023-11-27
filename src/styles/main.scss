@@ -23,144 +23,92 @@
   --state-opacity-drag: 16%;
 
   --md-sys-color-primary: oklch(
-    var(--tone-base)
-    var(--chroma-primary)
-    var(--hue-primary)
+    var(--tone-base) var(--chroma-primary) var(--hue-primary)
   );
   --md-sys-color-on-primary: oklch(
-    var(--tone-on-base)
-    var(--chroma-primary)
-    var(--hue-primary)
+    var(--tone-on-base) var(--chroma-primary) var(--hue-primary)
   );
   --md-sys-color-primary-container: oklch(
-    var(--tone-container)
-    var(--chroma-primary)
-    var(--hue-primary)
+    var(--tone-container) var(--chroma-primary) var(--hue-primary)
   );
   --md-sys-color-on-primary-container: oklch(
-    var(--tone-on-container)
-    var(--chroma-primary)
-    var(--hue-primary)
+    var(--tone-on-container) var(--chroma-primary) var(--hue-primary)
   );
   --md-sys-color-secondary: oklch(
-    var(--tone-base)
-    var(--chroma-secondary)
-    var(--hue-secondary)
+    var(--tone-base) var(--chroma-secondary) var(--hue-secondary)
   );
   --md-sys-color-on-secondary: oklch(
-    var(--tone-on-base)
-    var(--chroma-secondary)
-    var(--hue-secondary)
+    var(--tone-on-base) var(--chroma-secondary) var(--hue-secondary)
   );
   --md-sys-color-secondary-container: oklch(
-    var(--tone-container)
-    var(--chroma-secondary)
-    var(--hue-secondary)
+    var(--tone-container) var(--chroma-secondary) var(--hue-secondary)
   );
   --md-sys-color-on-secondary-container: oklch(
-    var(--tone-on-container)
-    var(--chroma-secondary)
-    var(--hue-secondary)
+    var(--tone-on-container) var(--chroma-secondary) var(--hue-secondary)
   );
   --md-sys-color-tertiary: oklch(
-    var(--tone-base)
-    var(--chroma-tertiary)
-    var(--hue-tertiary)
+    var(--tone-base) var(--chroma-tertiary) var(--hue-tertiary)
   );
   --md-sys-color-on-tertiary: oklch(
-    var(--tone-on-base)
-    var(--chroma-tertiary)
-    var(--hue-tertiary)
+    var(--tone-on-base) var(--chroma-tertiary) var(--hue-tertiary)
   );
   --md-sys-color-tertiary-container: oklch(
-    var(--tone-container)
-    var(--chroma-tertiary)
-    var(--hue-tertiary)
+    var(--tone-container) var(--chroma-tertiary) var(--hue-tertiary)
   );
   --md-sys-color-on-tertiary-container: oklch(
-    var(--tone-on-container)
-    var(--chroma-tertiary)
-    var(--hue-tertiary)
+    var(--tone-on-container) var(--chroma-tertiary) var(--hue-tertiary)
   );
   --md-sys-color-error: oklch(
-    var(--tone-base)
-    var(--chroma-error)
-    var(--hue-error)
+    var(--tone-base) var(--chroma-error) var(--hue-error)
   );
   --md-sys-color-on-error: oklch(
-    var(--tone-on-base)
-    var(--chroma-error)
-    var(--hue-error)
+    var(--tone-on-base) var(--chroma-error) var(--hue-error)
   );
   --md-sys-color-error-container: oklch(
-    var(--tone-container)
-    var(--chroma-error)
-    var(--hue-error)
+    var(--tone-container) var(--chroma-error) var(--hue-error)
   );
   --md-sys-color-on-error-container: oklch(
-    var(--tone-on-container)
-    var(--chroma-error)
-    var(--hue-error)
+    var(--tone-on-container) var(--chroma-error) var(--hue-error)
   );
   --md-sys-color-surface-dim: oklch(
-    var(--tone-surface-dim)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface-dim) var(--chroma-neutral) var(--hue-neutral)
   );
   --md-sys-color-surface: oklch(
-    var(--tone-surface)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface) var(--chroma-neutral) var(--hue-neutral)
   );
   --md-sys-color-surface-bright: oklch(
-    var(--tone-surface-bright)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface-bright) var(--chroma-neutral) var(--hue-neutral)
   );
   --md-sys-color-surface-container-lowest: oklch(
-    var(--tone-surface-container-lowest)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface-container-lowest) var(--chroma-neutral)
+      var(--hue-neutral)
   );
   --md-sys-color-surface-container-low: oklch(
-    var(--tone-surface-container-low)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface-container-low) var(--chroma-neutral) var(--hue-neutral)
   );
   --md-sys-color-surface-container: oklch(
-    var(--tone-surface-container)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface-container) var(--chroma-neutral) var(--hue-neutral)
   );
   --md-sys-color-surface-container-high: oklch(
-    var(--tone-surface-container-high)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface-container-high) var(--chroma-neutral) var(--hue-neutral)
   );
   --md-sys-color-surface-container-highest: oklch(
-    var(--tone-surface-container-highest)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-surface-container-highest) var(--chroma-neutral)
+      var(--hue-neutral)
   );
   --md-sys-color-on-surface: oklch(
-    var(--tone-on-surface)
-    var(--chroma-neutral)
-    var(--hue-neutral)
+    var(--tone-on-surface) var(--chroma-neutral) var(--hue-neutral)
   );
   --md-sys-color-on-surface-variant: oklch(
-    var(--tone-on-surface-variant)
-    var(--chroma-neutral-variant)
-    var(--hue-neutral-variant)
+    var(--tone-on-surface-variant) var(--chroma-neutral-variant)
+      var(--hue-neutral-variant)
   );
   --md-sys-color-outline: oklch(
-    var(--tone-outline)
-    var(--chroma-neutral-variant)
-    var(--hue-neutral-variant)
+    var(--tone-outline) var(--chroma-neutral-variant) var(--hue-neutral-variant)
   );
   --md-sys-color-outline-variant: oklch(
-    var(--tone-outline-var)
-    var(--chroma-neutral-variant)
-    var(--hue-neutral-variant)
+    var(--tone-outline-var) var(--chroma-neutral-variant)
+      var(--hue-neutral-variant)
   );
   --target-size: 3rem;
 }
@@ -208,21 +156,10 @@
 }
 
 :root {
-  --md-ref-typeface-brand: "Dancing Script",
-    "Trebuchet MS",
-    "Lucida Sans Unicode",
-    "Lucida Grande",
-    "Lucida Sans",
-    Arial,
-    sans-serif;
-    --md-ref-typeface-plain: "Merienda",
-    "Roboto Flex", 
-    "Trebuchet MS", 
-    "Lucida Sans Unicode",
-    "Lucida Grande", 
-    "Lucida Sans", 
-    Arial, 
-    sans-serif;
+  --md-ref-typeface-brand: "Dancing Script", "Trebuchet MS",
+    "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  --md-ref-typeface-plain: "Merienda", "Roboto Flex", "Trebuchet MS",
+    "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
   --md-ref-typeface-weight-regular: 400;
   --md-ref-typeface-weight-medium: 500;
   --md-ref-typeface-weight-bold: 700;

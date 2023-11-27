@@ -79,13 +79,11 @@ export class CA {
   display(p: p5, forward: number) {
     for (let i = 0; i < this.cells.length; i++) {
       if (!this.looped && (i < this.h || i > this.cells.length - this.h)) {
-        if (this.cells[i] === 1)
-          p.fill(getColor("--color-on-surface-variant").formatHex8());
-        else p.fill(getColor("--color-surface-container-low").formatHex8());
+        if (this.cells[i] === 1) p.fill(getColor("--color-on-surface-variant"));
+        else p.fill(getColor("--color-surface-container-low"));
       } else {
-        if (this.cells[i] === 1)
-          p.fill(getColor("--color-on-surface").formatHex8());
-        else p.fill(getColor("--color-surface-container").formatHex8());
+        if (this.cells[i] === 1) p.fill(getColor("--color-on-surface"));
+        else p.fill(getColor("--color-surface-container"));
       }
       p.noStroke();
       if (this.looped)

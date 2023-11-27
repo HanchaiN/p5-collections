@@ -27,58 +27,66 @@ function generateNav(
 ) {
   return (
     <ul style={{ "--delay": ".5s" } as CSSPropertiesExtended}>
-      {parent.child.sort((a, b) => a.path.localeCompare(b.path)).map((child, i) => {
-        return (
-          <li
-            key={child.name}
-            style={
-              {
-                "--delay": `${(0.5 * i) / parent.child.length}s`,
-                "--color": `oklch(var(--tone-outline) var(--chroma-primary) ${initialHue + (360 * (i + 0.5)) / parent.child.length}deg)`,
-              } as CSSPropertiesExtended
-            }
-          >
-            {typeof child.href !== "undefined" ? (
-              <Link
-                to={child.href}
-                className={bodyMedium}
-                onClick={() => {
-                  menuToggle.current!.checked = false;
-                }}
-              >
-                {child.name}
-              </Link>
-            ) : (
-              <a>{child.name}</a>
-            )}
-            {child.child.length ? (
-              <>
-                <input
-                  id={child.path}
-                  className={submenuToggle}
-                  type="checkbox"
-                />
-                <label htmlFor={child.path}>
-                  <span className="material-symbols-rounded" id="icon_menu">
-                    menu
-                  </span>
-                  <span className="material-symbols-rounded" id="icon_close">
-                    close
-                  </span>
-                </label>
-                <div
-                  className={menu}
-                  style={{ "--delay": ".5s" } as CSSPropertiesExtended}
+      {parent.child
+        .sort((a, b) => a.path.localeCompare(b.path))
+        .map((child, i) => {
+          return (
+            <li
+              key={child.name}
+              style={
+                {
+                  "--delay": `${(0.5 * i) / parent.child.length}s`,
+                  "--color": `oklch(var(--tone-outline) var(--chroma-primary) ${
+                    initialHue + (360 * (i + 0.5)) / parent.child.length
+                  }deg)`,
+                } as CSSPropertiesExtended
+              }
+            >
+              {typeof child.href !== "undefined" ? (
+                <Link
+                  to={child.href}
+                  className={bodyMedium}
+                  onClick={() => {
+                    menuToggle.current!.checked = false;
+                  }}
                 >
-                  {generateNav(child, menuToggle, initialHue + (360 * (i + 0.5)) / parent.child.length)}
-                </div>
-              </>
-            ) : (
-              <></>
-            )}
-          </li>
-        );
-      })}
+                  {child.name}
+                </Link>
+              ) : (
+                <a>{child.name}</a>
+              )}
+              {child.child.length ? (
+                <>
+                  <input
+                    id={child.path}
+                    className={submenuToggle}
+                    type="checkbox"
+                  />
+                  <label htmlFor={child.path}>
+                    <span className="material-symbols-rounded" id="icon_menu">
+                      menu
+                    </span>
+                    <span className="material-symbols-rounded" id="icon_close">
+                      close
+                    </span>
+                  </label>
+                  <div
+                    className={menu}
+                    style={{ "--delay": ".5s" } as CSSPropertiesExtended}
+                  >
+                    {generateNav(
+                      child,
+                      menuToggle,
+                      initialHue + (360 * (i + 0.5)) / parent.child.length,
+                    )}
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
+            </li>
+          );
+        })}
     </ul>
   );
 }

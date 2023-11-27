@@ -87,10 +87,7 @@ export default function execute() {
           ctx.clearRect(0, 0, foreground.width, foreground.height);
           for (let i = 0; i <= R; i++) {
             if (Number.isInteger(Math.sqrt(i)))
-              ctx.strokeStyle = getColor(
-                "--md-sys-color-outline",
-                "#00F",
-              );
+              ctx.strokeStyle = getColor("--md-sys-color-outline", "#00F");
             else
               ctx.strokeStyle = getColor(
                 "--md-sys-color-outline-variant",

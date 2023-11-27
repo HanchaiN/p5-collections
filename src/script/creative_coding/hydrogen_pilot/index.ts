@@ -90,8 +90,8 @@ export default function execute() {
         "message",
         function listener({ data }: MessageEvent<MessageResponse>) {
           const index =
-            i * Math.floor(counts / maxWorkers) +
-            Math.min(i, counts % maxWorkers),
+              i * Math.floor(counts / maxWorkers) +
+              Math.min(i, counts % maxWorkers),
             target_counts =
               Math.floor(counts / maxWorkers) +
               (i < counts % maxWorkers ? 1 : 0);
@@ -113,9 +113,9 @@ export default function execute() {
                         "--tone-outline",
                       ),
                     ) / 100,
-                    .2,
+                    0.2,
                     h / 360,
-                  )
+                  ),
                 ),
               ),
             );

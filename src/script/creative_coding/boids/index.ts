@@ -66,15 +66,17 @@ export default function execute() {
       ctx.fill();
     });
     system.data().forEach(({ c, p }) => {
-      ctx.fillStyle = color.css(color.oklch([
-        Number.parseInt(
-          getComputedStyle(document.body).getPropertyValue(
-            "--tone-on-surface-variant",
-          ),
-        ) / 100,
-        .125,
-        c / 360,
-      ]));
+      ctx.fillStyle = color.css(
+        color.oklch([
+          Number.parseInt(
+            getComputedStyle(document.body).getPropertyValue(
+              "--tone-on-surface-variant",
+            ),
+          ) / 100,
+          0.125,
+          c / 360,
+        ]),
+      );
       ctx.beginPath();
       ctx.arc(p.x * scale, p.y * scale, 3, 0, 2 * Math.PI);
       ctx.fill();

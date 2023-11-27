@@ -124,18 +124,23 @@ export default function execute() {
         );
         requestAnimationFrame(draw);
       });
-      requestIdleCallback(function update() {
-        if (!isActive) return;
-        const res = step.next();
-        if (res.done) {
-          step = renderer(
-            acc,
-            ++i,
-            postProcessorGen_(color.bright, color.white),
-          );
-        }
-        requestIdleCallback(update);
-      });
+      requestIdleCallback(
+        function update() {
+          if (!isActive) return;
+          const res = step.next();
+          if (res.done) {
+            step = renderer(
+              acc,
+              ++i,
+              postProcessorGen_(color.bright, color.white),
+            );
+          }
+          requestIdleCallback(update);
+        },
+        {
+          timeout: 50,
+        },
+      );
     },
     stop: () => {
       isActive = false;

@@ -9,15 +9,15 @@ export function getParentSize(parent: HTMLElement, canvas: HTMLElement) {
   const rect = parent?.getBoundingClientRect();
   const width = Math.floor(
     rect?.width ||
-    window.innerWidth ||
-    document.documentElement.clientWidth ||
-    document.body.clientWidth,
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth,
   );
   const height = Math.floor(
     rect?.height ||
-    window.innerHeight ||
-    document.documentElement.clientHeight ||
-    document.body.clientHeight,
+      window.innerHeight ||
+      document.documentElement.clientHeight ||
+      document.body.clientHeight,
   );
   if (canvas) canvas.hidden = false;
   return { width, height };
@@ -26,10 +26,13 @@ export function getParentSize(parent: HTMLElement, canvas: HTMLElement) {
 export function getColor(name: string, fallback = "#0000") {
   const canvas = new OffscreenCanvas(1, 1);
   const ctx = canvas.getContext("2d", { colorSpace: "srgb" })!;
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue(name) || fallback;
+  ctx.fillStyle =
+    getComputedStyle(document.body).getPropertyValue(name) || fallback;
   ctx.fillRect(0, 0, 1, 1);
   const data = ctx.getImageData(0, 0, 1, 1).data;
-  return color.css(color.srgb(data[0] / 255, data[1] / 255, data[2] / 255, data[3] / 255));
+  return color.css(
+    color.srgb(data[0] / 255, data[1] / 255, data[2] / 255, data[3] / 255),
+  );
 }
 
 export function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {

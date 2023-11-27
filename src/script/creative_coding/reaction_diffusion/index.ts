@@ -5,11 +5,13 @@ import * as color from "@thi.ng/color";
 
 export default function execute() {
   let isActive = false;
-  let isDrawing = 0;
   const DIFFUSION_RATE = [1, 0.5];
   const ADDER = 0.0545;
   const REMOVER = 0.062;
   const scale = 1;
+  const time_step = 1;
+  const time_scale = 1 / 60;
+  const time_step_norm = time_step / time_scale;
 
   interface IUpdateConstants {
     ADDER: number;
@@ -24,7 +26,7 @@ export default function execute() {
   function init(this: IKernelFunctionThis): [number, number] {
     if (
       Math.pow(Math.abs(this.thread.x - this.output.x / 2), 2) +
-      Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
+        Math.pow(Math.abs(this.thread.y - this.output.y / 2), 2) <
       Math.pow(10 / scale, 2)
     )
       return [1, 1];
@@ -137,7 +139,8 @@ export default function execute() {
         draw,
         {
           BASE_COLOR: color.rgb(getColor("--md-sys-color-surface", "#000")).xyz,
-          CONC_COLOR: color.rgb(getColor("--md-sys-color-on-surface", "#FFF")).xyz,
+          CONC_COLOR: color.rgb(getColor("--md-sys-color-on-surface", "#FFF"))
+            .xyz,
         },
         buffer,
       );
@@ -148,31 +151,29 @@ export default function execute() {
         while (!res.done);
         return res.value;
       })();
-
-      isDrawing = 1;
-      requestAnimationFrame(function draw() {
+      let deltaTime = 0;
+      requestAnimationFrame(async function draw(dt: number) {
         if (!isActive) return;
-        if (isDrawing >= 1) {
-          new Promise<ImageBitmap>((resolve) => {
-            const step = draw_kernel(grid);
+        deltaTime += dt;
+        const isDrawing = time_step_norm * 1000 < deltaTime;
+        while (deltaTime > time_step_norm * 1000) {
+          grid = (() => {
+            const step = update_kernel(grid, time_step);
             let res;
             do res = step.next();
             while (!res.done);
-            createImageBitmap(buffer).then((bmp) => resolve(bmp));
             return res.value;
-          }).then((bmp) =>
-            ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height),
-          );
-          isDrawing = 0;
+          })();
+          deltaTime -= time_step_norm * 1000;
         }
-        grid = (() => {
-          const step = update_kernel(grid, 1);
+        if (isDrawing) {
+          const step = draw_kernel(grid);
           let res;
           do res = step.next();
           while (!res.done);
-          return res.value;
-        })();
-        isDrawing += 1 / 100;
+          const bmp = await createImageBitmap(buffer);
+          ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+        }
         requestAnimationFrame(draw);
       });
     },

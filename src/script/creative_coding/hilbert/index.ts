@@ -18,11 +18,7 @@ export default function execute() {
     const d = xy2d(n, this.thread.x, this.thread.y, rot);
     const v = (1.0 * d) / (n * n);
     const c = color.rgb(
-      color.oklch([
-        this.constants.l as number,
-        this.constants.c as number,
-        v,
-      ]),
+      color.oklch([this.constants.l as number, this.constants.c as number, v]),
     );
     this.color(c.r, c.g, c.b, 1);
   }
@@ -46,12 +42,11 @@ export default function execute() {
       const renderer = kernelGenerator(
         main,
         {
-          c: .05,
-          l: Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue(
-              "--tone-base",
-            ),
-          ) / 100,
+          c: 0.05,
+          l:
+            Number.parseInt(
+              getComputedStyle(document.body).getPropertyValue("--tone-base"),
+            ) / 100,
         },
         buffer,
       );

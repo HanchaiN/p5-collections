@@ -1,9 +1,9 @@
 import { getColor, getParentSize } from "@/script/utils/dom";
 import { Complex } from "@/script/utils/math/complex";
+import type { p5Extension } from "@/script/utils/types";
 import p5 from "p5";
 import { Draggable } from "./draggable";
 import { Gyrovector } from "./gyrovector";
-import type { p5Extension } from "@/script/utils/types";
 export default function execute() {
   let parent: HTMLElement;
   let canvas: HTMLCanvasElement;
@@ -46,11 +46,11 @@ export default function execute() {
     p.draw = function () {
       p.clear(0, 0, 0, 0);
       p.strokeWeight(1);
-      p.stroke(getColor("--color-outline").formatHex8());
-      p.fill(getColor("--color-surface-container-3").formatHex8());
+      p.stroke(getColor("--color-outline"));
+      p.fill(getColor("--color-surface-container-3"));
       p.circle(Ox, Oy, 2 * r);
       p.strokeWeight(5);
-      p.stroke(getColor("--color-outline").formatHex8());
+      p.stroke(getColor("--color-outline"));
       p.point(Ox, Oy);
 
       A.hover();
@@ -71,13 +71,13 @@ export default function execute() {
         Complex.fromCartesian(...calculateposition(B.x, B.y)),
       );
       p.strokeWeight(2.5);
-      p.stroke(getColor("--color-on-surface").formatHex8());
+      p.stroke(getColor("--color-on-surface"));
       p.line(Ox, Oy, A.x, A.y);
-      p.stroke(getColor("--color-on-surface-var").formatHex8());
+      p.stroke(getColor("--color-on-surface-var"));
       p.line(Ox, Oy, B.x, B.y);
       {
         p.strokeWeight(3.75);
-        p.stroke(getColor("--color-tertiary").formatHex8());
+        p.stroke(getColor("--color-tertiary"));
         p.noFill();
         const l = Gyrovector.geodesic(a, a.add(b));
         switch (l[0]) {
@@ -90,12 +90,12 @@ export default function execute() {
         const sum = a.add(b);
         const pos = canvasposition(sum.z.re, sum.z.im);
         p.strokeWeight(7.5);
-        p.stroke(getColor("--color-tertiary").formatHex8());
+        p.stroke(getColor("--color-tertiary"));
         p.point(pos[0], pos[1]);
       }
       {
         p.strokeWeight(3.75);
-        p.stroke(getColor("--color-secondary").formatHex8());
+        p.stroke(getColor("--color-secondary"));
         p.noFill();
         const l = Gyrovector.geodesic(a, b);
         switch (l[0]) {

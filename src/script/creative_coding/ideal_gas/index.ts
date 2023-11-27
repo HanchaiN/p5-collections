@@ -72,21 +72,23 @@ export default function execute() {
     ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     system.particles.forEach((particle) => {
-      ctx.fillStyle = color.css(color.oklch(
-        Number.parseInt(
-          getComputedStyle(document.body).getPropertyValue(
-            "--tone-on-surface-variant",
+      ctx.fillStyle = color.css(
+        color.oklch(
+          Number.parseInt(
+            getComputedStyle(document.body).getPropertyValue(
+              "--tone-on-surface-variant",
+            ),
+          ) / 100,
+          0.1,
+          constrainMap(
+            symlog(particle.Temperature),
+            symlog(SETTING.TempMin),
+            symlog(SETTING.TempMax),
+            2 / 3,
+            1,
           ),
-        ) / 100,
-        .1,
-        constrainMap(
-          symlog(particle.Temperature),
-          symlog(SETTING.TempMin),
-          symlog(SETTING.TempMax),
-          2 / 3,
-          1,
         ),
-      ));
+      );
       ctx.beginPath();
       ctx.arc(
         particle.pos.x * scale,
@@ -98,10 +100,7 @@ export default function execute() {
       ctx.fill();
     });
     ctx.lineWidth = 1;
-    ctx.strokeStyle = getColor(
-      "--md-sys-color-on-surface",
-      "#fff",
-    );
+    ctx.strokeStyle = getColor("--md-sys-color-on-surface", "#fff");
     ctx.beginPath();
     ctx.moveTo(0, system.h * scale);
     ctx.lineTo(canvas.width, system.h * scale);

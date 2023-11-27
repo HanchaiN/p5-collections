@@ -9,11 +9,11 @@ export const luminance = ([r, g, b]: TColorRGB) =>
   0.299 * r + 0.587 * g + 0.114 * b;
 const exposture =
   (exposture: number) =>
-    ([r, g, b]: TColorRGB): TColorRGB => [
-      r * exposture,
-      g * exposture,
-      b * exposture,
-    ];
+  ([r, g, b]: TColorRGB): TColorRGB => [
+    r * exposture,
+    g * exposture,
+    b * exposture,
+  ];
 const white_balance = ([ref_r, ref_g, ref_b]: TColorRGB) => {
   const [x0, y0, z0] = rgb2xyz([ref_r, ref_g, ref_b]);
   return ([r, g, b]: TColorRGB): TColorRGB => {
@@ -24,28 +24,28 @@ const white_balance = ([ref_r, ref_g, ref_b]: TColorRGB) => {
 };
 const contrast =
   (contrast: number) =>
-    ([r, g, b]: TColorRGB): TColorRGB => [
-      contrast * (r - 0.5) + 0.5,
-      contrast * (g - 0.5) + 0.5,
-      contrast * (b - 0.5) + 0.5,
-    ];
+  ([r, g, b]: TColorRGB): TColorRGB => [
+    contrast * (r - 0.5) + 0.5,
+    contrast * (g - 0.5) + 0.5,
+    contrast * (b - 0.5) + 0.5,
+  ];
 const brightness =
   (brightness: number) =>
-    ([r, g, b]: TColorRGB): TColorRGB => [
-      r + brightness,
-      g + brightness,
-      b + brightness,
-    ];
+  ([r, g, b]: TColorRGB): TColorRGB => [
+    r + brightness,
+    g + brightness,
+    b + brightness,
+  ];
 const saturation =
   (saturation: number) =>
-    ([r, g, b]: TColorRGB): TColorRGB => {
-      const l = luminance([r, g, b]);
-      return [
-        lerp(saturation, l, r),
-        lerp(saturation, l, g),
-        lerp(saturation, l, b),
-      ];
-    };
+  ([r, g, b]: TColorRGB): TColorRGB => {
+    const l = luminance([r, g, b]);
+    return [
+      lerp(saturation, l, r),
+      lerp(saturation, l, g),
+      lerp(saturation, l, b),
+    ];
+  };
 const clamp = ([r, g, b]: TColorRGB): TColorRGB => [
   constrain(r, 0, 1),
   constrain(g, 0, 1),
@@ -53,13 +53,13 @@ const clamp = ([r, g, b]: TColorRGB): TColorRGB => [
 ];
 export const reinhard: IToneMapper =
   () =>
-    ([r, g, b]: TColorRGB): TColorRGB => [r / (1 + r), g / (1 + g), b / (1 + b)];
+  ([r, g, b]: TColorRGB): TColorRGB => [r / (1 + r), g / (1 + g), b / (1 + b)];
 export const reinhard_lum: IToneMapper =
   () =>
-    ([r, g, b]: TColorRGB): TColorRGB => {
-      const l = luminance([r, g, b]);
-      return [r / (1 + l), g / (1 + l), b / (1 + l)];
-    };
+  ([r, g, b]: TColorRGB): TColorRGB => {
+    const l = luminance([r, g, b]);
+    return [r / (1 + l), g / (1 + l), b / (1 + l)];
+  };
 export const reinhard_jodie: IToneMapper = ([
   ref_r,
   ref_g,
@@ -98,7 +98,7 @@ export const reinhard_jodie_lum: IToneMapper = ([
 };
 export const scaler: IToneMapper =
   ([ref_r, ref_g, ref_b]: TColorRGB) =>
-    ([r, g, b]: TColorRGB): TColorRGB => [r / ref_r, g / ref_g, b / ref_b];
+  ([r, g, b]: TColorRGB): TColorRGB => [r / ref_r, g / ref_g, b / ref_b];
 export const scaler_lum: IToneMapper = ([ref_r, ref_g, ref_b]: TColorRGB) => {
   const ref = luminance([ref_r, ref_g, ref_b]);
   return ([r, g, b]: TColorRGB): TColorRGB => [r / ref, g / ref, b / ref];
@@ -165,11 +165,11 @@ export const reinhard_jodie_lum_ext: IToneMapper = ([
 
 const gamma =
   (y: number) =>
-    ([r, g, b]: TColorRGB): TColorRGB => {
-      const lum = luminance([r, g, b]);
-      const factor = Math.pow(lum, y) / lum;
-      return [r * factor, g * factor, b * factor];
-    };
+  ([r, g, b]: TColorRGB): TColorRGB => {
+    const lum = luminance([r, g, b]);
+    const factor = Math.pow(lum, y) / lum;
+    return [r * factor, g * factor, b * factor];
+  };
 
 export const postProcessorGen =
   (
@@ -180,26 +180,26 @@ export const postProcessorGen =
     CONTRAST = 1,
     SATURATION = 1,
   ) =>
-    (bright: TColorRGB = [1, 1, 1], white: TColorRGB = [1, 1, 1]) => {
-      const exposture_ = exposture(EXPOSTURE);
-      const white_balance_ = white_balance(exposture_(white));
-      const contrast_ = contrast(CONTRAST);
-      const brightness_ = brightness(BRIGHTNESS);
-      const saturate_ = saturation(SATURATION);
-      const tonemapper_ = TONEMAPPER(
-        saturate_(brightness_(contrast_(white_balance_(exposture_(bright))))),
-      );
-      const gamma_ = gamma(GAMMA);
-      return ([r, g, b]: TColorRGB): TColorRGB =>
-        rgb2srgb(
-          gamma_(
-            clamp(
-              tonemapper_(
-                saturate_(
-                  brightness_(contrast_(white_balance_(exposture_([r, g, b])))),
-                ),
+  (bright: TColorRGB = [1, 1, 1], white: TColorRGB = [1, 1, 1]) => {
+    const exposture_ = exposture(EXPOSTURE);
+    const white_balance_ = white_balance(exposture_(white));
+    const contrast_ = contrast(CONTRAST);
+    const brightness_ = brightness(BRIGHTNESS);
+    const saturate_ = saturation(SATURATION);
+    const tonemapper_ = TONEMAPPER(
+      saturate_(brightness_(contrast_(white_balance_(exposture_(bright))))),
+    );
+    const gamma_ = gamma(GAMMA);
+    return ([r, g, b]: TColorRGB): TColorRGB =>
+      rgb2srgb(
+        gamma_(
+          clamp(
+            tonemapper_(
+              saturate_(
+                brightness_(contrast_(white_balance_(exposture_([r, g, b])))),
               ),
             ),
           ),
-        );
-    };
+        ),
+      );
+  };

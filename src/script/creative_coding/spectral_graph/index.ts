@@ -57,9 +57,7 @@ export default function execute() {
         node_mesh.setMatrixAt(i, matrix);
         node_mesh.setColorAt(
           i,
-          new THREE.Color(
-            getColor("--md-sys-color-outline", "#FFF"),
-          ),
+          new THREE.Color(getColor("--md-sys-color-outline", "#FFF")),
         );
       });
       node_mesh.instanceColor?.setUsage(THREE.StaticDrawUsage);
@@ -70,10 +68,7 @@ export default function execute() {
         coord.forEach(([x1, y1, z1], j) => {
           if (!mainelem.adj[i][j]) return;
           const material = new THREE.LineBasicMaterial({
-            color: getColor(
-              "--md-sys-color-outline-variant",
-              "#FFF",
-            ),
+            color: getColor("--md-sys-color-outline-variant", "#FFF"),
           });
           const points = [];
           points.push(new THREE.Vector3(x0, y0, z0));

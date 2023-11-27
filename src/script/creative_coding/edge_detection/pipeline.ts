@@ -31,9 +31,13 @@ export function getLuminance(imageData: ImageData, outIndex: number = 3) {
   for (let y = 0; y < imageData.height; y++) {
     for (let x = 0; x < imageData.width; x++) {
       const index = (y * imageData.width + x) * 4;
-      const l = color.oklch(color.srgb(imageData.data[index] / 255,
-        imageData.data[index + 1] / 255,
-        imageData.data[index + 2] / 255)).l;
+      const l = color.oklch(
+        color.srgb(
+          imageData.data[index] / 255,
+          imageData.data[index + 1] / 255,
+          imageData.data[index + 2] / 255,
+        ),
+      ).l;
       if (outIndex < 0) {
         imageData.data[index] = l * 255;
         imageData.data[index + 1] = l * 255;
@@ -192,8 +196,8 @@ export function getMaximumMask(
               magIndex,
             ) >= mag,
         ).length /
-        radius.length >
-        0.5
+          radius.length >
+          0.5
       )
         mask[y * imageData.width + x] &&= false;
     }
@@ -256,7 +260,7 @@ export function visualizeGradient(
         imageData.data[index + 1] = foreground.g * 255;
         imageData.data[index + 2] = foreground.b * 255;
       } else {
-        const [r, g, b] = color.srgb(color.oklch([mag / 255, .25, dir]));
+        const [r, g, b] = color.srgb(color.oklch([mag / 255, 0.25, dir]));
         imageData.data[index] = 255 * r;
         imageData.data[index + 1] = 255 * g;
         imageData.data[index + 2] = 255 * b;

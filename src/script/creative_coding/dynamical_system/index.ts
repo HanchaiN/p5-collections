@@ -72,19 +72,19 @@ export default function execute() {
     result.forEach(({ states }) => {
       states!.forEach(({ state, hue }) => {
         const pos = project(...state);
-        ctx.fillStyle = color.css(color.oklch(
-          Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue(
-              "--tone-base",
-            ),
-          ) / 100,
-          Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue(
-              "--chroma-primary",
-            ),
-          ) / 100,
-          hue / 360,
-        ));
+        ctx.fillStyle = color.css(
+          color.oklch(
+            Number.parseInt(
+              getComputedStyle(document.body).getPropertyValue("--tone-base"),
+            ) / 100,
+            Number.parseInt(
+              getComputedStyle(document.body).getPropertyValue(
+                "--chroma-primary",
+              ),
+            ) / 100,
+            hue / 360,
+          ),
+        );
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, r, 0, 2 * Math.PI);
         ctx.fill();
@@ -103,8 +103,8 @@ export default function execute() {
         .map(() => new Worker(new URL("./worker.ts", import.meta.url)));
       workers.forEach((worker, i) => {
         const index =
-          i * Math.floor(count / maxWorkers) +
-          Math.min(i, count % maxWorkers),
+            i * Math.floor(count / maxWorkers) +
+            Math.min(i, count % maxWorkers),
           counts =
             Math.floor(count / maxWorkers) + (i < count % maxWorkers ? 1 : 0);
         const states = new Array(counts).fill(null).map((_, i) => ({
