@@ -310,19 +310,26 @@ export default function execute() {
         })
         .on("end", () => {
           console.log(src);
-          if (src.length !== 1) return;
           const elem = document.createElement("img");
           elem.className = display_canvas.className;
           elem.width = display_canvas.width;
           elem.height = display_canvas.height;
-          elem.src = src[src.length - 1];
+          if (src.length === 1)
+            elem.src = src[0];
+          else
+            render_canvas.convertToBlob({ type: "image/gif" }).then((blob) => {
+              const reader = new FileReader();
+              reader.addEventListener("load", () => {
+                elem.src = reader.result as string;
+              });
+              reader.readAsDataURL(blob);
+            });
           elem.id = "display-canvas";
           display_canvas.replaceWith(elem);
         });
     }
     encoder.start();
     encoder.setRepeat(-1);
-    encoder.setQuality(10);
     let total_time = 0;
     let delay = 0;
     const frames = draw();
@@ -348,10 +355,10 @@ export default function execute() {
           0,
           2 * Math.PI * sx * sy,
           0,
-          10_000,
+          30_000,
         );
       }
-      if (delay > 1000 / 60) {
+      if (delay > 20) {
         encoder.setDelay(delay);
         total_time += delay;
         encoder.addFrame(render_ctx as unknown as CanvasRenderingContext2D);
