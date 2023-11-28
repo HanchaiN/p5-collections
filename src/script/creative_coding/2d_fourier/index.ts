@@ -178,6 +178,7 @@ export default function execute() {
     const render_ctx = render_canvas.getContext("2d", {
       alpha: false,
       desynchronized: true,
+      willReadFrequently: true,
     })!;
     function* draw() {
       let minColor = color.rgb(getColor("--md-sys-color-surface", "#000")).xyz;
