@@ -97,22 +97,52 @@ export default function execute() {
       if (color.oklch(minColor).l > color.oklch(maxColor).l) {
         [minColor, maxColor] = [maxColor, minColor];
       }
-      const minValue = symlog(kspace.flat().map((v) => re(abs(v) as unknown as MathJsChain<Complex>) as unknown as number).reduce((a, b) => Math.min(a, b)));
-      const maxValue = symlog(kspace.flat().map((v) => re(abs(v) as unknown as MathJsChain<Complex>) as unknown as number).reduce((a, b) => Math.max(a, b)));
+      const minValue = symlog(
+        kspace
+          .flat()
+          .map(
+            (v) =>
+              re(
+                abs(v) as unknown as MathJsChain<Complex>,
+              ) as unknown as number,
+          )
+          .reduce((a, b) => Math.min(a, b)),
+      );
+      const maxValue = symlog(
+        kspace
+          .flat()
+          .map(
+            (v) =>
+              re(
+                abs(v) as unknown as MathJsChain<Complex>,
+              ) as unknown as number,
+          )
+          .reduce((a, b) => Math.max(a, b)),
+      );
       for (let i = 0; i < kspace.length; i++) {
         for (let j = 0; j < kspace[0].length; j++) {
           const x =
-            i < kspace.length / 2
-              ? i + kspace.length / 2
-              : i - kspace.length / 2,
+              i < kspace.length / 2
+                ? i + kspace.length / 2
+                : i - kspace.length / 2,
             y =
               j < kspace[i].length / 2
                 ? j + kspace[i].length / 2
                 : j - kspace[i].length / 2;
-          const value = symlog(re(abs(kspace[i][j]) as unknown as MathJsChain<Complex>) as unknown as number);
-          imageData.data[(x * imageData.width + y) * 4 + 0] = constrainMap(value, minValue, maxValue, minColor[0], maxColor[0]) * 255;
-          imageData.data[(x * imageData.width + y) * 4 + 1] = constrainMap(value, minValue, maxValue, minColor[1], maxColor[1]) * 255;
-          imageData.data[(x * imageData.width + y) * 4 + 2] = constrainMap(value, minValue, maxValue, minColor[2], maxColor[2]) * 255;
+          const value = symlog(
+            re(
+              abs(kspace[i][j]) as unknown as MathJsChain<Complex>,
+            ) as unknown as number,
+          );
+          imageData.data[(x * imageData.width + y) * 4 + 0] =
+            constrainMap(value, minValue, maxValue, minColor[0], maxColor[0]) *
+            255;
+          imageData.data[(x * imageData.width + y) * 4 + 1] =
+            constrainMap(value, minValue, maxValue, minColor[1], maxColor[1]) *
+            255;
+          imageData.data[(x * imageData.width + y) * 4 + 2] =
+            constrainMap(value, minValue, maxValue, minColor[2], maxColor[2]) *
+            255;
           imageData.data[(x * imageData.width + y) * 4 + 3] = 255;
         }
       }
@@ -215,9 +245,9 @@ export default function execute() {
         const x_ = index[0] + kspace_width / 2,
           y_ = index[1] + kspace_height / 2;
         const x =
-          x_ < kspace_width / 2
-            ? x_ + kspace_width / 2
-            : x_ - kspace_width / 2,
+            x_ < kspace_width / 2
+              ? x_ + kspace_width / 2
+              : x_ - kspace_width / 2,
           y =
             y_ < kspace_height / 2
               ? y_ + kspace_height / 2

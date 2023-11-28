@@ -13,12 +13,7 @@ export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({
     },
     plugins: [
       new NodePolyfillPlugin({
-        includeAliases: [
-          "Buffer",
-          "buffer",
-          "process",
-          "stream",
-        ]
+        includeAliases: ["Buffer", "buffer", "process", "stream"],
       }),
     ],
     optimization: {
