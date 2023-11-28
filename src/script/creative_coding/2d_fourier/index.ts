@@ -315,7 +315,7 @@ export default function execute() {
           elem.className = display_canvas.className;
           elem.width = display_canvas.width;
           elem.height = display_canvas.height;
-          elem.src[src.length - 1] = src;
+          elem.src = src[src.length - 1];
           elem.id = "display-canvas";
           display_canvas.replaceWith(elem);
         });
@@ -338,8 +338,17 @@ export default function execute() {
       if (k === null) encoder.setDelay(1000);
       else {
         const [wx, wy] = k;
-        const sx = 1 / 24, sy = 1 / 24;
-        encoder.setDelay(constrainMap(Math.exp(-(wx * wx / (2 * sx) + wy * wy / (2 * sy))), 0, 2 * Math.PI, 0, 5000));
+        const sx = 1 / 24,
+          sy = 1 / 24;
+        encoder.setDelay(
+          constrainMap(
+            Math.exp(-((wx * wx) / (2 * sx) + (wy * wy) / (2 * sy))),
+            0,
+            2 * Math.PI,
+            0,
+            5000,
+          ),
+        );
       }
       encoder.addFrame(render_ctx as unknown as CanvasRenderingContext2D);
       if (res.done) encoder.finish();
