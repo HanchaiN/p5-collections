@@ -166,7 +166,7 @@ export default function execute() {
           });
           reader.readAsDataURL(blob);
         });
-        elem.id = "display-canvas";
+        elem.id = "kspace-canvas";
         kspace_canvas.replaceWith(elem);
       }
       return kspace;
@@ -298,11 +298,20 @@ export default function execute() {
         }),
       );
       let src = "";
+      let validSrc = true;
       stream
         .on("data", (chunk: string) => {
-          src += chunk;
+          try {
+            src += chunk;
+          } catch (e) {
+            console.warn(e);
+            console.log(src);
+            src = chunk;
+            validSrc = false;
+          }
         })
         .on("end", () => {
+          if (!validSrc) return;
           const elem = document.createElement("img");
           elem.className = display_canvas.className;
           elem.width = display_canvas.width;
