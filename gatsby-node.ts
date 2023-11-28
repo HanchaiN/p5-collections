@@ -1,9 +1,6 @@
 import type { GatsbyNode } from "gatsby";
-import { createRequire } from "node:module";
+import NodePolyfillPlugin from "node-polyfill-webpack-plugin";
 import path from "path";
-import webpack from "webpack";
-
-const _require = createRequire(import.meta.url);
 
 export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({
   actions,
@@ -13,14 +10,15 @@ export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({
       alias: {
         "@": path.resolve(__dirname, "src"),
       },
-      fallback: {
-        stream: false,
-        buffer: _require.resolve("buffer"),
-      },
     },
     plugins: [
-      new webpack.ProvidePlugin({
-        Buffer: ["buffer", "Buffer"],
+      new NodePolyfillPlugin({
+        includeAliases: [
+          "Buffer",
+          "buffer",
+          "process",
+          "stream",
+        ]
       }),
     ],
     optimization: {

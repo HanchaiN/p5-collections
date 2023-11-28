@@ -38,6 +38,31 @@ export default React.lazy(async () => {
               Image:
             </label>
             <input type="file" accept="image/*" id="image" />
+            <label htmlFor="fft-size" className={labelMedium}>
+              FFT Size: <slot id="fft-size-value"></slot>
+            </label>
+            <input id="fft-size" type="number" step="1" />
+            <label htmlFor="render-size" className={labelMedium}>
+              Render Size: <slot id="render-size-value"></slot>
+            </label>
+            <input id="render-size" type="number" step="1" />
+            <label htmlFor="overlay" className={labelMedium}>
+              Overlay: <slot id="overlay-value"></slot>
+            </label>
+            <input
+              id="overlay"
+              type="number"
+              min="0"
+              max="1"
+              step="1e-16"
+              defaultValue="0.05"
+            />
+            <canvas
+              width="100"
+              height="100"
+              className={sketch}
+              id="kspace"
+            ></canvas>
           </form>
         </div>
       );
