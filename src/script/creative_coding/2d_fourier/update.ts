@@ -42,7 +42,7 @@ float atan2(in vec2 v)
 }
 
 vec3 hcl2lab(in vec3 c) {
-  return vec3(c.z, c.y * cos(c.x), c.y * sin(c.x));
+  return clamp(vec3(c.z, c.y * cos(c.x), c.y * sin(c.x)), vec3(0.0, -1.0, -1.0), vec3(1.0, 1.0, 1.0));
 }
 vec3 lab2xyz(in vec3 c) {
   const float CBRT_EPSILON = 6.0 / 29.0;
@@ -55,7 +55,7 @@ vec3 lab2xyz(in vec3 c) {
   vec3 cutoff = vec3(lessThan(f, vec3(CBRT_EPSILON)));
   vec3 lower = (vec3(1.16) * f - vec3(0.16)) / vec3(KAPPA);
   vec3 higher = f * f * f;
-  return std * mix(higher, lower, cutoff);
+  return clamp(std * mix(higher, lower, cutoff), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
 }
 vec3 xyz2rgb(in vec3 c) {
     const mat3 xyz2rgb = mat3(
@@ -63,28 +63,27 @@ vec3 xyz2rgb(in vec3 c) {
         -1752003.0, +4851000.0, +301853.0,
         +17697.0, -49000.0, +3432153.0
     ) / 3400850.0;
-    return c * xyz2rgb;
+    return clamp(c * xyz2rgb, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
 }
 vec3 rgb2srgb(in vec3 c)
 {
     vec3 cutoff = vec3(lessThan(c, vec3(0.0031308)));
     vec3 lower = c * vec3(12.92);
     vec3 higher = vec3(1.055)*pow(c, vec3(1.0/2.4)) - vec3(0.055);
-
-    return mix(higher, lower, cutoff);
+    return clamp(mix(higher, lower, cutoff), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
 }
 
 void main() {
     vec2 uv = texCoords;
     float phase = 2.0 * PI * (k.x * uv.x * resolution.x - k.y * uv.y * resolution.y);
-    float amplitude = cos(phase + atan2(v)) * 0.45 + 0.5;
-    gl_FragColor.xyz = mix(
+    float amplitude = cos(phase + atan2(v)) * 0.25 + 0.5;
+    gl_FragColor.xyz = rgb2srgb(mix(
       texture2D(texture, texCoords).xyz,
-      rgb2srgb(xyz2rgb(lab2xyz(hcl2lab(
+      xyz2rgb(lab2xyz(hcl2lab(
         vec3(phase, 0.25, amplitude)
-      )))),
+      ))),
       overlay
-    );
+    ));
     gl_FragColor.w = 1.0;
 }
 `;

@@ -280,7 +280,7 @@ export default function execute() {
         );
         yield [wx * kspace_width, wy * kspace_height];
       }
-      updater(0, 0, 0, 0, 1);
+      updater(0, 0, 0, 0, 0);
       render_ctx.drawImage(
         data_canvas,
         0,
