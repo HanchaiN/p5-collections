@@ -1,12 +1,14 @@
 import { getColor } from "@/script/utils/dom";
 import { constrainMap, symlog } from "@/script/utils/math";
 import * as color from "@thi.ng/color";
+import { Base64Encode } from "base64-stream";
 import GIFEncoder from "gifencoder";
 import type { Complex, MathJsChain } from "mathjs";
 import { abs, fft, im, re, reshape } from "mathjs";
 import { update } from "./update";
 
 export default function execute() {
+  let parent: HTMLElement;
   let display_canvas: HTMLCanvasElement;
   let display_ctx: CanvasRenderingContext2D;
   let kspace_canvas: HTMLCanvasElement;
@@ -47,6 +49,11 @@ export default function execute() {
         img.height,
       ).toString();
     const kspace = (() => {
+      const placeholder = parent.querySelector("img#kspace-canvas");
+      if (placeholder) {
+        placeholder.replaceWith(kspace_canvas);
+        placeholder.remove();
+      }
       const fft_canvas = new OffscreenCanvas(
         fft_size_slider.valueAsNumber,
         fft_size_slider.valueAsNumber,
@@ -147,6 +154,21 @@ export default function execute() {
         kspace_canvas.width,
         kspace_canvas.height,
       );
+      {
+        const elem = document.createElement("img");
+        elem.className = kspace_canvas.className;
+        elem.width = kspace_canvas.width;
+        elem.height = kspace_canvas.height;
+        fft_canvas.convertToBlob().then((blob) => {
+          const reader = new FileReader();
+          reader.addEventListener("load", () => {
+            elem.src = reader.result as string;
+          });
+          reader.readAsDataURL(blob);
+        });
+        elem.id = "display-canvas";
+        kspace_canvas.replaceWith(elem);
+      }
       return kspace;
     })();
     const render_canvas = new OffscreenCanvas(
@@ -165,7 +187,6 @@ export default function execute() {
       if (color.oklch(minColor).l > color.oklch(maxColor).l) {
         [minColor, maxColor] = [maxColor, minColor];
       }
-      // const overlay = overlay_slider.valueAsNumber;
       const kspace_height = kspace.length,
         kspace_width = kspace[0].length;
       const iter = (function* helicalIndices(n) {
@@ -215,15 +236,6 @@ export default function execute() {
           yield [curr_x, curr_y];
           num += 1;
         }
-        // const ind = new Array(n).fill(0).map((_, i) => new Array(m).fill(0).map((_, j) => [i - n / 2, j - m / 2])).flat().sort((a, b) => {
-        //   const magA = Math.round(Math.sqrt(a[0] * a[0] + a[1] * a[1]));
-        //   const magB = Math.round(Math.sqrt(b[0] * b[0] + b[1] * b[1]));
-        //   if (magA !== magB) return magA - magB;
-        //   const dirA = Math.atan2(a[1], a[0]);
-        //   const dirB = Math.atan2(b[1], b[0]);
-        //   return dirA - dirB;
-        // });
-        // for (const index of ind) yield index;
       })(kspace.length * kspace[0].length);
       const data_canvas = new OffscreenCanvas(
         render_size_slider.valueAsNumber,
@@ -279,20 +291,27 @@ export default function execute() {
       return null;
     }
     const encoder = new GIFEncoder(render_canvas.width, render_canvas.height);
-    const stream = encoder.createReadStream();
-    const chunks: Buffer[] = [];
-    stream.on("data", (chunk) => {
-      chunks.push(chunk);
-    });
-    stream.on("end", () => {
-      const buffer = Buffer.concat(chunks);
-      const elem = document.createElement("img");
-      elem.src = "data:image/gif;base64," + buffer.toString("base64");
-      elem.className = display_canvas.className;
-      elem.width = display_canvas.width;
-      elem.height = display_canvas.height;
-      display_canvas.replaceWith(elem);
-    });
+    {
+      const stream = encoder.createReadStream().pipe(
+        new Base64Encode({
+          prefix: "data:image/gif;base64,",
+        }),
+      );
+      let src = "";
+      stream
+        .on("data", (chunk: string) => {
+          src += chunk;
+        })
+        .on("end", () => {
+          const elem = document.createElement("img");
+          elem.className = display_canvas.className;
+          elem.width = display_canvas.width;
+          elem.height = display_canvas.height;
+          elem.src = src;
+          elem.id = "display-canvas";
+          display_canvas.replaceWith(elem);
+        });
+    }
     encoder.start();
     encoder.setRepeat(-1);
     encoder.setQuality(10);
@@ -322,14 +341,18 @@ export default function execute() {
   }
 
   return {
-    start: (sketch: HTMLCanvasElement, config: HTMLFormElement) => {
+    start: (
+      sketch: HTMLCanvasElement,
+      kspaceCanvas: HTMLCanvasElement,
+      config: HTMLFormElement,
+    ) => {
+      parent = sketch.parentElement!;
       display_canvas = sketch;
-      const parent = display_canvas.parentElement!;
       display_ctx = display_canvas.getContext("2d", {
         alpha: false,
         desynchronized: true,
       })!;
-      kspace_canvas = config.querySelector("#kspace")!;
+      kspace_canvas = kspaceCanvas!;
       kspace_ctx = kspace_canvas.getContext("2d", {
         alpha: false,
         desynchronized: true,
@@ -337,7 +360,11 @@ export default function execute() {
       config
         .querySelector<HTMLInputElement>("#image")!
         .addEventListener("change", function () {
-          parent.querySelector("img")?.replaceWith(display_canvas);
+          const placeholder = parent.querySelector("img#display-canvas");
+          if (placeholder) {
+            placeholder.replaceWith(display_canvas);
+            placeholder.remove();
+          }
           const img = new Image();
           img.addEventListener("load", function onImageLoad() {
             this.removeEventListener("load", onImageLoad);

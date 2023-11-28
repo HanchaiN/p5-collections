@@ -14,10 +14,11 @@ export default React.lazy(async () => {
   return {
     default: function Component() {
       const canvas = useRef<HTMLCanvasElement>(null);
+      const kspaceCanvas = useRef<HTMLCanvasElement>(null);
       const config = useRef<HTMLFormElement>(null);
       const exec = main();
       useEffect(() => {
-        exec?.start(canvas.current!, config.current!);
+        exec?.start(canvas.current!, kspaceCanvas.current!, config.current!);
       }, []);
       useEffect(
         () => () => {
@@ -32,6 +33,12 @@ export default React.lazy(async () => {
             height="500"
             className={sketch}
             ref={canvas}
+          ></canvas>
+          <canvas
+            width="500"
+            height="500"
+            className={sketch}
+            ref={kspaceCanvas}
           ></canvas>
           <form className={dataContainer} ref={config}>
             <label htmlFor="image" className={labelMedium}>
@@ -57,12 +64,6 @@ export default React.lazy(async () => {
               step="1e-16"
               defaultValue="0.25"
             />
-            <canvas
-              width="100"
-              height="100"
-              className={sketch}
-              id="kspace"
-            ></canvas>
           </form>
         </div>
       );

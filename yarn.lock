@@ -2614,6 +2614,13 @@
   dependencies:
     "@types/estree" "*"
 
+"@types/base64-stream@^1.0.0":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@types/base64-stream/-/base64-stream-1.0.5.tgz#069853db36e2857c2b9cef8cb05b1cc32d646d78"
+  integrity sha512-gXuo/a7pQ1EXlR5ksM2MccBLl6UUgAgnzR01r/QoHnkaSNinmzSdaGcCq5NAxn72dZ5A1zNYQIl+J9hPsBgBrA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/cacheable-request@^6.0.1":
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/@types/cacheable-request/-/cacheable-request-6.0.3.tgz#a430b3260466ca7b5ca5bfd735693b36e7a9d183"
@@ -3975,6 +3982,11 @@ base64-js@^1.3.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
+
+base64-stream@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/base64-stream/-/base64-stream-1.0.0.tgz#157ae00bc7888695e884e1fcc51c551fdfa8a1fa"
+  integrity sha512-BQQZftaO48FcE1Kof9CmXMFaAdqkcNorgc8CxesZv9nMbbTF1EFyQe89UOuh//QMmdtfUDXyO8rgUalemL5ODA==
 
 base64id@2.0.0, base64id@~2.0.0:
   version "2.0.0"

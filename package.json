@@ -20,6 +20,7 @@
     "@material/web": "^1.0.1",
     "@mdx-js/react": "^2.3.0",
     "@thi.ng/color": "^5.6.0",
+    "base64-stream": "^1.0.0",
     "d3-color": "^3.1.0",
     "gatsby": "^5.11.0",
     "gatsby-plugin-image": "^3.11.0",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@graphql-eslint/eslint-plugin": "^3.20.1",
+    "@types/base64-stream": "^1.0.0",
     "@types/d3-color": "^3.1.0",
     "@types/eslint": "^8.44.1",
     "@types/gifencoder": "^2.0.3",
