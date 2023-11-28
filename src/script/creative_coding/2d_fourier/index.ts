@@ -298,26 +298,24 @@ export default function execute() {
           prefix: "data:image/gif;base64,",
         }),
       );
-      let src = "";
-      let validSrc = true;
+      const src = [""];
       stream
         .on("data", (chunk: string) => {
           try {
-            src += chunk;
+            src[src.length - 1] += chunk;
           } catch (e) {
             console.warn(e);
-            console.log(src);
-            src = chunk;
-            validSrc = false;
+            src.push(chunk);
           }
         })
         .on("end", () => {
-          if (!validSrc) return;
+          console.log(src);
+          if (src.length !== 1) return;
           const elem = document.createElement("img");
           elem.className = display_canvas.className;
           elem.width = display_canvas.width;
           elem.height = display_canvas.height;
-          elem.src = src;
+          elem.src[src.length - 1] = src;
           elem.id = "display-canvas";
           display_canvas.replaceWith(elem);
         });
@@ -340,9 +338,8 @@ export default function execute() {
       if (k === null) encoder.setDelay(1000);
       else {
         const [wx, wy] = k;
-        const lambda =
-          wx === 0 && wy === 0 ? 1 : 1 / Math.sqrt(wx * wx + wy * wy);
-        encoder.setDelay(constrainMap(lambda, 0, 1, 0, 500));
+        const sx = 1 / 24, sy = 1 / 24;
+        encoder.setDelay(constrainMap(Math.exp(-(wx * wx / (2 * sx) + wy * wy / (2 * sy))), 0, 2 * Math.PI, 0, 5000));
       }
       encoder.addFrame(render_ctx as unknown as CanvasRenderingContext2D);
       if (res.done) encoder.finish();
