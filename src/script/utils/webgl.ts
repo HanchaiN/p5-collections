@@ -1,4 +1,6 @@
-export const supportWebGL = document.createElement("canvas").getContext("webgl")
+export const supportWebGL = document
+  .createElement("canvas")
+  .getContext("webgl2")
   ? true
   : false;
 

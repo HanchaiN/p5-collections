@@ -1,9 +1,10 @@
 import { getColor } from "@/script/utils/dom";
-import { constrainLerp, constrainMap, symlog } from "@/script/utils/math";
+import { constrainMap, symlog } from "@/script/utils/math";
 import * as color from "@thi.ng/color";
 import GIFEncoder from "gifencoder";
 import type { Complex, MathJsChain } from "mathjs";
-import { abs, arg, fft, im, re, reshape } from "mathjs";
+import { abs, fft, im, re, reshape } from "mathjs";
+import { update } from "./update";
 
 export default function execute() {
   let display_canvas: HTMLCanvasElement;
@@ -45,14 +46,6 @@ export default function execute() {
         img.width,
         img.height,
       ).toString();
-    const render_canvas = new OffscreenCanvas(
-      render_size_slider.valueAsNumber,
-      render_size_slider.valueAsNumber,
-    );
-    const render_ctx = render_canvas.getContext("2d", {
-      alpha: false,
-      desynchronized: true,
-    })!;
     const kspace = (() => {
       const fft_canvas = new OffscreenCanvas(
         fft_size_slider.valueAsNumber,
@@ -156,6 +149,14 @@ export default function execute() {
       );
       return kspace;
     })();
+    const render_canvas = new OffscreenCanvas(
+      render_size_slider.valueAsNumber,
+      render_size_slider.valueAsNumber,
+    );
+    const render_ctx = render_canvas.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+    })!;
     function* draw() {
       let minColor = color.rgb(getColor("--md-sys-color-surface", "#000")).xyz;
       let maxColor = color.rgb(
@@ -164,13 +165,9 @@ export default function execute() {
       if (color.oklch(minColor).l > color.oklch(maxColor).l) {
         [minColor, maxColor] = [maxColor, minColor];
       }
-      const overlay = overlay_slider.valueAsNumber;
-      const data = new Array(
-        render_ctx.canvas.width * render_ctx.canvas.height,
-      ).fill(0);
+      // const overlay = overlay_slider.valueAsNumber;
       const kspace_height = kspace.length,
         kspace_width = kspace[0].length;
-      const normalizer = 1 / (kspace_width * kspace_height);
       const iter = (function* helicalIndices(n) {
         let num = 0;
         let curr_x = 0,
@@ -228,20 +225,20 @@ export default function execute() {
         // });
         // for (const index of ind) yield index;
       })(kspace.length * kspace[0].length);
+      const data_canvas = new OffscreenCanvas(
+        render_size_slider.valueAsNumber,
+        render_size_slider.valueAsNumber,
+      );
+      const data_gl = data_canvas.getContext("webgl")!;
+      data_gl.getExtension("OES_texture_float");
+      data_gl.viewport(
+        0,
+        0,
+        data_gl.drawingBufferWidth,
+        data_gl.drawingBufferHeight,
+      );
+      const updater = update(data_gl, kspace_width, kspace_height);
       for (const index of iter) {
-        render_ctx.fillStyle = "#000";
-        render_ctx.fillRect(
-          0,
-          0,
-          render_ctx.canvas.width,
-          render_ctx.canvas.height,
-        );
-        const imageData = render_ctx.getImageData(
-          0,
-          0,
-          render_ctx.canvas.width,
-          render_ctx.canvas.height,
-        );
         const x_ = index[0] + kspace_width / 2,
           y_ = index[1] + kspace_height / 2;
         const x =
@@ -255,80 +252,30 @@ export default function execute() {
         const value = kspace[y][x];
         const wx = constrainMap(x_, 0, kspace_width, -0.5, 0.5);
         const wy = constrainMap(y_, 0, kspace_height, -0.5, 0.5);
-        for (let i = 0; i < render_ctx.canvas.height; i++) {
-          for (let j = 0; j < render_ctx.canvas.width; j++) {
-            const phase =
-              j * wx * (kspace_width / render_ctx.canvas.width) +
-              i * wy * (kspace_height / render_ctx.canvas.height);
-            const amp = constrainMap(
-              Math.cos(arg(value) + phase * 2 * Math.PI),
-              -1,
-              1,
-              0,
-              1,
-            );
-            amp;
-            phase;
-            const c = color.srgb(color.oklch(amp, 0.125, phase));
-            imageData.data[(i * render_ctx.canvas.width + j) * 4 + 0] =
-              c.r * 255 * overlay;
-            imageData.data[(i * render_ctx.canvas.width + j) * 4 + 1] =
-              c.g * 255 * overlay;
-            imageData.data[(i * render_ctx.canvas.width + j) * 4 + 2] =
-              c.b * 255 * overlay;
-            data[i * render_ctx.canvas.width + j] +=
-              normalizer *
-              (re(
-                value as unknown as MathJsChain<Complex>,
-              ) as unknown as number) *
-              Math.cos(phase * Math.PI * 2);
-            data[i * render_ctx.canvas.width + j] -=
-              normalizer *
-              (im(
-                value as unknown as MathJsChain<Complex>,
-              ) as unknown as number) *
-              Math.sin(phase * Math.PI * 2);
-          }
-        }
-        data.forEach((value, i) => {
-          imageData.data[i * 4 + 0] +=
-            constrainLerp(value, minColor[0], maxColor[0]) *
-            255 *
-            (1 - overlay);
-          imageData.data[i * 4 + 1] +=
-            constrainLerp(value, minColor[1], maxColor[1]) *
-            255 *
-            (1 - overlay);
-          imageData.data[i * 4 + 2] +=
-            constrainLerp(value, minColor[2], maxColor[2]) *
-            255 *
-            (1 - overlay);
-        });
-        render_ctx.putImageData(imageData, 0, 0);
+        updater(
+          wx,
+          wy,
+          re(value as unknown as MathJsChain<Complex>) as unknown as number,
+          im(value as unknown as MathJsChain<Complex>) as unknown as number,
+          overlay_slider.valueAsNumber,
+        );
+        render_ctx.drawImage(
+          data_canvas,
+          0,
+          0,
+          render_ctx.canvas.width,
+          render_ctx.canvas.height,
+        );
         yield [wx * kspace_width, wy * kspace_height];
       }
-      render_ctx.fillStyle = "#000";
-      render_ctx.fillRect(
+      updater(0, 0, 0, 0, 1);
+      render_ctx.drawImage(
+        data_canvas,
         0,
         0,
         render_ctx.canvas.width,
         render_ctx.canvas.height,
       );
-      const imageData = render_ctx.getImageData(
-        0,
-        0,
-        render_ctx.canvas.width,
-        render_ctx.canvas.height,
-      );
-      data.forEach((value, i) => {
-        imageData.data[i * 4 + 0] =
-          constrainLerp(value, minColor[0], maxColor[0]) * 255;
-        imageData.data[i * 4 + 1] =
-          constrainLerp(value, minColor[1], maxColor[1]) * 255;
-        imageData.data[i * 4 + 2] =
-          constrainLerp(value, minColor[2], maxColor[2]) * 255;
-      });
-      render_ctx.putImageData(imageData, 0, 0);
       return null;
     }
     const encoder = new GIFEncoder(render_canvas.width, render_canvas.height);

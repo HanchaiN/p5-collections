@@ -61,6 +61,7 @@
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.31",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "prettier": "^3.0.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "webpack-glsl-loader": "^1.0.1"
   }
 }

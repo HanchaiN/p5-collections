@@ -55,7 +55,7 @@ export default React.lazy(async () => {
               min="0"
               max="1"
               step="1e-16"
-              defaultValue="0.05"
+              defaultValue="0.25"
             />
             <canvas
               width="100"

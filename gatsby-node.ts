@@ -13,9 +13,18 @@ export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({
     },
     plugins: [
       new NodePolyfillPlugin({
-        includeAliases: ["Buffer", "buffer", "process", "stream"],
+        includeAliases: ["Buffer", "buffer", "path", "process", "stream"],
       }),
     ],
+    module: {
+      rules: [
+        {
+          test: /\.(glsl|vs|fs|vert|frag)$/,
+          exclude: /node_modules/,
+          loader: "webpack-glsl-loader",
+        },
+      ],
+    },
     optimization: {
       minimize: false,
     },
