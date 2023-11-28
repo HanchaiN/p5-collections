@@ -323,6 +323,8 @@ export default function execute() {
     encoder.start();
     encoder.setRepeat(-1);
     encoder.setQuality(10);
+    let total_time = 0;
+    let delay = 0;
     const frames = draw();
     requestAnimationFrame(function draw() {
       if (!isActive || img.src != src) return;
@@ -335,24 +337,29 @@ export default function execute() {
         display_ctx.canvas.height,
       );
       const k = res.value;
-      if (k === null) encoder.setDelay(1000);
-      else {
+      if (k === null) {
+        delay += 1000;
+      } else {
         const [wx, wy] = k;
-        const sx = 1 / 24,
-          sy = 1 / 24;
-        encoder.setDelay(
-          constrainMap(
-            Math.exp(-((wx * wx) / (2 * sx) + (wy * wy) / (2 * sy))),
-            0,
-            2 * Math.PI,
-            0,
-            5000,
-          ),
+        const sx = 16 / 2,
+          sy = 16 / 2;
+        delay += constrainMap(
+          Math.exp(-((wx * wx) / (2 * sx) + (wy * wy) / (2 * sy))),
+          0,
+          2 * Math.PI * sx * sy,
+          0,
+          10_000,
         );
       }
-      encoder.addFrame(render_ctx as unknown as CanvasRenderingContext2D);
-      if (res.done) encoder.finish();
-      else requestAnimationFrame(draw);
+      if (delay > 1000 / 60) {
+        encoder.setDelay(delay);
+        total_time += delay;
+        encoder.addFrame(render_ctx as unknown as CanvasRenderingContext2D);
+        delay = 0;
+      }
+      if (!res.done) return requestAnimationFrame(draw);
+      encoder.finish();
+      console.log(total_time);
     });
   }
 
