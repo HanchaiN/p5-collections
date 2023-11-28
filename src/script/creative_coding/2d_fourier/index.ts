@@ -314,8 +314,7 @@ export default function execute() {
           elem.className = display_canvas.className;
           elem.width = display_canvas.width;
           elem.height = display_canvas.height;
-          if (src.length === 1)
-            elem.src = src[0];
+          if (src.length === 1) elem.src = src[0];
           else
             render_canvas.convertToBlob({ type: "image/gif" }).then((blob) => {
               const reader = new FileReader();
