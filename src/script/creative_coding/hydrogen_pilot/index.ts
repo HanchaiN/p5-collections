@@ -90,8 +90,8 @@ export default function execute() {
         "message",
         function listener({ data }: MessageEvent<MessageResponse>) {
           const index =
-              i * Math.floor(counts / maxWorkers) +
-              Math.min(i, counts % maxWorkers),
+            i * Math.floor(counts / maxWorkers) +
+            Math.min(i, counts % maxWorkers),
             target_counts =
               Math.floor(counts / maxWorkers) +
               (i < counts % maxWorkers ? 1 : 0);
@@ -108,11 +108,7 @@ export default function execute() {
               new THREE.Color(
                 color.css(
                   color.oklch(
-                    Number.parseInt(
-                      getComputedStyle(document.body).getPropertyValue(
-                        "--tone-outline",
-                      ),
-                    ) / 100,
+                    0.75,
                     0.2,
                     h / 360,
                   ),

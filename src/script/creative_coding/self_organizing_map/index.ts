@@ -71,19 +71,15 @@ export default function execute() {
       yield Math.random() < 0.125
         ? color_palette[Math.floor(Math.random() * color_palette.length)]
         : color.rgb(
-            color.oklch([
-              randomGaussian(
-                Number.parseInt(
-                  getComputedStyle(document.body).getPropertyValue(
-                    "--tone-base",
-                  ),
-                ) / 100,
-                0.125,
-              ),
-              randomUniform(0.05, 0.1),
-              randomUniform(0, 1),
-            ]),
-          ).xyz;
+          color.oklch([
+            randomGaussian(
+              0.90,
+              0.125,
+            ),
+            randomUniform(0.05, 0.1),
+            randomUniform(0, 1),
+          ]),
+        ).xyz;
     }
   }
   const generator: Generator<TVector3, never, void> | null = elementGenerator();
@@ -99,14 +95,14 @@ export default function execute() {
       (v, i) =>
         v +
         this.constants.learning_rate *
-          Math.exp(-this.constants.learning_decay_rate * iter) *
-          gaus(
-            vector_dist([this.thread.x, this.thread.y], best_matching) /
-              (this.output.x *
-                this.constants.range *
-                Math.exp(-this.constants.range_decay_rate * iter)),
-          ) *
-          (element[i] - v),
+        Math.exp(-this.constants.learning_decay_rate * iter) *
+        gaus(
+          vector_dist([this.thread.x, this.thread.y], best_matching) /
+          (this.output.x *
+            this.constants.range *
+            Math.exp(-this.constants.range_decay_rate * iter)),
+        ) *
+        (element[i] - v),
     ) as TVector3;
     const [r, g, b] = color.srgb(val_[0], val_[1], val_[2]).xyz;
     this.color(r, g, b, 1);

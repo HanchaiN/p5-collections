@@ -231,9 +231,9 @@ export function* generateDungeon(GRID_SIZE: { x: number; y: number }) {
           for (let iy = room.bottom; iy <= room.top; iy++)
             grid[ix][iy] =
               ix === room.left ||
-              ix === room.right ||
-              iy === room.bottom ||
-              iy === room.top
+                ix === room.right ||
+                iy === room.bottom ||
+                iy === room.top
                 ? GRID_STATE.BORDER
                 : GRID_STATE.ROOM;
       }
@@ -337,8 +337,8 @@ export function* generateDungeon(GRID_SIZE: { x: number; y: number }) {
       return dist;
     };
     const begins = [
-        new Vector(Math.round(nodes[i_begin].x), Math.round(nodes[i_begin].y)),
-      ],
+      new Vector(Math.round(nodes[i_begin].x), Math.round(nodes[i_begin].y)),
+    ],
       targets = [
         new Vector(
           Math.round(nodes[i_target].x),
@@ -442,6 +442,19 @@ export function* generateDungeon(GRID_SIZE: { x: number; y: number }) {
   yield { grid, rooms, nodes, edges, tree };
   return;
 }
+
+export interface IPalette {
+  background: string;
+  border: string;
+  room: string;
+  path: string;
+  door: string;
+  search_path: string;
+  search_curr: string;
+  invalid: string;
+  node: string;
+  edge: string;
+}
 export function drawDungeon(
   data: {
     grid: number[][];
@@ -458,34 +471,34 @@ export function drawDungeon(
   },
   ctx: CanvasRenderingContext2D,
   unit: { x: number; y: number },
-  palette: string[],
+  palette: IPalette,
 ) {
   ctx.lineWidth = 0;
-  ctx.fillStyle = palette[0];
+  ctx.fillStyle = palette.background;
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   if (!data) return;
   data.grid?.forEach((_, ix) =>
     _.forEach((v, iy) => {
       switch (v) {
         case GRID_STATE.SEARCH_CURR:
-          ctx.fillStyle = palette[4];
+          ctx.fillStyle = palette.search_curr;
           break;
         case GRID_STATE.SEARCH_PATH:
-          ctx.fillStyle = palette[2];
+          ctx.fillStyle = palette.search_path;
           break;
         case GRID_STATE.PATH:
-          ctx.fillStyle = palette[3];
+          ctx.fillStyle = palette.path;
           break;
         case GRID_STATE.DOOR:
-          ctx.fillStyle = palette[2];
+          ctx.fillStyle = palette.door;
           break;
         case GRID_STATE.BORDER:
         case GRID_STATE.INTERNAL_PATH:
         case GRID_STATE.ROOM:
-          ctx.fillStyle = palette[1];
+          ctx.fillStyle = palette.room;
           break;
         case GRID_STATE.EMPTY:
-          ctx.fillStyle = palette[0];
+          ctx.fillStyle = palette.background;
           break;
         default:
           return;
@@ -497,7 +510,7 @@ export function drawDungeon(
   );
   data.rooms?.forEach((room) => {
     ctx.lineWidth = 1;
-    ctx.strokeStyle = room.valid ? palette[2] : palette[4];
+    ctx.strokeStyle = room.valid ? palette.border : palette.invalid;
     ctx.strokeRect(
       unit.x * room.left,
       unit.y * room.bottom,
@@ -507,14 +520,14 @@ export function drawDungeon(
   });
   if (!data.nodes) return;
   data.nodes.forEach((p) => {
-    ctx.fillStyle = palette[4];
+    ctx.fillStyle = palette.node;
     ctx.beginPath();
     ctx.arc(unit.x * p.x, unit.y * p.y, 1, 0, Math.PI * 2);
     ctx.fill();
   });
   if (!data.edges) return;
   data.edges?.forEach(([ia, ib], i) => {
-    ctx.strokeStyle = palette[4];
+    ctx.strokeStyle = palette.edge;
     ctx.lineWidth = data.tree?.includes?.(i) ? 1.5 : 1;
     const a = data.nodes[ia],
       b = data.nodes[ib];

@@ -1,3 +1,4 @@
+import { fpart } from "@/script/utils/math";
 import { unslugify } from "@/script/utils/strings";
 import { bodyMedium } from "@/styles/main.module.scss";
 import {
@@ -6,6 +7,8 @@ import {
   navbar,
   submenuToggle,
 } from "@/styles/navbar.module.scss";
+import { flavors } from "@catppuccin/palette";
+import * as color from "@thi.ng/color";
 import { Link, graphql, useStaticQuery } from "gatsby";
 import React, { useRef } from "react";
 
@@ -20,6 +23,28 @@ interface CSSPropertiesExtended extends React.CSSProperties {
   "--delay"?: string;
   "--color"?: string;
 }
+
+const gradient = color.multiColorGradient({
+  num: 90,
+  stops: [
+    [0. / 15, color.oklab(color.css(flavors["mocha"].colors.rosewater.hex))],
+    [1. / 15, color.oklab(color.css(flavors["mocha"].colors.flamingo.hex))],
+    [2. / 15, color.oklab(color.css(flavors["mocha"].colors.pink.hex))],
+    [3. / 15, color.oklab(color.css(flavors["mocha"].colors.mauve.hex))],
+    [4. / 15, color.oklab(color.css(flavors["mocha"].colors.red.hex))],
+    [5. / 15, color.oklab(color.css(flavors["mocha"].colors.maroon.hex))],
+    [6. / 15, color.oklab(color.css(flavors["mocha"].colors.peach.hex))],
+    [7. / 15, color.oklab(color.css(flavors["mocha"].colors.yellow.hex))],
+    [8. / 15, color.oklab(color.css(flavors["mocha"].colors.green.hex))],
+    [9. / 15, color.oklab(color.css(flavors["mocha"].colors.teal.hex))],
+    [10 / 15, color.oklab(color.css(flavors["mocha"].colors.sky.hex))],
+    [11 / 15, color.oklab(color.css(flavors["mocha"].colors.sapphire.hex))],
+    [12 / 15, color.oklab(color.css(flavors["mocha"].colors.blue.hex))],
+    [13 / 15, color.oklab(color.css(flavors["mocha"].colors.lavender.hex))],
+    [14 / 15, color.oklab(color.css(flavors["mocha"].colors.text.hex))],
+    [15 / 15, color.oklab(color.css(flavors["mocha"].colors.rosewater.hex))],
+  ],
+}).map(c => color.css(c));
 function generateNav(
   parent: Directory,
   menuToggle: React.RefObject<HTMLInputElement>,
@@ -30,15 +55,14 @@ function generateNav(
       {parent.child
         .sort((a, b) => a.path.localeCompare(b.path))
         .map((child, i) => {
+          const curr_hue = fpart(initialHue + (i + 0.5) / parent.child.length);
           return (
             <li
               key={child.name}
               style={
                 {
                   "--delay": `${(0.5 * i) / parent.child.length}s`,
-                  "--color": `oklch(var(--tone-outline) var(--chroma-primary) ${
-                    initialHue + (360 * (i + 0.5)) / parent.child.length
-                  }deg)`,
+                  "--color": gradient[Math.round(curr_hue * gradient.length)],
                 } as CSSPropertiesExtended
               }
             >
@@ -74,11 +98,7 @@ function generateNav(
                     className={menu}
                     style={{ "--delay": ".5s" } as CSSPropertiesExtended}
                   >
-                    {generateNav(
-                      child,
-                      menuToggle,
-                      initialHue + (360 * (i + 0.5)) / parent.child.length,
-                    )}
+                    {generateNav(child, menuToggle, curr_hue)}
                   </div>
                 </>
               ) : (

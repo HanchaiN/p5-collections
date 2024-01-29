@@ -16,6 +16,8 @@ export default function execute() {
       ) / 100;
     return color.css(c);
   };
+  const getLightness = () => .75;
+  const saturation = 0.125;
   const time_scale = 1;
   let isActive = false;
   let pretime = 0;
@@ -68,12 +70,8 @@ export default function execute() {
     system.data().forEach(({ c, p }) => {
       ctx.fillStyle = color.css(
         color.oklch([
-          Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue(
-              "--tone-on-surface-variant",
-            ),
-          ) / 100,
-          0.125,
+          getLightness(),
+          saturation,
           c / 360,
         ]),
       );

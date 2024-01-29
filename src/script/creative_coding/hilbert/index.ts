@@ -43,10 +43,7 @@ export default function execute() {
         main,
         {
           c: 0.05,
-          l:
-            Number.parseInt(
-              getComputedStyle(document.body).getPropertyValue("--tone-base"),
-            ) / 100,
+          l: 0.95,
         },
         buffer,
       );

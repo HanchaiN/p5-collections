@@ -1,16 +1,21 @@
 import { getColor } from "@/script/utils/dom";
-import { drawDungeon, generateDungeon } from "./generator";
+import { IPalette, drawDungeon, generateDungeon } from "./generator";
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let gen: ReturnType<typeof generateDungeon>;
-  const getPalette = () => [
-    getColor("--md-sys-color-surface-container", "#1C0B40"),
-    getColor("--md-sys-color-surface", "#142273"),
-    getColor("--md-sys-color-outline", "#0F71F2"),
-    getColor("--md-sys-color-on-surface", "#0F9BF2"),
-    getColor("--md-sys-color-primary", "#F222A9"),
-  ];
+  const getPalette: () => IPalette = () => ({
+    background: getColor("--md-sys-color-surface-container", "#1C0B40"),
+    border: getColor("--md-sys-color-outline", "#0F71F2"),
+    room: getColor("--md-sys-color-primary-container", "#142273"),
+    path: getColor("--md-sys-color-on-primary-container", "#0F9BF2"),
+    door: getColor("--md-sys-color-primary", "#F222A9"),
+    search_path: getColor("--md-sys-color-secondary", "#F222A9"),
+    search_curr: getColor("--md-sys-color-on-secondary", "#F222A9"),
+    invalid: getColor("--md-sys-color-on-error", "#F222A9"),
+    node: getColor("--md-sys-color-on-tertiary", "#F222A9"),
+    edge: getColor("--md-sys-color-on-tertiary", "#F222A9"),
+  });
   const unit = { x: 5, y: 5 };
   let size = { x: 0, y: 0 };
 

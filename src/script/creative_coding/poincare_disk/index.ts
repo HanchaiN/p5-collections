@@ -46,11 +46,11 @@ export default function execute() {
     p.draw = function () {
       p.clear(0, 0, 0, 0);
       p.strokeWeight(1);
-      p.stroke(getColor("--color-outline"));
-      p.fill(getColor("--color-surface-container-3"));
+      p.stroke(getColor("--md-sys-color-outline"));
+      p.fill(getColor("--md-sys-color-surface-bright"));
       p.circle(Ox, Oy, 2 * r);
       p.strokeWeight(5);
-      p.stroke(getColor("--color-outline"));
+      p.stroke(getColor("--md-sys-color-outline"));
       p.point(Ox, Oy);
 
       A.hover();
@@ -71,13 +71,13 @@ export default function execute() {
         Complex.fromCartesian(...calculateposition(B.x, B.y)),
       );
       p.strokeWeight(2.5);
-      p.stroke(getColor("--color-on-surface"));
+      p.stroke(getColor("--md-sys-color-on-primary"));
       p.line(Ox, Oy, A.x, A.y);
-      p.stroke(getColor("--color-on-surface-var"));
+      p.stroke(getColor("--md-sys-color-on-secondary"));
       p.line(Ox, Oy, B.x, B.y);
       {
         p.strokeWeight(3.75);
-        p.stroke(getColor("--color-tertiary"));
+        p.stroke(getColor("--md-sys-color-on-tertiary"));
         p.noFill();
         const l = Gyrovector.geodesic(a, a.add(b));
         switch (l[0]) {
@@ -90,12 +90,12 @@ export default function execute() {
         const sum = a.add(b);
         const pos = canvasposition(sum.z.re, sum.z.im);
         p.strokeWeight(7.5);
-        p.stroke(getColor("--color-tertiary"));
+        p.stroke(getColor("--md-sys-color-tertiary"));
         p.point(pos[0], pos[1]);
       }
       {
         p.strokeWeight(3.75);
-        p.stroke(getColor("--color-secondary"));
+        p.stroke(getColor("--md-sys-color-outline"));
         p.noFill();
         const l = Gyrovector.geodesic(a, b);
         switch (l[0]) {

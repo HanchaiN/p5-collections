@@ -23,7 +23,7 @@ export default function Header({
 
   return (
     <>
-      <html lang="en" />
+      <html lang="en" className="theme-mocha" />
       {metadata.title ? <title>{metadata.title}</title> : <></>}
       <meta charSet="utf-8" />
       {metadata.description ? (

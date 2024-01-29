@@ -1,165 +1,143 @@
+@use "sass:color";
+@use "sass:math";
+@use "./theme";
 // @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..500&display=swap');
 // @import url('https://fonts.googleapis.com/css2?family=Merienda:wght@400..500&display=swap');
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@12..57,400..500&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
 
-:root {
-  --hue-primary: 279deg;
-  --chroma-primary: 25%;
-  --hue-secondary: 240deg;
-  --chroma-secondary: 25%;
-  --hue-tertiary: 334deg;
-  --chroma-tertiary: 25%;
-  --hue-error: 15deg;
-  --chroma-error: 50%;
-  --hue-neutral: 259deg;
-  --chroma-neutral: 5%;
-  --hue-neutral-variant: 229deg;
-  --chroma-neutral-variant: 2.5%;
+@font-face {
+  font-family: "Monaspace Neon";
+  src:
+    url("/fonts/MonaspaceNeonVar.woff2") format("woff2");
+}
 
+@font-face {
+  font-family: "Monaspace Argon";
+  src:
+    url("/fonts/MonaspaceArgonVar.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Monaspace Xeon";
+  src:
+    url("/fonts/MonaspaceXeonVar.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Monaspace Radon";
+  src:
+    url("/fonts/MonaspaceRadonVar.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Monaspace Krypton";
+  src:
+    url("/fonts/MonaspaceKryptonVar.woff2") format("woff2");
+}
+
+body {
+  @include theme.themify {
+    $primary: theme.themed("lavender");
+    $secondary: theme.themed("mauve");
+    $tertiary: theme.themed("blue");
+    $error: theme.themed("red");
+    $base: theme.themed("base");
+    $text: theme.themed("text");
+    $mix-base: 80%;
+    $mix-container: 60%;
+    --cpt-rosewater: #{theme.themed("rosewater")};
+    --cpt-flamingo: #{theme.themed("flamingo")};
+    --cpt-pink: #{theme.themed("pink")};
+    --cpt-mauve: #{theme.themed("mauve")};
+    --cpt-red: #{theme.themed("red")};
+    --cpt-maroon: #{theme.themed("maroon")};
+    --cpt-peach: #{theme.themed("peach")};
+    --cpt-yellow: #{theme.themed("yellow")};
+    --cpt-green: #{theme.themed("green")};
+    --cpt-teal: #{theme.themed("teal")};
+    --cpt-sky: #{theme.themed("sky")};
+    --cpt-sapphire: #{theme.themed("sapphire")};
+    --cpt-blue: #{theme.themed("blue")};
+    --cpt-lavender: #{theme.themed("lavender")};
+    --cpt-text: #{theme.themed("text")};
+    --cpt-subtext0: #{theme.themed("subtext0")};
+    --cpt-subtext1: #{theme.themed("subtext1")};
+    --cpt-overlay0: #{theme.themed("overlay0")};
+    --cpt-overlay1: #{theme.themed("overlay1")};
+    --cpt-overlay2: #{theme.themed("overlay2")};
+    --cpt-surface0: #{theme.themed("surface0")};
+    --cpt-surface1: #{theme.themed("surface1")};
+    --cpt-surface2: #{theme.themed("surface2")};
+    --cpt-base: #{theme.themed("base")};
+    --cpt-mantle: #{theme.themed("mantle")};
+    --cpt-crust: #{theme.themed("crust")};
+    --md-sys-color-primary: #{color.mix($base, $primary, $mix-base)};
+    --md-sys-color-on-primary: #{$text};
+    --md-sys-color-primary-container: #{color.mix(theme.themed("surface0"), $primary, $mix-container)};
+    --md-sys-color-on-primary-container: #{color.mix($text, $primary, $mix-container)};
+    --md-sys-color-secondary: #{color.mix($base, $secondary, $mix-base)};
+    --md-sys-color-on-secondary: #{$secondary};
+    --md-sys-color-secondary-container: #{color.mix(theme.themed("surface0"), $secondary, $mix-container)};
+    --md-sys-color-on-secondary-container: #{color.mix($text, $secondary, $mix-container)};
+    --md-sys-color-tertiary: #{color.mix($base, $tertiary, $mix-base)};
+    --md-sys-color-on-tertiary: #{$tertiary};
+    --md-sys-color-tertiary-container: #{color.mix(theme.themed("surface0"), $tertiary, $mix-container)};
+    --md-sys-color-on-tertiary-container: #{color.mix($text, $tertiary, $mix-container)};
+    --md-sys-color-error: #{color.mix($base, $error, $mix-base)};
+    --md-sys-color-on-error: #{$error};
+    --md-sys-color-error-container: #{color.mix(theme.themed("surface0"), $error, $mix-container)};
+    --md-sys-color-on-error-container: #{color.mix($text, $error, $mix-container)};
+    --md-sys-color-surface-dim: #{theme.themed("crust")};
+    --md-sys-color-surface: #{theme.themed("base")};
+    --md-sys-color-surface-bright: #{theme.themed("mantle")};
+    --md-sys-color-surface-container-lowest: #{theme.themed("surface0")};
+    --md-sys-color-surface-container-low: #{color.mix(theme.themed("surface0"), theme.themed("surface1"))};
+    --md-sys-color-surface-container: #{theme.themed("surface1")};
+    --md-sys-color-surface-container-high: #{color.mix(theme.themed("surface1"), theme.themed("surface2"))};
+    --md-sys-color-surface-container-highest: #{theme.themed("surface2")};
+    --md-sys-color-on-surface: #{$text};
+    --md-sys-color-on-surface-variant: #{theme.themed("subtext0")};
+    --md-sys-color-outline: #{theme.themed("overlay0")};
+    --md-sys-color-outline-variant: #{theme.themed("overlay1")};
+
+    --hue-primary: #{color.hue($primary)};
+    --hue-secondary: #{color.hue($secondary)};
+    --hue-tertiary: #{color.hue($tertiary)};
+    --hue-error: #{color.hue($error)};
+    --hue-neutral: #{color.hue($base)};
+    --hue-neutral-variant: #{color.hue($text)};
+    --chroma-primary: #{color.saturation(color.mix($base, $primary, $mix-base))};
+    --chroma-secondary: #{color.saturation(color.mix($base, $secondary, $mix-base))};
+    --chroma-tertiary: #{color.saturation(color.mix($base, $tertiary, $mix-base))};
+    --chroma-error: #{color.saturation(color.mix($base, $error, $mix-base))};
+    --chroma-neutral: #{color.saturation($base)};
+    --chroma-neutral-variant: #{color.saturation($text)};
+    --tone-base: #{color.lightness($base) * math.div($mix-base, 100%) + color.lightness($primary) * (1 - math.div($mix-base, 100%))};
+    --tone-on-base: #{color.lightness($primary)};
+    --tone-container: #{color.lightness(theme.themed("surface0")) * math.div($mix-container, 100%) + color.lightness($primary) * (1 - math.div($mix-container, 100%))};
+    --tone-on-container: #{color.lightness($text) * math.div($mix-container, 100%) + color.lightness($primary) * (1 - math.div($mix-container, 100%))};
+    --tone-surface-dim: #{color.lightness(theme.themed("crust"))};
+    --tone-surface: #{color.lightness(theme.themed("base"))};
+    --tone-surface-bright: #{color.lightness(theme.themed("mantle"))};
+    --tone-surface-container-lowest: #{color.lightness(theme.themed("surface0"))};
+    --tone-surface-container-low: #{color.lightness(theme.themed("surface1")) * 0.5 + color.lightness(theme.themed("surface0")) * 0.5};
+    --tone-surface-container: #{color.lightness(theme.themed("surface1"))};
+    --tone-surface-container-high: #{color.lightness(theme.themed("surface2")) * 0.5 + color.lightness(theme.themed("surface1")) * 0.5};
+    --tone-surface-container-highest: #{color.lightness(theme.themed("surface2"))};
+    --tone-on-surface: #{color.lightness($text)};
+    --tone-on-surface-variant: #{color.lightness(theme.themed("subtext0"))};
+    --tone-outline: #{color.lightness(theme.themed("overlay0"))};
+    --tone-outline-var: #{color.lightness(theme.themed("overlay1"))};
+  }
   --state-opacity-hover: 8%;
   --state-opacity-focus: 10%;
   --state-opacity-press: 10%;
   --state-opacity-drag: 16%;
-
-  --md-sys-color-primary: oklch(
-    var(--tone-base) var(--chroma-primary) var(--hue-primary)
-  );
-  --md-sys-color-on-primary: oklch(
-    var(--tone-on-base) var(--chroma-primary) var(--hue-primary)
-  );
-  --md-sys-color-primary-container: oklch(
-    var(--tone-container) var(--chroma-primary) var(--hue-primary)
-  );
-  --md-sys-color-on-primary-container: oklch(
-    var(--tone-on-container) var(--chroma-primary) var(--hue-primary)
-  );
-  --md-sys-color-secondary: oklch(
-    var(--tone-base) var(--chroma-secondary) var(--hue-secondary)
-  );
-  --md-sys-color-on-secondary: oklch(
-    var(--tone-on-base) var(--chroma-secondary) var(--hue-secondary)
-  );
-  --md-sys-color-secondary-container: oklch(
-    var(--tone-container) var(--chroma-secondary) var(--hue-secondary)
-  );
-  --md-sys-color-on-secondary-container: oklch(
-    var(--tone-on-container) var(--chroma-secondary) var(--hue-secondary)
-  );
-  --md-sys-color-tertiary: oklch(
-    var(--tone-base) var(--chroma-tertiary) var(--hue-tertiary)
-  );
-  --md-sys-color-on-tertiary: oklch(
-    var(--tone-on-base) var(--chroma-tertiary) var(--hue-tertiary)
-  );
-  --md-sys-color-tertiary-container: oklch(
-    var(--tone-container) var(--chroma-tertiary) var(--hue-tertiary)
-  );
-  --md-sys-color-on-tertiary-container: oklch(
-    var(--tone-on-container) var(--chroma-tertiary) var(--hue-tertiary)
-  );
-  --md-sys-color-error: oklch(
-    var(--tone-base) var(--chroma-error) var(--hue-error)
-  );
-  --md-sys-color-on-error: oklch(
-    var(--tone-on-base) var(--chroma-error) var(--hue-error)
-  );
-  --md-sys-color-error-container: oklch(
-    var(--tone-container) var(--chroma-error) var(--hue-error)
-  );
-  --md-sys-color-on-error-container: oklch(
-    var(--tone-on-container) var(--chroma-error) var(--hue-error)
-  );
-  --md-sys-color-surface-dim: oklch(
-    var(--tone-surface-dim) var(--chroma-neutral) var(--hue-neutral)
-  );
-  --md-sys-color-surface: oklch(
-    var(--tone-surface) var(--chroma-neutral) var(--hue-neutral)
-  );
-  --md-sys-color-surface-bright: oklch(
-    var(--tone-surface-bright) var(--chroma-neutral) var(--hue-neutral)
-  );
-  --md-sys-color-surface-container-lowest: oklch(
-    var(--tone-surface-container-lowest) var(--chroma-neutral)
-      var(--hue-neutral)
-  );
-  --md-sys-color-surface-container-low: oklch(
-    var(--tone-surface-container-low) var(--chroma-neutral) var(--hue-neutral)
-  );
-  --md-sys-color-surface-container: oklch(
-    var(--tone-surface-container) var(--chroma-neutral) var(--hue-neutral)
-  );
-  --md-sys-color-surface-container-high: oklch(
-    var(--tone-surface-container-high) var(--chroma-neutral) var(--hue-neutral)
-  );
-  --md-sys-color-surface-container-highest: oklch(
-    var(--tone-surface-container-highest) var(--chroma-neutral)
-      var(--hue-neutral)
-  );
-  --md-sys-color-on-surface: oklch(
-    var(--tone-on-surface) var(--chroma-neutral) var(--hue-neutral)
-  );
-  --md-sys-color-on-surface-variant: oklch(
-    var(--tone-on-surface-variant) var(--chroma-neutral-variant)
-      var(--hue-neutral-variant)
-  );
-  --md-sys-color-outline: oklch(
-    var(--tone-outline) var(--chroma-neutral-variant) var(--hue-neutral-variant)
-  );
-  --md-sys-color-outline-variant: oklch(
-    var(--tone-outline-var) var(--chroma-neutral-variant)
-      var(--hue-neutral-variant)
-  );
   --target-size: 3rem;
-}
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --tone-base: 40%;
-    --tone-on-base: 100%;
-    --tone-container: 90%;
-    --tone-on-container: 10%;
-    --tone-surface-dim: 57%;
-    --tone-surface: 98%;
-    --tone-surface-bright: 98%;
-    --tone-surface-container-lowest: 100%;
-    --tone-surface-container-low: 96%;
-    --tone-surface-container: 94%;
-    --tone-surface-container-high: 92%;
-    --tone-surface-container-highest: 90%;
-    --tone-on-surface: 10%;
-    --tone-on-surface-variant: 30%;
-    --tone-outline: 50%;
-    --tone-outline-var: 80%;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --tone-base: 80%;
-    --tone-on-base: 20%;
-    --tone-container: 30%;
-    --tone-on-container: 90%;
-    --tone-surface-dim: 6%;
-    --tone-surface: 6%;
-    --tone-surface-bright: 24%;
-    --tone-surface-container-lowest: 4%;
-    --tone-surface-container-low: 10%;
-    --tone-surface-container: 12%;
-    --tone-surface-container-high: 17%;
-    --tone-surface-container-highest: 22%;
-    --tone-on-surface: 90%;
-    --tone-on-surface-variant: 80%;
-    --tone-outline: 60%;
-    --tone-outline-var: 30%;
-  }
-}
-
-:root {
-  --md-ref-typeface-brand: "Dancing Script", "Trebuchet MS",
-    "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
-  --md-ref-typeface-plain: "Merienda", "Roboto Flex", "Trebuchet MS",
-    "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  --md-ref-typeface-brand: "Monaspace Krypton", monospace;
+  --md-ref-typeface-plain: "Monaspace Krypton", monospace;
   --md-ref-typeface-weight-regular: 400;
   --md-ref-typeface-weight-medium: 500;
   --md-ref-typeface-weight-bold: 700;

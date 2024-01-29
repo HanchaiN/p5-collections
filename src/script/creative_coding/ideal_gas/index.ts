@@ -16,6 +16,17 @@ export default function execute() {
   let entropy_value: HTMLSlotElement;
   let system: ParticleSystem;
   const getBackground = () => getColor("--md-sys-color-surface", "#000");
+  const gradient = color.multiColorGradient({
+    num: 100,
+    stops: [
+      [0 / 5, color.oklab(color.css(getColor("--cpt-lavender", "#08f")))],
+      [1 / 5, color.oklab(color.css(getColor("--cpt-sapphire", "#54e")))],
+      [2 / 5, color.oklab(color.css(getColor("--cpt-green", "#a2c")))],
+      [3 / 5, color.oklab(color.css(getColor("--cpt-yellow", "#c2a")))],
+      [4 / 5, color.oklab(color.css(getColor("--cpt-peach", "#e45")))],
+      [5 / 5, color.oklab(color.css(getColor("--cpt-red", "#f80")))],
+    ],
+  }).map(c => color.css(c));
   const n = 2048;
   const time_scale = 1;
   const max_dt = (1 / 8) * time_scale;
@@ -72,23 +83,13 @@ export default function execute() {
     ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     system.particles.forEach((particle) => {
-      ctx.fillStyle = color.css(
-        color.oklch(
-          Number.parseInt(
-            getComputedStyle(document.body).getPropertyValue(
-              "--tone-on-surface-variant",
-            ),
-          ) / 100,
-          0.1,
-          constrainMap(
-            symlog(particle.Temperature),
-            symlog(SETTING.TempMin),
-            symlog(SETTING.TempMax),
-            2 / 3,
-            1,
-          ),
-        ),
-      );
+      ctx.fillStyle = (gradient[Math.round(constrainMap(
+        symlog(particle.Temperature),
+        symlog(SETTING.TempMin),
+        symlog(SETTING.TempMax),
+        0,
+        gradient.length - 1,
+      ))]);
       ctx.beginPath();
       ctx.arc(
         particle.pos.x * scale,

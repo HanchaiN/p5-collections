@@ -67,8 +67,9 @@ export const createPages: GatsbyNode["createPages"] = async ({
 
   // you'll call `createPage` for each result
   posts.forEach((node) => {
+    if (node.frontmatter?.type === "Placeholder") return;
     createPage({
-      path: node.frontmatter?.slug ?? "test",
+      path: (node.frontmatter?.type === "WIP" ? "WIP/" : "") + node.frontmatter?.slug ?? "test",
       component: `${postTemplate}?__contentFilePath=${node.internal
         .contentFilePath!}`,
       context: { id: node.id },
