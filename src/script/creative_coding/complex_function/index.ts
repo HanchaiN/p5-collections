@@ -10,8 +10,8 @@ export default function execute() {
   let isActive: boolean = false;
   const l0 = 0.25;
   const l1 = 0.75;
-  const s0 = .125;
-  const s1 = .250;
+  const s0 = 0.125;
+  const s1 = 0.25;
   function f(z: TComplex) {
     return complex_zeta(z);
   }

@@ -8,32 +8,27 @@
 
 @font-face {
   font-family: "Monaspace Neon";
-  src:
-    url("/fonts/MonaspaceNeonVar.woff2") format("woff2");
+  src: url("/fonts/MonaspaceNeonVar.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "Monaspace Argon";
-  src:
-    url("/fonts/MonaspaceArgonVar.woff2") format("woff2");
+  src: url("/fonts/MonaspaceArgonVar.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "Monaspace Xeon";
-  src:
-    url("/fonts/MonaspaceXeonVar.woff2") format("woff2");
+  src: url("/fonts/MonaspaceXeonVar.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "Monaspace Radon";
-  src:
-    url("/fonts/MonaspaceRadonVar.woff2") format("woff2");
+  src: url("/fonts/MonaspaceRadonVar.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "Monaspace Krypton";
-  src:
-    url("/fonts/MonaspaceKryptonVar.woff2") format("woff2");
+  src: url("/fonts/MonaspaceKryptonVar.woff2") format("woff2");
 }
 
 body {
@@ -73,28 +68,66 @@ body {
     --cpt-mantle: #{theme.themed("mantle")};
     --cpt-crust: #{theme.themed("crust")};
     --md-sys-color-primary: #{color.mix($base, $primary, $mix-base)};
-    --md-sys-color-on-primary: #{$text};
-    --md-sys-color-primary-container: #{color.mix(theme.themed("surface0"), $primary, $mix-container)};
-    --md-sys-color-on-primary-container: #{color.mix($text, $primary, $mix-container)};
+    --md-sys-color-on-primary: #{$primary};
+    --md-sys-color-primary-container: #{color.mix(
+        theme.themed("surface0"),
+        $primary,
+        $mix-container
+      )};
+    --md-sys-color-on-primary-container: #{color.mix(
+        $text,
+        $primary,
+        $mix-container
+      )};
     --md-sys-color-secondary: #{color.mix($base, $secondary, $mix-base)};
     --md-sys-color-on-secondary: #{$secondary};
-    --md-sys-color-secondary-container: #{color.mix(theme.themed("surface0"), $secondary, $mix-container)};
-    --md-sys-color-on-secondary-container: #{color.mix($text, $secondary, $mix-container)};
+    --md-sys-color-secondary-container: #{color.mix(
+        theme.themed("surface0"),
+        $secondary,
+        $mix-container
+      )};
+    --md-sys-color-on-secondary-container: #{color.mix(
+        $text,
+        $secondary,
+        $mix-container
+      )};
     --md-sys-color-tertiary: #{color.mix($base, $tertiary, $mix-base)};
     --md-sys-color-on-tertiary: #{$tertiary};
-    --md-sys-color-tertiary-container: #{color.mix(theme.themed("surface0"), $tertiary, $mix-container)};
-    --md-sys-color-on-tertiary-container: #{color.mix($text, $tertiary, $mix-container)};
+    --md-sys-color-tertiary-container: #{color.mix(
+        theme.themed("surface0"),
+        $tertiary,
+        $mix-container
+      )};
+    --md-sys-color-on-tertiary-container: #{color.mix(
+        $text,
+        $tertiary,
+        $mix-container
+      )};
     --md-sys-color-error: #{color.mix($base, $error, $mix-base)};
     --md-sys-color-on-error: #{$error};
-    --md-sys-color-error-container: #{color.mix(theme.themed("surface0"), $error, $mix-container)};
-    --md-sys-color-on-error-container: #{color.mix($text, $error, $mix-container)};
+    --md-sys-color-error-container: #{color.mix(
+        theme.themed("surface0"),
+        $error,
+        $mix-container
+      )};
+    --md-sys-color-on-error-container: #{color.mix(
+        $text,
+        $error,
+        $mix-container
+      )};
     --md-sys-color-surface-dim: #{theme.themed("crust")};
     --md-sys-color-surface: #{theme.themed("base")};
     --md-sys-color-surface-bright: #{theme.themed("mantle")};
     --md-sys-color-surface-container-lowest: #{theme.themed("surface0")};
-    --md-sys-color-surface-container-low: #{color.mix(theme.themed("surface0"), theme.themed("surface1"))};
+    --md-sys-color-surface-container-low: #{color.mix(
+        theme.themed("surface0"),
+        theme.themed("surface1")
+      )};
     --md-sys-color-surface-container: #{theme.themed("surface1")};
-    --md-sys-color-surface-container-high: #{color.mix(theme.themed("surface1"), theme.themed("surface2"))};
+    --md-sys-color-surface-container-high: #{color.mix(
+        theme.themed("surface1"),
+        theme.themed("surface2")
+      )};
     --md-sys-color-surface-container-highest: #{theme.themed("surface2")};
     --md-sys-color-on-surface: #{$text};
     --md-sys-color-on-surface-variant: #{theme.themed("subtext0")};
@@ -108,23 +141,36 @@ body {
     --hue-neutral: #{color.hue($base)};
     --hue-neutral-variant: #{color.hue($text)};
     --chroma-primary: #{color.saturation(color.mix($base, $primary, $mix-base))};
-    --chroma-secondary: #{color.saturation(color.mix($base, $secondary, $mix-base))};
-    --chroma-tertiary: #{color.saturation(color.mix($base, $tertiary, $mix-base))};
+    --chroma-secondary: #{color.saturation(
+        color.mix($base, $secondary, $mix-base)
+      )};
+    --chroma-tertiary: #{color.saturation(
+        color.mix($base, $tertiary, $mix-base)
+      )};
     --chroma-error: #{color.saturation(color.mix($base, $error, $mix-base))};
     --chroma-neutral: #{color.saturation($base)};
     --chroma-neutral-variant: #{color.saturation($text)};
-    --tone-base: #{color.lightness($base) * math.div($mix-base, 100%) + color.lightness($primary) * (1 - math.div($mix-base, 100%))};
+    --tone-base: #{color.lightness($base) * math.div($mix-base, 100%) +
+      color.lightness($primary) * (1 - math.div($mix-base, 100%))};
     --tone-on-base: #{color.lightness($primary)};
-    --tone-container: #{color.lightness(theme.themed("surface0")) * math.div($mix-container, 100%) + color.lightness($primary) * (1 - math.div($mix-container, 100%))};
-    --tone-on-container: #{color.lightness($text) * math.div($mix-container, 100%) + color.lightness($primary) * (1 - math.div($mix-container, 100%))};
+    --tone-container: #{color.lightness(theme.themed("surface0")) *
+      math.div($mix-container, 100%) + color.lightness($primary) *
+      (1 - math.div($mix-container, 100%))};
+    --tone-on-container: #{color.lightness($text) *
+      math.div($mix-container, 100%) + color.lightness($primary) *
+      (1 - math.div($mix-container, 100%))};
     --tone-surface-dim: #{color.lightness(theme.themed("crust"))};
     --tone-surface: #{color.lightness(theme.themed("base"))};
     --tone-surface-bright: #{color.lightness(theme.themed("mantle"))};
     --tone-surface-container-lowest: #{color.lightness(theme.themed("surface0"))};
-    --tone-surface-container-low: #{color.lightness(theme.themed("surface1")) * 0.5 + color.lightness(theme.themed("surface0")) * 0.5};
+    --tone-surface-container-low: #{color.lightness(theme.themed("surface1")) *
+      0.5 + color.lightness(theme.themed("surface0")) * 0.5};
     --tone-surface-container: #{color.lightness(theme.themed("surface1"))};
-    --tone-surface-container-high: #{color.lightness(theme.themed("surface2")) * 0.5 + color.lightness(theme.themed("surface1")) * 0.5};
-    --tone-surface-container-highest: #{color.lightness(theme.themed("surface2"))};
+    --tone-surface-container-high: #{color.lightness(theme.themed("surface2")) *
+      0.5 + color.lightness(theme.themed("surface1")) * 0.5};
+    --tone-surface-container-highest: #{color.lightness(
+        theme.themed("surface2")
+      )};
     --tone-on-surface: #{color.lightness($text)};
     --tone-on-surface-variant: #{color.lightness(theme.themed("subtext0"))};
     --tone-outline: #{color.lightness(theme.themed("overlay0"))};

@@ -231,9 +231,9 @@ export function* generateDungeon(GRID_SIZE: { x: number; y: number }) {
           for (let iy = room.bottom; iy <= room.top; iy++)
             grid[ix][iy] =
               ix === room.left ||
-                ix === room.right ||
-                iy === room.bottom ||
-                iy === room.top
+              ix === room.right ||
+              iy === room.bottom ||
+              iy === room.top
                 ? GRID_STATE.BORDER
                 : GRID_STATE.ROOM;
       }
@@ -337,8 +337,8 @@ export function* generateDungeon(GRID_SIZE: { x: number; y: number }) {
       return dist;
     };
     const begins = [
-      new Vector(Math.round(nodes[i_begin].x), Math.round(nodes[i_begin].y)),
-    ],
+        new Vector(Math.round(nodes[i_begin].x), Math.round(nodes[i_begin].y)),
+      ],
       targets = [
         new Vector(
           Math.round(nodes[i_target].x),

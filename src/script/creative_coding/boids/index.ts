@@ -16,7 +16,7 @@ export default function execute() {
       ) / 100;
     return color.css(c);
   };
-  const getLightness = () => .75;
+  const getLightness = () => 0.75;
   const saturation = 0.125;
   const time_scale = 1;
   let isActive = false;
@@ -69,11 +69,7 @@ export default function execute() {
     });
     system.data().forEach(({ c, p }) => {
       ctx.fillStyle = color.css(
-        color.oklch([
-          getLightness(),
-          saturation,
-          c / 360,
-        ]),
+        color.oklch([getLightness(), saturation, c / 360]),
       );
       ctx.beginPath();
       ctx.arc(p.x * scale, p.y * scale, 3, 0, 2 * Math.PI);

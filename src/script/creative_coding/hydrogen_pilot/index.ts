@@ -90,8 +90,8 @@ export default function execute() {
         "message",
         function listener({ data }: MessageEvent<MessageResponse>) {
           const index =
-            i * Math.floor(counts / maxWorkers) +
-            Math.min(i, counts % maxWorkers),
+              i * Math.floor(counts / maxWorkers) +
+              Math.min(i, counts % maxWorkers),
             target_counts =
               Math.floor(counts / maxWorkers) +
               (i < counts % maxWorkers ? 1 : 0);
@@ -105,15 +105,7 @@ export default function execute() {
             electron_mesh.setMatrixAt(index + i, matrix);
             electron_mesh.setColorAt(
               index + i,
-              new THREE.Color(
-                color.css(
-                  color.oklch(
-                    0.75,
-                    0.2,
-                    h / 360,
-                  ),
-                ),
-              ),
+              new THREE.Color(color.css(color.oklch(0.75, 0.2, h / 360))),
             );
           });
           electron_mesh.instanceMatrix.needsUpdate = true;
