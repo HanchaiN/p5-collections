@@ -22,7 +22,7 @@
     "@thi.ng/color": "^5.6.10",
     "base64-stream": "^1.0.0",
     "d3-color": "^3.1.0",
-    "gatsby": "^5.11.0",
+    "gatsby": "^5.13.3",
     "gatsby-plugin-image": "^3.11.0",
     "gatsby-plugin-manifest": "^5.12.3",
     "gatsby-plugin-mdx": "^5.11.0",
