@@ -7,6 +7,7 @@ import {
   lerp,
   vector_dist,
 } from "@/script/utils/math";
+import { randomGaussian, randomUniform } from "@/script/utils/math/random";
 import type { IKernelFunctionThis } from "@/script/utils/types";
 import { flavors } from "@catppuccin/palette";
 import * as color from "@thi.ng/color";
@@ -57,8 +58,35 @@ export default function execute() {
   });
 
   function* elementGenerator(): Generator<TVector3, never, void> {
+    const palette_lch = palette
+      .slice(0, 15)
+      .map((v) => color.oklch(color.srgb(...v)));
+    const avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette.length;
+    const avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette.length;
+    const std_l = Math.sqrt(
+      palette_lch.reduce((acc, v) => acc + (v.l - avg_l) ** 2, 0) /
+      (palette.length - 1),
+    );
+    const std_c = Math.sqrt(
+      palette_lch.reduce((acc, v) => acc + (v.c - avg_c) ** 2, 0) /
+      (palette.length - 1),
+    );
     while (true) {
-      yield palette[Math.floor(Math.random() * palette.length)];
+      yield Math.random() < 0.0625
+        ? [
+          Math.round(Math.random()),
+          Math.round(Math.random()),
+          Math.round(Math.random()),
+        ]
+        : Math.random() < 0.25
+          ? palette[Math.floor(Math.random() * palette.length)]
+          : color.rgb(
+            color.oklch([
+              randomGaussian(avg_l, std_l),
+              randomGaussian(avg_c, std_c),
+              randomUniform(0, 1),
+            ]),
+          ).xyz;
     }
   }
   const generator: Generator<TVector3, never, void> | null = elementGenerator();
@@ -74,19 +102,19 @@ export default function execute() {
       Math.exp(-this.constants.learning_decay_rate * iter) *
       gaus(
         vector_dist([this.thread.x, this.thread.y], best_matching) /
-          (this.output.x *
-            this.constants.range *
-            Math.exp(-this.constants.range_decay_rate * iter)),
+        (this.output.x *
+          this.constants.range *
+          Math.exp(-this.constants.range_decay_rate * iter)),
       );
     const current = color.srgb(color.srgb(...this.getColor())).xyz;
     const target = color.srgb(color.srgb(...element)).xyz;
     const val = new Array(3)
       .fill(0)
       .map((_, i) => lerp(ratio, current[i], target[i])) as [
-      number,
-      number,
-      number,
-    ];
+        number,
+        number,
+        number,
+      ];
     const [r, g, b] = color.srgb(color.srgb(...val)).xyz;
     this.color(r, g, b, 1);
   }
@@ -139,16 +167,16 @@ export default function execute() {
                     color.srgb(...values[k]),
                     color.srgb(
                       buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
+                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
                       ] / 255,
                       buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
+                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
                       ] / 255,
                       buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
+                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
                       ] / 255,
                       buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
+                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
                       ] / 255,
                     ),
                   );

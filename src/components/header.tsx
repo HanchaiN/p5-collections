@@ -1,3 +1,4 @@
+import { useColorScheme } from "@/hooks/use-dark-mode";
 import { useSiteMetadata } from "@/hooks/use-site-metadata";
 import { bodyMedium, surface } from "@/styles/main.module.scss";
 import "@/styles/main.scss";
@@ -21,9 +22,12 @@ export default function Header({
     description: description || defaultDescription,
   };
 
+  const dark = useColorScheme();
+  const theme = dark ? "mocha" : "latte";
+
   return (
     <>
-      <html lang="en" className="theme-mocha" />
+      <html lang="en" className={`theme-${theme}`} />
       {metadata.title ? <title>{metadata.title}</title> : <></>}
       <meta charSet="utf-8" />
       {metadata.description ? (
