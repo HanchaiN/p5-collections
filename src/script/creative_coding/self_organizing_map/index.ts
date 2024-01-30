@@ -1,113 +1,98 @@
+import { generate } from "@/script/creative_coding/perlin_noise/pipeline";
 import { getColor, kernelGenerator } from "@/script/utils/dom";
 import {
   TVector2,
   TVector3,
   gaus,
-  map,
+  lerp,
   vector_dist,
-  vector_magSq,
-  vector_sub,
 } from "@/script/utils/math";
-import { PerlinNoise } from "@/script/utils/math/noise";
-import { randomGaussian, randomUniform } from "@/script/utils/math/random";
 import type { IKernelFunctionThis } from "@/script/utils/types";
+import { flavors } from "@catppuccin/palette";
 import * as color from "@thi.ng/color";
 
 export default function execute() {
   let isActive = false;
   let isDrawing = false;
-  const scale = 1;
-  let dithering = false;
+  const scale = 2;
+  const choices = 3;
 
   interface IConstants {
     range: number;
     learning_rate: number;
     range_decay_rate: number;
     learning_decay_rate: number;
+    weight_positions: number;
+    weight_colors: number;
   }
   const constants: IConstants = {
     range: 0.25,
-    learning_rate: 0.75,
+    learning_rate: 0.125,
     range_decay_rate: 1e-3,
-    learning_decay_rate: 1e-5,
+    learning_decay_rate: 0,
+    weight_positions: +10,
+    weight_colors: -2,
   };
-  const color_palette: [number, number, number][] = [
-    [1, 1, 1],
-    [0, 1, 1],
-    [1, 0, 1],
-    [1, 1, 0],
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1],
-    [0, 0, 0],
-  ];
-  const err_diffusion: [[number, number], number][] = [
-    // [[+1, 0], 1 / 8],
-    // [[+2, 0], 1 / 8],
-    // [[-1, 1], 1 / 8],
-    // [[+0, 1], 1 / 8],
-    // [[+1, 1], 1 / 8],
-    // [[+0, 2], 1 / 8],
-    // [[+1, 0], 7 / 16],
-    // [[-1, 1], 3 / 16],
-    // [[+0, 1], 5 / 16],
-    // [[+1, 1], 1 / 16],
-    [[+1, 0], 7 / 48],
-    [[+2, 0], 5 / 48],
-    [[-2, 1], 3 / 48],
-    [[-1, 1], 5 / 48],
-    [[+0, 1], 7 / 48],
-    [[+1, 1], 5 / 48],
-    [[+2, 1], 3 / 48],
-    [[-2, 2], 1 / 48],
-    [[-1, 2], 3 / 48],
-    [[+0, 2], 5 / 48],
-    [[+1, 2], 3 / 48],
-    [[+2, 2], 1 / 48],
-  ];
+  const palette = [
+    getColor("--cpt-rosewater", flavors["mocha"].colors.rosewater.hex),
+    getColor("--cpt-flamingo", flavors["mocha"].colors.flamingo.hex),
+    getColor("--cpt-pink", flavors["mocha"].colors.pink.hex),
+    getColor("--cpt-mauve", flavors["mocha"].colors.mauve.hex),
+    getColor("--cpt-red", flavors["mocha"].colors.red.hex),
+    getColor("--cpt-maroon", flavors["mocha"].colors.maroon.hex),
+    getColor("--cpt-peach", flavors["mocha"].colors.peach.hex),
+    getColor("--cpt-yellow", flavors["mocha"].colors.yellow.hex),
+    getColor("--cpt-green", flavors["mocha"].colors.green.hex),
+    getColor("--cpt-teal", flavors["mocha"].colors.teal.hex),
+    getColor("--cpt-sky", flavors["mocha"].colors.sky.hex),
+    getColor("--cpt-sapphire", flavors["mocha"].colors.sapphire.hex),
+    getColor("--cpt-blue", flavors["mocha"].colors.blue.hex),
+    getColor("--cpt-lavender", flavors["mocha"].colors.lavender.hex),
+    getColor("--cpt-text", flavors["mocha"].colors.text.hex),
+    getColor("--cpt-base", flavors["mocha"].colors.base.hex),
+    getColor("--cpt-crust", flavors["mocha"].colors.crust.hex),
+    getColor("--cpt-mantle", flavors["mocha"].colors.mantle.hex),
+  ].map((v) => {
+    return color.srgb(color.css(v)).xyz;
+  });
 
   function* elementGenerator(): Generator<TVector3, never, void> {
     while (true) {
-      yield Math.random() < 0.125
-        ? color_palette[Math.floor(Math.random() * color_palette.length)]
-        : color.rgb(
-            color.oklch([
-              randomGaussian(0.9, 0.125),
-              randomUniform(0.05, 0.1),
-              randomUniform(0, 1),
-            ]),
-          ).xyz;
+      yield palette[Math.floor(Math.random() * palette.length)];
     }
   }
   const generator: Generator<TVector3, never, void> | null = elementGenerator();
 
   function main(
     this: IKernelFunctionThis<IConstants>,
-    acc: TVector3[][],
     best_matching: TVector2,
     element: TVector3,
     iter: number,
-  ): TVector3 {
-    const val_ = acc[this.thread.x][this.thread.y].map(
-      (v, i) =>
-        v +
-        this.constants.learning_rate *
-          Math.exp(-this.constants.learning_decay_rate * iter) *
-          gaus(
-            vector_dist([this.thread.x, this.thread.y], best_matching) /
-              (this.output.x *
-                this.constants.range *
-                Math.exp(-this.constants.range_decay_rate * iter)),
-          ) *
-          (element[i] - v),
-    ) as TVector3;
-    const [r, g, b] = color.srgb(val_[0], val_[1], val_[2]).xyz;
+  ) {
+    const ratio =
+      this.constants.learning_rate *
+      Math.exp(-this.constants.learning_decay_rate * iter) *
+      gaus(
+        vector_dist([this.thread.x, this.thread.y], best_matching) /
+          (this.output.x *
+            this.constants.range *
+            Math.exp(-this.constants.range_decay_rate * iter)),
+      );
+    const current = color.srgb(color.srgb(...this.getColor())).xyz;
+    const target = color.srgb(color.srgb(...element)).xyz;
+    const val = new Array(3)
+      .fill(0)
+      .map((_, i) => lerp(ratio, current[i], target[i])) as [
+      number,
+      number,
+      number,
+    ];
+    const [r, g, b] = color.srgb(color.srgb(...val)).xyz;
     this.color(r, g, b, 1);
-    return val_;
   }
 
   return {
-    start: (canvas: HTMLCanvasElement) => {
+    start: (canvas: HTMLCanvasElement, config: HTMLFormElement) => {
       isActive = true;
       const ctx = canvas.getContext("2d", {
         alpha: false,
@@ -119,47 +104,7 @@ export default function execute() {
         canvas.width / scale,
         canvas.height / scale,
       );
-      {
-        const noise = new PerlinNoise();
-        buffer.data.fill(255);
-        for (let j = 0; j < buffer.height; j++) {
-          for (let i = 0; i < buffer.width; i++) {
-            const index = (j * buffer.width + i) * 4;
-            buffer.data[index + 0] = map(
-              noise.noise(i / 100, j / 100, 0),
-              -1,
-              1,
-              0,
-              255,
-            );
-            buffer.data[index + 1] = map(
-              noise.noise(i / 100, j / 100, 128),
-              -1,
-              1,
-              0,
-              255,
-            );
-            buffer.data[index + 2] = map(
-              noise.noise(i / 100, j / 100, 255),
-              -1,
-              1,
-              0,
-              255,
-            );
-          }
-        }
-      }
-      let acc: TVector3[][] = new Array(buffer.width)
-        .fill(null)
-        .map((_, i) =>
-          new Array(buffer.height)
-            .fill(null)
-            .map((_, j) => [
-              buffer.data[(j * buffer.width + i) * 4 + 0] / 255,
-              buffer.data[(j * buffer.width + i) * 4 + 1] / 255,
-              buffer.data[(j * buffer.width + i) * 4 + 2] / 255,
-            ]),
-        );
+      generate(buffer);
       const renderer = kernelGenerator(main, constants, buffer);
       let i = 0;
       isDrawing = true;
@@ -168,46 +113,6 @@ export default function execute() {
         if (!isDrawing) {
           requestAnimationFrame(draw);
           return;
-        }
-        if (dithering) {
-          for (let j = 0; j < buffer.height; j++) {
-            for (let i = 0; i < buffer.width; i++) {
-              const index = (j * buffer.width + i) * 4;
-              let min_error = Infinity;
-              const target_color: [number, number, number] = [
-                buffer.data[index + 0] / 255,
-                buffer.data[index + 1] / 255,
-                buffer.data[index + 2] / 255,
-              ];
-              let current_color = color_palette[0];
-              for (const color of color_palette) {
-                const diff = vector_sub(color, target_color);
-                const err = vector_magSq(diff);
-                if (err < min_error) {
-                  current_color = color;
-                  min_error = err;
-                }
-              }
-              const err: TVector3 = vector_sub(target_color, current_color);
-              err_diffusion.forEach(([ind, w]) => {
-                const i_ = i + ind[0];
-                const j_ = j + ind[1];
-                if (
-                  0 > i_ ||
-                  i_ >= buffer.width ||
-                  0 > j_ ||
-                  j_ >= buffer.height
-                )
-                  return;
-                for (let k = 0; k < 3; k++)
-                  buffer.data[(j_ * buffer.width + i_) * 4 + k] +=
-                    err[k] * w * 255;
-              });
-              buffer.data[index + 0] = current_color[0] * 255;
-              buffer.data[index + 1] = current_color[1] * 255;
-              buffer.data[index + 2] = current_color[2] * 255;
-            }
-          }
         }
         isDrawing = false;
         createImageBitmap(buffer).then((bmp) =>
@@ -218,30 +123,100 @@ export default function execute() {
       requestIdleCallback(function update() {
         if (!isActive) return;
         if (generator) {
-          const value = generator.next().value;
-          const { x, y } = acc.reduce<{ x: number; y: number; d: number }>(
-            ({ x, y, d }, row, i) =>
-              row.reduce<{ x: number; y: number; d: number }>(
-                ({ x, y, d }, val, j) =>
-                  vector_dist(value, val) < d
-                    ? { x: i, y: j, d: vector_dist(value, val) }
-                    : { x, y, d },
-                { x, y, d },
-              ),
-            { x: -1, y: -1, d: Infinity },
-          );
-          const bmu: TVector2 = [x, y];
-          const step = renderer(acc, bmu, value, i++);
-          let res;
-          while (!(res = step.next()).done) continue;
-          acc = res.value;
+          const values = new Array(choices)
+            .fill(0)
+            .map(() => generator.next().value);
+          let x = -1,
+            y = -1,
+            c = 0;
+          {
+            let col = [];
+            for (let k = 0; k < values.length; k++) {
+              let pos = [];
+              for (let i = 0; i < buffer.width; i++) {
+                for (let j = 0; j < buffer.height; j++) {
+                  const dist = color.distLch(
+                    color.srgb(...values[k]),
+                    color.srgb(
+                      buffer.data[
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
+                      ] / 255,
+                      buffer.data[
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
+                      ] / 255,
+                      buffer.data[
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
+                      ] / 255,
+                      buffer.data[
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
+                      ] / 255,
+                    ),
+                  );
+                  pos.push({ x: i, y: j, d: dist });
+                }
+              }
+              pos = pos.map(({ x, y, d }) => ({
+                x,
+                y,
+                d,
+                w: Math.exp(-d * constants.weight_positions),
+              }));
+              const sum = pos.reduce((acc, { w }) => acc + w, 0);
+              const r = Math.random() * sum;
+              let s = 0;
+              for (let i = 0; i < pos.length; i++) {
+                s += pos[i].w;
+                if (s >= r) {
+                  col.push(pos[i]);
+                  break;
+                }
+              }
+            }
+            col = col.map(({ x, y, d }) => ({
+              x,
+              y,
+              d,
+              w: Math.exp(-d * constants.weight_colors),
+            }));
+            const sum = col.reduce((acc, { w }) => acc + w, 0);
+            const r = Math.random() * sum;
+            let s = 0;
+            for (let i = 0; i < col.length; i++) {
+              s += col[i].w;
+              if (s >= r) {
+                x = col[i].x;
+                y = col[i].y;
+                c = i;
+                break;
+              }
+            }
+          }
+          const step = renderer([x, y], values[c], i++);
+          while (!step.next().done) continue;
           isDrawing = true;
         }
         requestIdleCallback(update);
       });
-      canvas.addEventListener("click", function onClick() {
-        dithering = !dithering;
+      canvas.addEventListener("click", function () {
+        generate(buffer);
+        i = 0;
       });
+      config
+        .querySelector<HTMLInputElement>("#image")!
+        .addEventListener("change", function () {
+          const img = new Image();
+          img.addEventListener("load", function onImageLoad() {
+            this.removeEventListener("load", onImageLoad);
+            const canvas = new OffscreenCanvas(buffer.width, buffer.height);
+            const ctx = canvas.getContext("2d")!;
+            ctx.drawImage(img, 0, 0, buffer.width, buffer.height);
+            buffer.data.set(
+              ctx.getImageData(0, 0, buffer.width, buffer.height).data,
+            );
+            i = 0;
+          });
+          img.src = URL.createObjectURL(this.files![0]);
+        });
     },
     stop: () => {
       isActive = false;

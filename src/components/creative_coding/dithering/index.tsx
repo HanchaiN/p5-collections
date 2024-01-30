@@ -9,7 +9,7 @@ import React, { useEffect, useRef } from "react";
 export default React.lazy(async () => {
   const main =
     typeof window !== "undefined"
-      ? (await import("@/script/creative_coding/self_organizing_map")).default
+      ? (await import("@/script/creative_coding/dithering")).default
       : () => null;
   return {
     default: function Component() {

@@ -140,7 +140,7 @@ export default function Navbar() {
         map.set(
           path,
           (node = {
-            name: unslugify(name),
+            name: unslugify(name) + (type === "WIP" ? " (WIP)" : ""),
             path: path,
             parent,
             child: [],

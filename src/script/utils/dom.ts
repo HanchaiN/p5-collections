@@ -72,6 +72,7 @@ export function kernelGenerator<
           output: this.output,
           thread: { x, y, z: 0 },
           constants: this.constants,
+          getColor: () => this.getColor(x, y),
           color: (r: number, g: number = r, b: number = r, a: number = 1) =>
             this.color(x, y, r, g, b, a),
         })(...args));
@@ -81,6 +82,17 @@ export function kernelGenerator<
   }.bind({
     output: { x: buffer.width, y: buffer.height, z: 0 },
     constants: constants,
+    getColor: (x: number, y: number) =>
+      [
+        buffer.data[4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0] /
+          255,
+        buffer.data[4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1] /
+          255,
+        buffer.data[4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2] /
+          255,
+        buffer.data[4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3] /
+          255,
+      ] as [r: number, g: number, b: number, a: number],
     color: (
       x: number,
       y: number,
