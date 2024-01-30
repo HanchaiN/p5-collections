@@ -59,13 +59,19 @@ export default function execute() {
       return color.srgb(color.css(v)).xyz;
     });
     const palette_lch = palette
-      .slice(0, 14)
-      .map((v) => color.oklch(color.srgb(...v))),
+        .slice(0, 14)
+        .map((v) => color.oklch(color.srgb(...v))),
       avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette.length,
       avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette.length,
-      cov_ll = palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.l - avg_l), 0) / (palette.length),
-      cov_cc = palette_lch.reduce((acc, v) => acc + (v.c - avg_c) * (v.c - avg_c), 0) / (palette.length),
-      cov_lc = palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.c - avg_c), 0) / (palette.length),
+      cov_ll =
+        palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.l - avg_l), 0) /
+        palette.length,
+      cov_cc =
+        palette_lch.reduce((acc, v) => acc + (v.c - avg_c) * (v.c - avg_c), 0) /
+        palette.length,
+      cov_lc =
+        palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.c - avg_c), 0) /
+        palette.length,
       fac_xl = Math.sqrt(cov_ll),
       fac_xc = cov_lc / fac_xl,
       fac_yc = Math.sqrt(cov_cc - fac_xc * fac_xc);
@@ -77,9 +83,10 @@ export default function execute() {
           Math.round(Math.random()),
         ];
       else if (Math.random() < 0.25)
-        yield palette[Math.floor(Math.random() * palette.length)]
+        yield palette[Math.floor(Math.random() * palette.length)];
       else {
-        const x = randomGaussian(), y = randomGaussian();
+        const x = randomGaussian(),
+          y = randomGaussian();
         yield color.rgb(
           color.oklch([
             avg_l + fac_xl * x,
@@ -87,7 +94,6 @@ export default function execute() {
             randomUniform(0, 1),
           ]),
         ).xyz;
-
       }
     }
   }
@@ -104,19 +110,19 @@ export default function execute() {
       Math.exp(-this.constants.learning_decay_rate * iter) *
       gaus(
         vector_dist([this.thread.x, this.thread.y], best_matching) /
-        (this.output.x *
-          this.constants.range *
-          Math.exp(-this.constants.range_decay_rate * iter)),
+          (this.output.x *
+            this.constants.range *
+            Math.exp(-this.constants.range_decay_rate * iter)),
       );
     const current = color.srgb(color.srgb(...this.getColor())).xyz;
     const target = color.srgb(color.srgb(...element)).xyz;
     const val = new Array(3)
       .fill(0)
       .map((_, i) => lerp(ratio, current[i], target[i])) as [
-        number,
-        number,
-        number,
-      ];
+      number,
+      number,
+      number,
+    ];
     const [r, g, b] = color.srgb(color.srgb(...val)).xyz;
     this.color(r, g, b, 1);
   }
@@ -169,16 +175,16 @@ export default function execute() {
                     color.srgb(...values[k]),
                     color.srgb(
                       buffer.data[
-                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
                       ] / 255,
                       buffer.data[
-                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
                       ] / 255,
                       buffer.data[
-                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
                       ] / 255,
                       buffer.data[
-                      4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
+                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
                       ] / 255,
                     ),
                   );
