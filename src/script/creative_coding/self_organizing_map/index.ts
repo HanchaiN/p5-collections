@@ -31,62 +31,64 @@ export default function execute() {
     learning_rate: 0.125,
     range_decay_rate: 1e-3,
     learning_decay_rate: 0,
-    weight_positions: +10,
-    weight_colors: -2,
+    weight_positions: +50,
+    weight_colors: -1,
   };
-  const palette = [
-    getColor("--cpt-rosewater", flavors["mocha"].colors.rosewater.hex),
-    getColor("--cpt-flamingo", flavors["mocha"].colors.flamingo.hex),
-    getColor("--cpt-pink", flavors["mocha"].colors.pink.hex),
-    getColor("--cpt-mauve", flavors["mocha"].colors.mauve.hex),
-    getColor("--cpt-red", flavors["mocha"].colors.red.hex),
-    getColor("--cpt-maroon", flavors["mocha"].colors.maroon.hex),
-    getColor("--cpt-peach", flavors["mocha"].colors.peach.hex),
-    getColor("--cpt-yellow", flavors["mocha"].colors.yellow.hex),
-    getColor("--cpt-green", flavors["mocha"].colors.green.hex),
-    getColor("--cpt-teal", flavors["mocha"].colors.teal.hex),
-    getColor("--cpt-sky", flavors["mocha"].colors.sky.hex),
-    getColor("--cpt-sapphire", flavors["mocha"].colors.sapphire.hex),
-    getColor("--cpt-blue", flavors["mocha"].colors.blue.hex),
-    getColor("--cpt-lavender", flavors["mocha"].colors.lavender.hex),
-    getColor("--cpt-text", flavors["mocha"].colors.text.hex),
-    getColor("--cpt-base", flavors["mocha"].colors.base.hex),
-    getColor("--cpt-crust", flavors["mocha"].colors.crust.hex),
-    getColor("--cpt-mantle", flavors["mocha"].colors.mantle.hex),
-  ].map((v) => {
-    return color.srgb(color.css(v)).xyz;
-  });
 
   function* elementGenerator(): Generator<TVector3, never, void> {
+    const palette = [
+      getColor("--cpt-rosewater", flavors["mocha"].colors.rosewater.hex),
+      getColor("--cpt-flamingo", flavors["mocha"].colors.flamingo.hex),
+      getColor("--cpt-pink", flavors["mocha"].colors.pink.hex),
+      getColor("--cpt-mauve", flavors["mocha"].colors.mauve.hex),
+      getColor("--cpt-red", flavors["mocha"].colors.red.hex),
+      getColor("--cpt-maroon", flavors["mocha"].colors.maroon.hex),
+      getColor("--cpt-peach", flavors["mocha"].colors.peach.hex),
+      getColor("--cpt-yellow", flavors["mocha"].colors.yellow.hex),
+      getColor("--cpt-green", flavors["mocha"].colors.green.hex),
+      getColor("--cpt-teal", flavors["mocha"].colors.teal.hex),
+      getColor("--cpt-sky", flavors["mocha"].colors.sky.hex),
+      getColor("--cpt-sapphire", flavors["mocha"].colors.sapphire.hex),
+      getColor("--cpt-blue", flavors["mocha"].colors.blue.hex),
+      getColor("--cpt-lavender", flavors["mocha"].colors.lavender.hex),
+      getColor("--cpt-text", flavors["mocha"].colors.text.hex),
+      getColor("--cpt-base", flavors["mocha"].colors.base.hex),
+      getColor("--cpt-crust", flavors["mocha"].colors.crust.hex),
+      getColor("--cpt-mantle", flavors["mocha"].colors.mantle.hex),
+    ].map((v) => {
+      return color.srgb(color.css(v)).xyz;
+    });
     const palette_lch = palette
-      .slice(0, 15)
-      .map((v) => color.oklch(color.srgb(...v)));
-    const avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette.length;
-    const avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette.length;
-    const std_l = Math.sqrt(
-      palette_lch.reduce((acc, v) => acc + (v.l - avg_l) ** 2, 0) /
-      (palette.length - 1),
-    );
-    const std_c = Math.sqrt(
-      palette_lch.reduce((acc, v) => acc + (v.c - avg_c) ** 2, 0) /
-      (palette.length - 1),
-    );
+      .slice(0, 14)
+      .map((v) => color.oklch(color.srgb(...v))),
+      avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette.length,
+      avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette.length,
+      cov_ll = palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.l - avg_l), 0) / (palette.length),
+      cov_cc = palette_lch.reduce((acc, v) => acc + (v.c - avg_c) * (v.c - avg_c), 0) / (palette.length),
+      cov_lc = palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.c - avg_c), 0) / (palette.length),
+      fac_xl = Math.sqrt(cov_ll),
+      fac_xc = cov_lc / fac_xl,
+      fac_yc = Math.sqrt(cov_cc - fac_xc * fac_xc);
     while (true) {
-      yield Math.random() < 0.0625
-        ? [
+      if (Math.random() < 0.0125)
+        yield [
           Math.round(Math.random()),
           Math.round(Math.random()),
           Math.round(Math.random()),
-        ]
-        : Math.random() < 0.25
-          ? palette[Math.floor(Math.random() * palette.length)]
-          : color.rgb(
-            color.oklch([
-              randomGaussian(avg_l, std_l),
-              randomGaussian(avg_c, std_c),
-              randomUniform(0, 1),
-            ]),
-          ).xyz;
+        ];
+      else if (Math.random() < 0.25)
+        yield palette[Math.floor(Math.random() * palette.length)]
+      else {
+        const x = randomGaussian(), y = randomGaussian();
+        yield color.rgb(
+          color.oklch([
+            avg_l + fac_xl * x,
+            avg_c + fac_xc * x + fac_yc * y,
+            randomUniform(0, 1),
+          ]),
+        ).xyz;
+
+      }
     }
   }
   const generator: Generator<TVector3, never, void> | null = elementGenerator();
