@@ -64,14 +64,14 @@ export default React.lazy(async () => {
               Color Choices:
             </label>
             <input id="color-choices" type="range" step="1" min="0" max="10" />
-            <label htmlFor="weight-position" className={labelMedium}>
+            <label htmlFor="weight-positions" className={labelMedium}>
               Position Weighting:
             </label>
-            <input id="weight-position" type="number" />
-            <label htmlFor="weight-cplor" className={labelMedium}>
+            <input id="weight-positions" type="number" />
+            <label htmlFor="weight-colors" className={labelMedium}>
               Color Weighting:
             </label>
-            <input id="weight-cplor" type="number" />
+            <input id="weight-colors" type="number" />
           </form>
         </div>
       );
