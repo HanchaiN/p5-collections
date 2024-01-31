@@ -63,7 +63,7 @@ export default React.lazy(async () => {
             <label htmlFor="color-choices" className={labelMedium}>
               Color Choices:
             </label>
-            <input id="color-choices" type="range" step="1" min="0" max="10" />
+            <input id="color-choices" type="range" step="1" min="1" max="10" />
             <label htmlFor="weight-positions" className={labelMedium}>
               Position Weighting:
             </label>

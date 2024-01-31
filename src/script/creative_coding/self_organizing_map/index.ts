@@ -141,7 +141,7 @@ export default function execute() {
     if (handlerId != null) cancelAnimationFrame(handlerId);
     generator = elementGenerator();
     constants.range =
-      +config.querySelector<HTMLInputElement>("input[id=range]")!.value;
+      +config.querySelector<HTMLInputElement>("input#range")!.value;
     constants.learning_rate = +config.querySelector<HTMLInputElement>(
       "input#learning-rate",
     )!.value;
@@ -255,7 +255,7 @@ export default function execute() {
       ctx.fillStyle = getColor("--color-surface-container-3", "#000");
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       buffer = ctx.createImageData(canvas.width / scale, canvas.height / scale);
-      config.querySelector<HTMLInputElement>("input[id=range]")!.defaultValue =
+      config.querySelector<HTMLInputElement>("input#range")!.defaultValue =
         constants.range.toString();
       config.querySelector<HTMLInputElement>(
         "input#learning-rate",
@@ -275,6 +275,20 @@ export default function execute() {
       config.querySelector<HTMLInputElement>(
         "input#weight-colors",
       )!.defaultValue = constants.weight_colors.toString();
+      config
+        .querySelector<HTMLInputElement>("input#range")!
+        .addEventListener("change", function () {
+          config.querySelector<HTMLInputElement>("slot#range")!.innerText =
+            this.value;
+        });
+      config
+        .querySelector<HTMLInputElement>("input#learning-rate")!
+        .addEventListener("change", function () {
+          config.querySelector<HTMLInputElement>(
+            "slot#learning-rate",
+          )!.innerText = this.value;
+        });
+
       generate(buffer);
       setup(config);
       canvas.addEventListener("click", function () {
