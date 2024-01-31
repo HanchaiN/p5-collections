@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export const useColorScheme = () => {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
 
   function onSchemeChange(this: MediaQueryList, e: MediaQueryListEvent) {
     setDark(!!e.matches);

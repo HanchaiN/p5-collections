@@ -2,7 +2,7 @@ import { useColorScheme } from "@/hooks/use-dark-mode";
 import { useSiteMetadata } from "@/hooks/use-site-metadata";
 import { bodyMedium, surface } from "@/styles/main.module.scss";
 import "@/styles/main.scss";
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useEffect } from "react";
 
 type Props = {
   title?: string;
@@ -23,11 +23,14 @@ export default function Header({
   };
 
   const dark = useColorScheme();
-  const theme = dark ? "mocha" : "latte";
+  useEffect(() => {
+    document.body.classList.toggle("theme-mocha", dark);
+    document.body.classList.toggle("theme-latte", !dark);
+  }, [dark]);
 
   return (
     <>
-      <html lang="en" className={`theme-${theme}`} />
+      <html lang="en" />
       {metadata.title ? <title>{metadata.title}</title> : <></>}
       <meta charSet="utf-8" />
       {metadata.description ? (
