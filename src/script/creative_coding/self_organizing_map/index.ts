@@ -70,8 +70,8 @@ export default function execute() {
       return color.srgb(color.css(v)).xyz;
     });
     const palette_lch = palette
-        .slice(0, 14)
-        .map((v) => color.oklch(color.srgb(...v))),
+      .slice(0, 14)
+      .map((v) => color.oklch(color.srgb(...v))),
       avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette.length,
       avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette.length,
       cov_ll =
@@ -120,19 +120,19 @@ export default function execute() {
       Math.exp(-this.constants.learning_decay_rate * iter) *
       gaus(
         vector_dist([this.thread.x, this.thread.y], best_matching) /
-          (this.output.x *
-            this.constants.range *
-            Math.exp(-this.constants.range_decay_rate * iter)),
+        (this.output.x *
+          this.constants.range *
+          Math.exp(-this.constants.range_decay_rate * iter)),
       );
     const current = color.srgb(color.srgb(...this.getColor())).xyz;
     const target = color.srgb(color.srgb(...element)).xyz;
     const val = new Array(3)
       .fill(0)
       .map((_, i) => lerp(ratio, current[i], target[i])) as [
-      number,
-      number,
-      number,
-    ];
+        number,
+        number,
+        number,
+      ];
     const [r, g, b] = color.srgb(color.srgb(...val)).xyz;
     this.color(r, g, b, 1);
   }
@@ -143,22 +143,22 @@ export default function execute() {
     constants.range =
       +config.querySelector<HTMLInputElement>("input[id=range]")!.value;
     constants.learning_rate = +config.querySelector<HTMLInputElement>(
-      "input[id=learning-rate]",
+      "input#learning-rate",
     )!.value;
     constants.range_decay_rate = +config.querySelector<HTMLInputElement>(
-      "input[id=range-decay-rate]",
+      "input#range-decay-rate",
     )!.value;
     constants.learning_decay_rate = +config.querySelector<HTMLInputElement>(
-      "input[id=learning-decay-rate]",
+      "input#learning-decay-rate",
     )!.value;
     constants.color_choices = +config.querySelector<HTMLInputElement>(
-      "input[id=color-choices]",
+      "input#color-choices",
     )!.value;
     constants.weight_positions = +config.querySelector<HTMLInputElement>(
-      "input[id=weight-positions]",
+      "input#weight-positions",
     )!.value;
     constants.weight_colors = +config.querySelector<HTMLInputElement>(
-      "input[id=weight-colors]",
+      "input#weight-colors",
     )!.value;
     renderer = kernelGenerator(main, constants, buffer!);
     i = 0;
@@ -189,16 +189,16 @@ export default function execute() {
               color.srgb(...values[k]),
               color.srgb(
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
+                4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
+                4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
+                4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
+                4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
                 ] / 255,
               ),
             );
@@ -258,22 +258,22 @@ export default function execute() {
       config.querySelector<HTMLInputElement>("input[id=range]")!.defaultValue =
         constants.range.toString();
       config.querySelector<HTMLInputElement>(
-        "input[id=learning-rate]",
+        "input#learning-rate",
       )!.defaultValue = constants.learning_rate.toString();
       config.querySelector<HTMLInputElement>(
-        "input[id=range-decay-rate]",
+        "input#range-decay-rate",
       )!.defaultValue = constants.range_decay_rate.toString();
       config.querySelector<HTMLInputElement>(
-        "input[id=learning-decay-rate]",
+        "input#learning-decay-rate",
       )!.defaultValue = constants.learning_decay_rate.toString();
       config.querySelector<HTMLInputElement>(
-        "input[id=color-choices]",
+        "input#color-choices",
       )!.defaultValue = constants.color_choices.toString();
       config.querySelector<HTMLInputElement>(
-        "input[id=weight-positions]",
+        "input#weight-positions",
       )!.defaultValue = constants.weight_positions.toString();
       config.querySelector<HTMLInputElement>(
-        "input[id=weight-colors]",
+        "input#weight-colors",
       )!.defaultValue = constants.weight_colors.toString();
       generate(buffer);
       setup(config);
