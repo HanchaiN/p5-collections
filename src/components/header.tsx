@@ -24,8 +24,8 @@ export default function Header({
 
   const dark = useColorScheme();
   useEffect(() => {
-    document.body.classList.toggle("theme-mocha", dark);
-    document.body.classList.toggle("theme-latte", !dark);
+    document.documentElement.classList.toggle("theme-mocha", dark);
+    document.documentElement.classList.toggle("theme-latte", !dark);
   }, [dark]);
 
   return (

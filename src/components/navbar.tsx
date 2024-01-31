@@ -10,7 +10,7 @@ import {
 } from "@/styles/navbar.module.scss";
 import * as color from "@thi.ng/color";
 import { Link, graphql, useStaticQuery } from "gatsby";
-import React, { useMemo, useRef } from "react";
+import React, { memo, useMemo, useRef } from "react";
 
 type Directory = {
   name: string;
@@ -91,7 +91,7 @@ function generateNav(
   );
 }
 
-export default function Navbar() {
+export const Navbar = memo(function Navbar() {
   const menuToggleRef = useRef<HTMLInputElement>(null);
   const root = useMemo(() => {
     const data = useStaticQuery<Queries.NavbarQuery>(query);
@@ -181,7 +181,8 @@ export default function Navbar() {
       </nav>
     </>
   );
-}
+});
+export default Navbar;
 
 const query = graphql`
   query Navbar {
