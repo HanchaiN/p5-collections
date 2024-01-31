@@ -38,6 +38,40 @@ export default React.lazy(async () => {
               Image:
             </label>
             <input type="file" accept="image/*" id="image" />
+            <label htmlFor="range" className={labelMedium}>
+              Initial Range: <slot id="range-value"></slot>
+            </label>
+            <input id="range" type="range" step="1e-5" min="0" max="1" />
+            <label htmlFor="learning-rate" className={labelMedium}>
+              Initial Learning Rate: <slot id="learning-rate-value"></slot>
+            </label>
+            <input
+              id="learning-rate"
+              type="range"
+              step="1e-5"
+              min="0"
+              max="1"
+            />
+            <label htmlFor="range-decay-rate" className={labelMedium}>
+              Range Decay Rate:
+            </label>
+            <input id="range-decay-rate" type="number" min="0" />
+            <label htmlFor="learning-decay-rate" className={labelMedium}>
+              Learning Decay Rate:
+            </label>
+            <input id="learning-decay-rate" type="number" min="0" />
+            <label htmlFor="color-choices" className={labelMedium}>
+              Color Choices:
+            </label>
+            <input id="color-choices" type="range" step="1" min="0" max="10" />
+            <label htmlFor="weight-position" className={labelMedium}>
+              Position Weighting:
+            </label>
+            <input id="weight-position" type="number" />
+            <label htmlFor="weight-cplor" className={labelMedium}>
+              Color Weighting:
+            </label>
+            <input id="weight-cplor" type="number" />
           </form>
         </div>
       );

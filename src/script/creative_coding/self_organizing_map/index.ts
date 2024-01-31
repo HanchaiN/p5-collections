@@ -14,15 +14,25 @@ import * as color from "@thi.ng/color";
 
 export default function execute() {
   let isActive = false;
-  let isDrawing = false;
   const scale = 2;
-  const choices = 3;
+  let ctx: CanvasRenderingContext2D;
+  let handlerId: number | null = null;
+  let buffer: ImageData;
+  let generator: Generator<TVector3, never, void>;
+  let renderer: ReturnType<
+    typeof kernelGenerator<
+      IConstants,
+      [best_matching: TVector2, element: TVector3, iter: number]
+    >
+  >;
+  let i = 0;
 
   interface IConstants {
     range: number;
     learning_rate: number;
     range_decay_rate: number;
     learning_decay_rate: number;
+    color_choices: number;
     weight_positions: number;
     weight_colors: number;
   }
@@ -31,6 +41,7 @@ export default function execute() {
     learning_rate: 0.125,
     range_decay_rate: 1e-3,
     learning_decay_rate: 0,
+    color_choices: 2,
     weight_positions: +50,
     weight_colors: -1,
   };
@@ -97,7 +108,6 @@ export default function execute() {
       }
     }
   }
-  const generator: Generator<TVector3, never, void> | null = elementGenerator();
 
   function main(
     this: IKernelFunctionThis<IConstants>,
@@ -127,115 +137,149 @@ export default function execute() {
     this.color(r, g, b, 1);
   }
 
+  function setup(config: HTMLFormElement) {
+    if (handlerId != null) cancelAnimationFrame(handlerId);
+    generator = elementGenerator();
+    constants.range =
+      +config.querySelector<HTMLInputElement>("input[id=range]")!.value;
+    constants.learning_rate = +config.querySelector<HTMLInputElement>(
+      "input[id=learning-rate]",
+    )!.value;
+    constants.range_decay_rate = +config.querySelector<HTMLInputElement>(
+      "input[id=range-decay-rate]",
+    )!.value;
+    constants.learning_decay_rate = +config.querySelector<HTMLInputElement>(
+      "input[id=learning-decay-rate]",
+    )!.value;
+    constants.color_choices = +config.querySelector<HTMLInputElement>(
+      "input[id=color-choices]",
+    )!.value;
+    constants.weight_positions = +config.querySelector<HTMLInputElement>(
+      "input[id=weight-positions]",
+    )!.value;
+    constants.weight_colors = +config.querySelector<HTMLInputElement>(
+      "input[id=weight-colors]",
+    )!.value;
+    renderer = kernelGenerator(main, constants, buffer!);
+    i = 0;
+    handlerId = requestAnimationFrame(function draw() {
+      if (!isActive) return;
+      createImageBitmap(buffer).then((bmp) =>
+        ctx.drawImage(bmp, 0, 0, ctx.canvas.width, ctx.canvas.height),
+      );
+      new Promise<void>((resolve) => resolve(render())).then(() =>
+        requestAnimationFrame(draw),
+      );
+    });
+  }
+  function render() {
+    const values = new Array(constants.color_choices)
+      .fill(0)
+      .map(() => generator.next().value);
+    let x = -1,
+      y = -1,
+      c = 0;
+    {
+      let col = [];
+      for (let k = 0; k < values.length; k++) {
+        let pos = [];
+        for (let i = 0; i < buffer.width; i++) {
+          for (let j = 0; j < buffer.height; j++) {
+            const dist = color.distLch(
+              color.srgb(...values[k]),
+              color.srgb(
+                buffer.data[
+                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
+                ] / 255,
+                buffer.data[
+                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
+                ] / 255,
+                buffer.data[
+                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
+                ] / 255,
+                buffer.data[
+                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
+                ] / 255,
+              ),
+            );
+            pos.push({ x: i, y: j, d: dist });
+          }
+        }
+        pos = pos.map(({ x, y, d }) => ({
+          x,
+          y,
+          d,
+          w: Math.exp(-d * constants.weight_positions),
+        }));
+        const sum = pos.reduce((acc, { w }) => acc + w, 0);
+        const r = Math.random() * sum;
+        let s = 0;
+        for (let i = 0; i < pos.length; i++) {
+          s += pos[i].w;
+          if (s >= r) {
+            col.push(pos[i]);
+            break;
+          }
+        }
+      }
+      col = col.map(({ x, y, d }) => ({
+        x,
+        y,
+        d,
+        w: Math.exp(-d * constants.weight_colors),
+      }));
+      const sum = col.reduce((acc, { w }) => acc + w, 0);
+      const r = Math.random() * sum;
+      let s = 0;
+      for (let i = 0; i < col.length; i++) {
+        s += col[i].w;
+        if (s >= r) {
+          x = col[i].x;
+          y = col[i].y;
+          c = i;
+          break;
+        }
+      }
+    }
+    const step = renderer([x, y], values[c], i++);
+    while (!step.next().done) continue;
+  }
+
   return {
     start: (canvas: HTMLCanvasElement, config: HTMLFormElement) => {
       isActive = true;
-      const ctx = canvas.getContext("2d", {
+      ctx = canvas.getContext("2d", {
         alpha: false,
         desynchronized: true,
       })!;
       ctx.fillStyle = getColor("--color-surface-container-3", "#000");
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const buffer = ctx.createImageData(
-        canvas.width / scale,
-        canvas.height / scale,
-      );
+      buffer = ctx.createImageData(canvas.width / scale, canvas.height / scale);
+      config.querySelector<HTMLInputElement>("input[id=range]")!.defaultValue =
+        constants.range.toString();
+      config.querySelector<HTMLInputElement>(
+        "input[id=learning-rate]",
+      )!.defaultValue = constants.learning_rate.toString();
+      config.querySelector<HTMLInputElement>(
+        "input[id=range-decay-rate]",
+      )!.defaultValue = constants.range_decay_rate.toString();
+      config.querySelector<HTMLInputElement>(
+        "input[id=learning-decay-rate]",
+      )!.defaultValue = constants.learning_decay_rate.toString();
+      config.querySelector<HTMLInputElement>(
+        "input[id=color-choices]",
+      )!.defaultValue = constants.color_choices.toString();
+      config.querySelector<HTMLInputElement>(
+        "input[id=weight-positions]",
+      )!.defaultValue = constants.weight_positions.toString();
+      config.querySelector<HTMLInputElement>(
+        "input[id=weight-colors]",
+      )!.defaultValue = constants.weight_colors.toString();
       generate(buffer);
-      const renderer = kernelGenerator(main, constants, buffer);
-      let i = 0;
-      isDrawing = true;
-      requestAnimationFrame(function draw() {
-        if (!isActive) return;
-        if (!isDrawing) {
-          requestAnimationFrame(draw);
-          return;
-        }
-        isDrawing = false;
-        createImageBitmap(buffer).then((bmp) =>
-          ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height),
-        );
-        requestAnimationFrame(draw);
-      });
-      requestIdleCallback(function update() {
-        if (!isActive) return;
-        if (generator) {
-          const values = new Array(choices)
-            .fill(0)
-            .map(() => generator.next().value);
-          let x = -1,
-            y = -1,
-            c = 0;
-          {
-            let col = [];
-            for (let k = 0; k < values.length; k++) {
-              let pos = [];
-              for (let i = 0; i < buffer.width; i++) {
-                for (let j = 0; j < buffer.height; j++) {
-                  const dist = color.distLch(
-                    color.srgb(...values[k]),
-                    color.srgb(
-                      buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
-                      ] / 255,
-                      buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
-                      ] / 255,
-                      buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
-                      ] / 255,
-                      buffer.data[
-                        4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
-                      ] / 255,
-                    ),
-                  );
-                  pos.push({ x: i, y: j, d: dist });
-                }
-              }
-              pos = pos.map(({ x, y, d }) => ({
-                x,
-                y,
-                d,
-                w: Math.exp(-d * constants.weight_positions),
-              }));
-              const sum = pos.reduce((acc, { w }) => acc + w, 0);
-              const r = Math.random() * sum;
-              let s = 0;
-              for (let i = 0; i < pos.length; i++) {
-                s += pos[i].w;
-                if (s >= r) {
-                  col.push(pos[i]);
-                  break;
-                }
-              }
-            }
-            col = col.map(({ x, y, d }) => ({
-              x,
-              y,
-              d,
-              w: Math.exp(-d * constants.weight_colors),
-            }));
-            const sum = col.reduce((acc, { w }) => acc + w, 0);
-            const r = Math.random() * sum;
-            let s = 0;
-            for (let i = 0; i < col.length; i++) {
-              s += col[i].w;
-              if (s >= r) {
-                x = col[i].x;
-                y = col[i].y;
-                c = i;
-                break;
-              }
-            }
-          }
-          const step = renderer([x, y], values[c], i++);
-          while (!step.next().done) continue;
-          isDrawing = true;
-        }
-        requestIdleCallback(update);
-      });
+      setup(config);
       canvas.addEventListener("click", function () {
         generate(buffer);
-        i = 0;
+        setup(config);
       });
       config
         .querySelector<HTMLInputElement>("#image")!
@@ -249,7 +293,7 @@ export default function execute() {
             buffer.data.set(
               ctx.getImageData(0, 0, buffer.width, buffer.height).data,
             );
-            i = 0;
+            setup(config);
           });
           img.src = URL.createObjectURL(this.files![0]);
         });
