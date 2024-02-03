@@ -17,7 +17,7 @@ import { dither } from "../dithering/pipeline";
 
 export default function execute() {
   let isActive = false;
-  const scale = 5;
+  const scale = 1;
   let ctx: CanvasRenderingContext2D;
   let handlerId: number | null = null;
   let buffer: ImageData;
@@ -118,16 +118,16 @@ export default function execute() {
       return color.srgb(color.css(v)).xyz;
     });
     const palette_lch = new Array(buffer.width * buffer.height)
-        .fill(0)
-        .map((_, i) => {
-          return color.oklch(
-            color.srgb(
-              buffer.data[i * 4 + 0] / 255,
-              buffer.data[i * 4 + 1] / 255,
-              buffer.data[i * 4 + 2] / 255,
-            ),
-          );
-        }),
+      .fill(0)
+      .map((_, i) => {
+        return color.oklch(
+          color.srgb(
+            buffer.data[i * 4 + 0] / 255,
+            buffer.data[i * 4 + 1] / 255,
+            buffer.data[i * 4 + 2] / 255,
+          ),
+        );
+      }),
       avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette_lch.length,
       avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette_lch.length,
       cov_ll =
@@ -226,9 +226,9 @@ export default function execute() {
       Math.exp(-this.constants.learning_decay_rate * iter) *
       gaus(
         vector_dist([this.thread.x, this.thread.y], best_matching) /
-          (this.output.x *
-            this.constants.range *
-            Math.exp(-this.constants.range_decay_rate * iter)),
+        (this.output.x *
+          this.constants.range *
+          Math.exp(-this.constants.range_decay_rate * iter)),
       );
     const current = color.oklab(color.srgb(...this.getColor())).xyz;
     const target = color.oklab(color.srgb(...element)).xyz;
@@ -299,16 +299,16 @@ export default function execute() {
               color.srgb(...values[k]),
               color.srgb(
                 buffer.data[
-                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 0
+                4 * buffer.width * (buffer.height - j - 1) + 4 * i + 0
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 1
+                4 * buffer.width * (buffer.height - j - 1) + 4 * i + 1
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 2
+                4 * buffer.width * (buffer.height - j - 1) + 4 * i + 2
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 3
+                4 * buffer.width * (buffer.height - j - 1) + 4 * i + 3
                 ] / 255,
               ),
             );
