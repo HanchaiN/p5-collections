@@ -92,9 +92,9 @@ function generateNav(
 }
 
 export const Navbar = memo(function Navbar() {
+  const data = useStaticQuery<Queries.NavbarQuery>(query);
   const menuToggleRef = useRef<HTMLInputElement>(null);
   const root = useMemo(() => {
-    const data = useStaticQuery<Queries.NavbarQuery>(query);
     const paths = data.allMdx.nodes
       .map((node) => ({
         path:
@@ -134,7 +134,7 @@ export const Navbar = memo(function Navbar() {
       parent.href = type === "WIP" ? `/WIP/${route}` : `/${route}`;
     }
     return root;
-  }, []);
+  }, [data]);
 
   const gradient = color
     .multiColorGradient({

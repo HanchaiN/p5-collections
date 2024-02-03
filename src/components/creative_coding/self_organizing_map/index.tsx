@@ -61,7 +61,7 @@ export default React.lazy(async () => {
             </label>
             <input id="learning-decay-rate" type="number" min="0" />
             <label htmlFor="color-choices" className={labelMedium}>
-              Color Choices:
+              Color Choices: <slot id="color-choices-value"></slot>
             </label>
             <input id="color-choices" type="range" step="1" min="1" max="10" />
             <label htmlFor="weight-positions" className={labelMedium}>

@@ -3,18 +3,20 @@ import { getColor, kernelGenerator } from "@/script/utils/dom";
 import {
   TVector2,
   TVector3,
+  constrainLerp,
   gaus,
-  lerp,
+  softargmax,
   vector_dist,
 } from "@/script/utils/math";
 import { randomGaussian, randomUniform } from "@/script/utils/math/random";
 import type { IKernelFunctionThis } from "@/script/utils/types";
 import { flavors } from "@catppuccin/palette";
 import * as color from "@thi.ng/color";
+import { getPalette } from "../color_quantization/pipeline";
 
 export default function execute() {
   let isActive = false;
-  const scale = 2;
+  const scale = 1;
   let ctx: CanvasRenderingContext2D;
   let handlerId: number | null = null;
   let buffer: ImageData;
@@ -38,15 +40,28 @@ export default function execute() {
   }
   const constants: IConstants = {
     range: 0.25,
-    learning_rate: 0.125,
+    learning_rate: 0.75,
     range_decay_rate: 1e-3,
     learning_decay_rate: 0,
     color_choices: 2,
-    weight_positions: +50,
-    weight_colors: -1,
+    weight_positions: +100,
+    weight_colors: +1,
   };
 
-  function* elementGenerator(): Generator<TVector3, never, void> {
+  function* elementGenerator(
+    image: CanvasImageSource,
+  ): Generator<TVector3, never, void> {
+    const offscreen = new OffscreenCanvas(50, 50);
+    const offscreenCtx = offscreen.getContext("2d")!;
+    offscreenCtx.drawImage(image, 0, 0, offscreen.width, offscreen.height);
+    const buffer = offscreenCtx.getImageData(
+      0,
+      0,
+      offscreen.width,
+      offscreen.height,
+    );
+    const auto_palette = getPalette(buffer, 16);
+    console.log(auto_palette);
     const palette = [
       getColor("--cpt-rosewater", flavors["mocha"].colors.rosewater.hex),
       getColor("--cpt-flamingo", flavors["mocha"].colors.flamingo.hex),
@@ -69,43 +84,91 @@ export default function execute() {
     ].map((v) => {
       return color.srgb(color.css(v)).xyz;
     });
-    const palette_lch = palette
-        .slice(0, 14)
-        .map((v) => color.oklch(color.srgb(...v))),
-      avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette.length,
-      avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette.length,
+    const palette_lch = new Array(buffer.width * buffer.height)
+        .fill(0)
+        .map((_, i) => {
+          return color.oklch(
+            color.srgb(
+              buffer.data[i * 4 + 0] / 255,
+              buffer.data[i * 4 + 1] / 255,
+              buffer.data[i * 4 + 2] / 255,
+            ),
+          );
+        }),
+      avg_l = palette_lch.reduce((acc, v) => acc + v.l, 0) / palette_lch.length,
+      avg_c = palette_lch.reduce((acc, v) => acc + v.c, 0) / palette_lch.length,
       cov_ll =
         palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.l - avg_l), 0) /
-        palette.length,
+        palette_lch.length,
       cov_cc =
         palette_lch.reduce((acc, v) => acc + (v.c - avg_c) * (v.c - avg_c), 0) /
-        palette.length,
+        palette_lch.length,
       cov_lc =
         palette_lch.reduce((acc, v) => acc + (v.l - avg_l) * (v.c - avg_c), 0) /
-        palette.length,
+        palette_lch.length,
       fac_xl = Math.sqrt(cov_ll),
       fac_xc = cov_lc / fac_xl,
       fac_yc = Math.sqrt(cov_cc - fac_xc * fac_xc);
     while (true) {
-      if (Math.random() < 0.0125)
-        yield [
+      let c: TVector3;
+      // eslint-disable-next-line no-dupe-else-if
+      if (Math.random() < 0.0025)
+        c = [
           Math.round(Math.random()),
           Math.round(Math.random()),
           Math.round(Math.random()),
         ];
-      else if (Math.random() < 0.25)
-        yield palette[Math.floor(Math.random() * palette.length)];
-      else {
+      // eslint-disable-next-line no-dupe-else-if
+      else if (Math.random() < 0.95)
+        c = auto_palette[Math.floor(Math.random() * auto_palette.length)];
+      // eslint-disable-next-line no-dupe-else-if
+      else if (Math.random() < 0.0125)
+        c = palette[Math.floor(Math.random() * palette.length)];
+      // eslint-disable-next-line no-dupe-else-if
+      else if (Math.random() < 0.0125)
+        c = color.srgb(
+          color.oklch(
+            randomGaussian(0.8, 0.125),
+            randomUniform(0.05, 0.1),
+            randomUniform(0, 1),
+          ),
+        ).xyz;
+      // eslint-disable-next-line no-dupe-else-if
+      else if (Math.random() < 0.5) {
+        c = color.srgb(
+          color.oklch(
+            randomGaussian(avg_l, Math.sqrt(cov_ll)),
+            randomUniform(
+              avg_c - 1.5 * Math.sqrt(cov_cc),
+              avg_c + 1.5 * Math.sqrt(cov_cc),
+            ),
+            randomUniform(0, 1),
+          ),
+        ).xyz;
+      } else {
         const x = randomGaussian(),
           y = randomGaussian();
-        yield color.rgb(
-          color.oklch([
+        c = color.srgb(
+          color.oklch(
             avg_l + fac_xl * x,
+            0,
+            1,
             avg_c + fac_xc * x + fac_yc * y,
+            0,
+            1,
             randomUniform(0, 1),
-          ]),
+          ),
         ).xyz;
       }
+      if (
+        c[0] >= 0 &&
+        c[0] <= 1 &&
+        c[1] >= 0 &&
+        c[1] <= 1 &&
+        c[2] >= 0 &&
+        c[2] <= 1
+      )
+        yield c;
     }
   }
 
@@ -124,22 +187,18 @@ export default function execute() {
             this.constants.range *
             Math.exp(-this.constants.range_decay_rate * iter)),
       );
-    const current = color.srgb(color.srgb(...this.getColor())).xyz;
-    const target = color.srgb(color.srgb(...element)).xyz;
-    const val = new Array(3)
-      .fill(0)
-      .map((_, i) => lerp(ratio, current[i], target[i])) as [
-      number,
-      number,
-      number,
-    ];
-    const [r, g, b] = color.srgb(color.srgb(...val)).xyz;
+    const current = color.oklab(color.srgb(...this.getColor())).xyz;
+    const target = color.oklab(color.srgb(...element)).xyz;
+    const l_ = constrainLerp(ratio, current[0], target[0]),
+      a_ = constrainLerp(ratio, current[1], target[1]),
+      b_ = constrainLerp(ratio, current[2], target[2]);
+    const [r, g, b] = color.srgb(color.oklab(l_, a_, b_)).xyz;
     this.color(r, g, b, 1);
   }
 
-  function setup(config: HTMLFormElement) {
+  function setup(config: HTMLFormElement, image: CanvasImageSource) {
     if (handlerId != null) cancelAnimationFrame(handlerId);
-    generator = elementGenerator();
+    generator = elementGenerator(image);
     constants.range =
       +config.querySelector<HTMLInputElement>("input#range")!.value;
     constants.learning_rate = +config.querySelector<HTMLInputElement>(
@@ -185,34 +244,31 @@ export default function execute() {
         let pos = [];
         for (let i = 0; i < buffer.width; i++) {
           for (let j = 0; j < buffer.height; j++) {
-            const dist = color.distLch(
+            const dist = color.distEucledian3(
               color.srgb(...values[k]),
               color.srgb(
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 0
+                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 0
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 1
+                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 1
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 2
+                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 2
                 ] / 255,
                 buffer.data[
-                  4 * buffer.width * (buffer.height - y - 1) + 4 * x + 3
+                  4 * buffer.width * (buffer.height - j - 1) + 4 * i + 3
                 ] / 255,
               ),
             );
             pos.push({ x: i, y: j, d: dist });
           }
         }
-        pos = pos.map(({ x, y, d }) => ({
-          x,
-          y,
-          d,
-          w: Math.exp(-d * constants.weight_positions),
-        }));
-        const sum = pos.reduce((acc, { w }) => acc + w, 0);
-        const r = Math.random() * sum;
+        const w = softargmax(
+          ...pos.map(({ d }) => -d * constants.weight_positions),
+        );
+        pos = pos.map(({ x, y, d }, i) => ({ x, y, d, w: w[i] }));
+        const r = Math.random();
         let s = 0;
         for (let i = 0; i < pos.length; i++) {
           s += pos[i].w;
@@ -221,25 +277,22 @@ export default function execute() {
             break;
           }
         }
+        if (col.length <= k) col.push(pos[w.indexOf(Math.max(...w))]);
       }
-      col = col.map(({ x, y, d }) => ({
-        x,
-        y,
-        d,
-        w: Math.exp(-d * constants.weight_colors),
-      }));
-      const sum = col.reduce((acc, { w }) => acc + w, 0);
-      const r = Math.random() * sum;
+      const w = softargmax(...col.map(({ d }) => -d * constants.weight_colors));
+      c = w.indexOf(Math.max(...w));
+      col = col.map(({ x, y, d }, i) => ({ x, y, d, w: w[i] }));
+      const r = Math.random();
       let s = 0;
       for (let i = 0; i < col.length; i++) {
         s += col[i].w;
         if (s >= r) {
-          x = col[i].x;
-          y = col[i].y;
           c = i;
           break;
         }
       }
+      x = col[c].x;
+      y = col[c].y;
     }
     const step = renderer([x, y], values[c], i++);
     while (!step.next().done) continue;
@@ -248,10 +301,7 @@ export default function execute() {
   return {
     start: (canvas: HTMLCanvasElement, config: HTMLFormElement) => {
       isActive = true;
-      ctx = canvas.getContext("2d", {
-        alpha: false,
-        desynchronized: true,
-      })!;
+      ctx = canvas.getContext("2d")!;
       ctx.fillStyle = getColor("--color-surface-container-3", "#000");
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       buffer = ctx.createImageData(canvas.width / scale, canvas.height / scale);
@@ -278,22 +328,31 @@ export default function execute() {
       config
         .querySelector<HTMLInputElement>("input#range")!
         .addEventListener("change", function () {
-          config.querySelector<HTMLInputElement>("slot#range")!.innerText =
-            constants.range.toFixed(3);
+          config.querySelector<HTMLInputElement>(
+            "slot#range-value",
+          )!.innerText = (+this.value).toFixed(3);
         });
       config
         .querySelector<HTMLInputElement>("input#learning-rate")!
         .addEventListener("change", function () {
           config.querySelector<HTMLInputElement>(
-            "slot#learning-rate",
-          )!.innerText = constants.learning_rate.toFixed(3);
+            "slot#learning-rate-value",
+          )!.innerText = (+this.value).toFixed(3);
         });
-
-      generate(buffer);
-      setup(config);
+      config
+        .querySelector<HTMLInputElement>("input#color-choices")!
+        .addEventListener("change", function () {
+          config.querySelector<HTMLInputElement>(
+            "slot#color-choices-value",
+          )!.innerText = (+this.value).toFixed(3);
+        });
       canvas.addEventListener("click", function () {
         generate(buffer);
-        setup(config);
+        const ofs_canvas = new OffscreenCanvas(buffer.width, buffer.height);
+        const ofs_ctx = ofs_canvas.getContext("2d")!;
+        ofs_ctx.putImageData(buffer, 0, 0);
+        ctx.drawImage(ofs_canvas, 0, 0, canvas.width, canvas.height);
+        setup(config, canvas);
       });
       config
         .querySelector<HTMLInputElement>("#image")!
@@ -307,10 +366,11 @@ export default function execute() {
             buffer.data.set(
               ctx.getImageData(0, 0, buffer.width, buffer.height).data,
             );
-            setup(config);
+            setup(config, canvas);
           });
           img.src = URL.createObjectURL(this.files![0]);
         });
+      canvas.dispatchEvent(new Event("click"));
     },
     stop: () => {
       isActive = false;
