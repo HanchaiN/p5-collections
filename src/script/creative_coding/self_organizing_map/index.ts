@@ -244,7 +244,7 @@ export default function execute() {
         let pos = [];
         for (let i = 0; i < buffer.width; i++) {
           for (let j = 0; j < buffer.height; j++) {
-            const dist = color.distEucledian3(
+            const dist = color.distLch(
               color.srgb(...values[k]),
               color.srgb(
                 buffer.data[
