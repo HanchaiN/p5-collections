@@ -43,6 +43,21 @@ export function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
   };
 }
 
+export function onImageChange(
+  input: HTMLInputElement,
+  callback: (img: HTMLImageElement) => void,
+) {
+  input.addEventListener("change", function () {
+    if (!this.files?.length) return;
+    const img = new Image();
+    img.addEventListener("load", function onImageLoad() {
+      this.removeEventListener("load", onImageLoad);
+      callback(img);
+    });
+    img.src = URL.createObjectURL(this.files[0]);
+  });
+}
+
 export const maxWorkers = window.navigator.hardwareConcurrency
   ? Math.floor(window.navigator.hardwareConcurrency)
   : 1;

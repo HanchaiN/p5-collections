@@ -1,4 +1,4 @@
-import { getColor } from "@/script/utils/dom";
+import { getColor, onImageChange } from "@/script/utils/dom";
 import { constrainMap, symlog } from "@/script/utils/math";
 import * as color from "@thi.ng/color";
 import { Base64Encode } from "base64-stream";
@@ -386,22 +386,13 @@ export default function execute() {
         alpha: false,
         desynchronized: true,
       })!;
-      config
-        .querySelector<HTMLInputElement>("#image")!
-        .addEventListener("change", function () {
-          const placeholder = parent.querySelector("img#display-canvas");
-          if (placeholder) {
-            placeholder.replaceWith(display_canvas);
-            placeholder.remove();
-          }
-          const img = new Image();
-          img.addEventListener("load", function onImageLoad() {
-            this.removeEventListener("load", onImageLoad);
-            redraw(img);
-          });
-          img.src = URL.createObjectURL(this.files![0]);
+      onImageChange(
+        config.querySelector<HTMLInputElement>("#image")!,
+        (img) => {
           src = img.src;
-        });
+          redraw(img);
+        },
+      );
       fft_size_slider = config.querySelector("#fft-size")!;
       fft_size_value = config.querySelector("#fft-size-value")!;
       render_size_slider = config.querySelector("#render-size")!;

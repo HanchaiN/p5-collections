@@ -1,4 +1,4 @@
-import { getColor } from "@/script/utils/dom";
+import { getColor, onImageChange } from "@/script/utils/dom";
 import {
   filterConnectivity,
   gaussianBlur,
@@ -62,16 +62,7 @@ export default function execute() {
     start: (sketch: HTMLCanvasElement, config: HTMLFormElement) => {
       canvas = sketch;
       ctx = canvas.getContext("2d", { alpha: false, desynchronized: true })!;
-      config
-        .querySelector<HTMLInputElement>("#image")!
-        .addEventListener("change", function () {
-          const img = new Image();
-          img.addEventListener("load", function onImageLoad() {
-            this.removeEventListener("load", onImageLoad);
-            redraw(img);
-          });
-          img.src = URL.createObjectURL(this.files![0]);
-        });
+      onImageChange(config.querySelector<HTMLInputElement>("#image")!, redraw);
       setup();
       isActive = true;
     },
