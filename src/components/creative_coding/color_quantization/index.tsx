@@ -38,6 +38,14 @@ export default React.lazy(async () => {
               Image:
             </label>
             <input type="file" accept="image/*" id="image" />
+            <label htmlFor="palette-count" className={labelMedium}>
+              Color Count:
+            </label>
+            <input id="palette-count" type="number" disabled />
+            <label htmlFor="palette-score" className={labelMedium}>
+              Silhouette Score:
+            </label>
+            <input id="palette-score" type="number" disabled />
           </form>
         </div>
       );

@@ -1,5 +1,5 @@
 import { generate } from "@/script/creative_coding/perlin_noise/pipeline";
-import { getColor, kernelGenerator } from "@/script/utils/dom";
+import { getColor, kernelGenerator, onImageChange } from "@/script/utils/dom";
 import {
   TVector2,
   TVector3,
@@ -13,10 +13,11 @@ import type { IKernelFunctionThis } from "@/script/utils/types";
 import { flavors } from "@catppuccin/palette";
 import * as color from "@thi.ng/color";
 import { getPalette } from "../color_quantization/pipeline";
+import { dither } from "../dithering/pipeline";
 
 export default function execute() {
   let isActive = false;
-  const scale = 1;
+  const scale = 5;
   let ctx: CanvasRenderingContext2D;
   let handlerId: number | null = null;
   let buffer: ImageData;
@@ -39,20 +40,20 @@ export default function execute() {
     weight_colors: number;
   }
   const constants: IConstants = {
-    range: 0.25,
-    learning_rate: 0.75,
+    range: 0.125,
+    learning_rate: 0.125,
     range_decay_rate: 1e-3,
-    learning_decay_rate: 0,
-    color_choices: 2,
-    weight_positions: +100,
-    weight_colors: +1,
+    learning_decay_rate: 1e-6,
+    color_choices: 3,
+    weight_positions: +10,
+    weight_colors: -1,
   };
 
   function* elementGenerator(
     image: CanvasImageSource,
   ): Generator<TVector3, never, void> {
-    const offscreen = new OffscreenCanvas(50, 50);
-    const offscreenCtx = offscreen.getContext("2d")!;
+    const offscreen = new OffscreenCanvas(100, 100);
+    const offscreenCtx = offscreen.getContext("2d", { alpha: false })!;
     offscreenCtx.drawImage(image, 0, 0, offscreen.width, offscreen.height);
     const buffer = offscreenCtx.getImageData(
       0,
@@ -60,8 +61,40 @@ export default function execute() {
       offscreen.width,
       offscreen.height,
     );
-    const auto_palette = getPalette(buffer, 16);
-    console.log(auto_palette);
+    const auto_palette = getPalette(buffer, false, 16);
+    const auto_palette_weight = auto_palette.map(() => 1 / auto_palette.length);
+    {
+      dither(buffer, auto_palette);
+      const ind = new Array(buffer.width * buffer.height)
+        .fill(0)
+        .map((_, i) => {
+          return color.oklab(
+            color.srgb(
+              buffer.data[i * 4 + 0] / 255,
+              buffer.data[i * 4 + 1] / 255,
+              buffer.data[i * 4 + 2] / 255,
+            ),
+          );
+        })
+        .map((v) => {
+          let min_dist = Infinity,
+            min_ind = -1;
+          for (let j = 0; j < auto_palette.length; j++) {
+            const dist = color.distLch(v, color.srgb(...auto_palette[j]));
+            if (dist < min_dist) {
+              min_dist = dist;
+              min_ind = j;
+            }
+          }
+          return min_ind;
+        });
+      const freq = auto_palette.map(
+        (_, i) =>
+          ind.filter((j) => j === i).length / (buffer.width * buffer.height),
+      );
+      softargmax(freq).forEach((v, i) => (auto_palette_weight[i] = v));
+    }
+    console.log(auto_palette.map((v, i) => [v, auto_palette_weight[i]]));
     const palette = [
       getColor("--cpt-rosewater", flavors["mocha"].colors.rosewater.hex),
       getColor("--cpt-flamingo", flavors["mocha"].colors.flamingo.hex),
@@ -119,8 +152,18 @@ export default function execute() {
           Math.round(Math.random()),
         ];
       // eslint-disable-next-line no-dupe-else-if
-      else if (Math.random() < 0.95)
+      else if (Math.random() < 0.95) {
         c = auto_palette[Math.floor(Math.random() * auto_palette.length)];
+        const seed = Math.random();
+        let s = 0;
+        for (let j = 0; j < auto_palette.length; j++) {
+          s += auto_palette_weight[j];
+          if (s >= seed) {
+            c = auto_palette[j];
+            break;
+          }
+        }
+      }
       // eslint-disable-next-line no-dupe-else-if
       else if (Math.random() < 0.0125)
         c = palette[Math.floor(Math.random() * palette.length)];
@@ -219,6 +262,8 @@ export default function execute() {
     constants.weight_colors = +config.querySelector<HTMLInputElement>(
       "input#weight-colors",
     )!.value;
+    config.querySelector<HTMLInputElement>("input#iteration-count")!.value =
+      "0";
     renderer = kernelGenerator(main, constants, buffer!);
     i = 0;
     handlerId = requestAnimationFrame(function draw() {
@@ -226,9 +271,15 @@ export default function execute() {
       createImageBitmap(buffer).then((bmp) =>
         ctx.drawImage(bmp, 0, 0, ctx.canvas.width, ctx.canvas.height),
       );
-      new Promise<void>((resolve) => resolve(render())).then(() =>
-        requestAnimationFrame(draw),
-      );
+      new Promise<void>((resolve) => resolve(render())).then(() => {
+        config.querySelector<HTMLInputElement>("input#iteration-count")!.value =
+          (
+            1 +
+            +config.querySelector<HTMLInputElement>("input#iteration-count")!
+              .value
+          ).toString();
+        requestAnimationFrame(draw);
+      });
     });
   }
   function render() {
@@ -265,7 +316,7 @@ export default function execute() {
           }
         }
         const w = softargmax(
-          ...pos.map(({ d }) => -d * constants.weight_positions),
+          pos.map(({ d }) => -d * constants.weight_positions),
         );
         pos = pos.map(({ x, y, d }, i) => ({ x, y, d, w: w[i] }));
         const r = Math.random();
@@ -279,7 +330,7 @@ export default function execute() {
         }
         if (col.length <= k) col.push(pos[w.indexOf(Math.max(...w))]);
       }
-      const w = softargmax(...col.map(({ d }) => -d * constants.weight_colors));
+      const w = softargmax(col.map(({ d }) => -d * constants.weight_colors));
       c = w.indexOf(Math.max(...w));
       col = col.map(({ x, y, d }, i) => ({ x, y, d, w: w[i] }));
       const r = Math.random();
@@ -301,7 +352,7 @@ export default function execute() {
   return {
     start: (canvas: HTMLCanvasElement, config: HTMLFormElement) => {
       isActive = true;
-      ctx = canvas.getContext("2d")!;
+      ctx = canvas.getContext("2d", { alpha: false, desynchronized: true })!;
       ctx.fillStyle = getColor("--color-surface-container-3", "#000");
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       buffer = ctx.createImageData(canvas.width / scale, canvas.height / scale);
@@ -354,23 +405,18 @@ export default function execute() {
         ctx.drawImage(ofs_canvas, 0, 0, canvas.width, canvas.height);
         setup(config, canvas);
       });
-      config
-        .querySelector<HTMLInputElement>("#image")!
-        .addEventListener("change", function () {
-          const img = new Image();
-          img.addEventListener("load", function onImageLoad() {
-            this.removeEventListener("load", onImageLoad);
-            const canvas = new OffscreenCanvas(buffer.width, buffer.height);
-            const ctx = canvas.getContext("2d")!;
-            ctx.drawImage(img, 0, 0, buffer.width, buffer.height);
-            buffer.data.set(
-              ctx.getImageData(0, 0, buffer.width, buffer.height).data,
-            );
-            setup(config, canvas);
-          });
-          img.src = URL.createObjectURL(this.files![0]);
-        });
-      canvas.dispatchEvent(new Event("click"));
+      onImageChange(
+        config.querySelector<HTMLInputElement>("#image")!,
+        (img) => {
+          const canvas = new OffscreenCanvas(buffer.width, buffer.height);
+          const ctx = canvas.getContext("2d", { alpha: false })!;
+          ctx.drawImage(img, 0, 0, buffer.width, buffer.height);
+          buffer.data.set(
+            ctx.getImageData(0, 0, buffer.width, buffer.height).data,
+          );
+          setup(config, canvas);
+        },
+      );
     },
     stop: () => {
       isActive = false;

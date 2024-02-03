@@ -72,6 +72,10 @@ export default React.lazy(async () => {
               Color Weighting:
             </label>
             <input id="weight-colors" type="number" />
+            <label htmlFor="iteration-count" className={labelMedium}>
+              Iteration:
+            </label>
+            <input id="iteration-count" type="number" disabled />
           </form>
         </div>
       );

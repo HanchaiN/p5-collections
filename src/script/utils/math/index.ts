@@ -43,7 +43,7 @@ export function symlog(x: number) {
 export function symlog_inv(x: number) {
   return x > 0 ? Math.exp(x) - 1 : 1 - Math.exp(-x);
 }
-export function softargmax(...x: number[]): number[] {
+export function softargmax(x: number[]): number[] {
   {
     const exps = x.map((v) => Math.exp(v));
     const sum = exps.reduce((acc, v) => acc + v, 0);
@@ -70,8 +70,8 @@ export function softargmax(...x: number[]): number[] {
   }
   return new Array(x.length).fill(1 / x.length);
 }
-export function softmax(...x: number[]) {
-  const argmax = softargmax(...x);
+export function softmax(x: number[]) {
+  const argmax = softargmax(x);
   return x.reduce((acc, v, i) => acc + v * argmax[i], 0);
 }
 export function product(from: number, to: number) {
