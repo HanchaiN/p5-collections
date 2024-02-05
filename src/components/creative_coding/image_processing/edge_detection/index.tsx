@@ -9,7 +9,11 @@ import React, { useEffect, useRef } from "react";
 export default React.lazy(async () => {
   const main =
     typeof window !== "undefined"
-      ? (await import("@/script/creative_coding/color_quantization")).default
+      ? (
+          await import(
+            "@/script/creative_coding/image_processing/edge_detection"
+          )
+        ).default
       : () => null;
   return {
     default: function Component() {
@@ -38,14 +42,6 @@ export default React.lazy(async () => {
               Image:
             </label>
             <input type="file" accept="image/*" id="image" />
-            <label htmlFor="palette-count" className={labelMedium}>
-              Color Count:
-            </label>
-            <input id="palette-count" type="number" disabled />
-            <label htmlFor="palette-score" className={labelMedium}>
-              Silhouette Score:
-            </label>
-            <input id="palette-score" type="number" disabled />
           </form>
         </div>
       );

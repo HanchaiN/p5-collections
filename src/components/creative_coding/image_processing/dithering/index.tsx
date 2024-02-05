@@ -9,7 +9,8 @@ import React, { useEffect, useRef } from "react";
 export default React.lazy(async () => {
   const main =
     typeof window !== "undefined"
-      ? (await import("@/script/creative_coding/edge_detection")).default
+      ? (await import("@/script/creative_coding/image_processing/dithering"))
+          .default
       : () => null;
   return {
     default: function Component() {

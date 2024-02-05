@@ -43,6 +43,9 @@ export function symlog(x: number) {
 export function symlog_inv(x: number) {
   return x > 0 ? Math.exp(x) - 1 : 1 - Math.exp(-x);
 }
+export function argmax(x: number[]) {
+  return x.indexOf(Math.max(...x));
+}
 export function softargmax(x: number[]): number[] {
   {
     const exps = x.map((v) => Math.exp(v));
@@ -50,25 +53,18 @@ export function softargmax(x: number[]): number[] {
     const ret = exps.map((v) => v / sum);
     if (ret.every((v) => Number.isFinite(v) && !Number.isNaN(v))) return ret;
   }
-  const max = Math.max(...x);
   {
-    console.log("Avg Argmax");
+    const max = Math.max(...x);
     const argmax: number[] = x.map((v) => (v === max ? 1 : 0));
     const sum = argmax.reduce((acc, v) => acc + v, 0);
     const ret = argmax.map((v) => v / sum);
     if (ret.every((v) => Number.isFinite(v) && !Number.isNaN(v))) return ret;
   }
   {
-    console.log("Ord Argmax");
     const ret = new Array(x.length).fill(0);
-    ret[x.indexOf(max)] = 1;
-    if (
-      ret.every((v) => Number.isFinite(v) && !Number.isNaN(v)) &&
-      ret.reduce((acc, v) => acc + v, 0) === 1
-    )
-      return ret;
+    ret[argmax(x)] = 1;
+    return ret;
   }
-  return new Array(x.length).fill(1 / x.length);
 }
 export function softmax(x: number[]) {
   const argmax = softargmax(x);

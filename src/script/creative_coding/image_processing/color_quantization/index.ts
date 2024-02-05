@@ -1,20 +1,21 @@
-import { dither } from "@/script/creative_coding/dithering/pipeline";
+import { applyDithering } from "@/script/creative_coding/image_processing/dithering/pipeline";
 import { getColor, onImageChange } from "@/script/utils/dom";
-import { getPalette } from "./pipeline";
+import * as color from "@thi.ng/color";
+import { getPalette_Generator } from "./pipeline";
 
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   const getBackground = () => getColor("--md-sys-color-surface", "#000");
   let isActive = false;
-  let palette_id = -1;
-  let palette: {
-    n: number;
-    score: number;
-    centroids: [number, number, number][];
-  }[] = [];
+  let palette_generator: Generator<
+    [color.Oklab[], number],
+    never,
+    number | void
+  > | null = null;
   let image: HTMLImageElement;
   let form: HTMLFormElement;
+  let n_colors: number;
 
   function setup() {
     if (!canvas) return;
@@ -24,26 +25,33 @@ export default function execute() {
   }
 
   function onClick() {
-    if (!isActive) return;
-    if (!image) return;
-    palette_id = (palette_id + 1) % palette.length;
+    if (!isActive || !image || !palette_generator) return;
+    const [palette, score] = palette_generator.next(n_colors).value;
     form.querySelector<HTMLInputElement>("#palette-count")!.value =
-      palette[palette_id].n.toString();
+      palette.length.toString();
     form.querySelector<HTMLInputElement>("#palette-score")!.value =
-      palette[palette_id].score.toString();
+      score.toString();
+    console.log(
+      palette.map((c) => color.css(color.srgb(c))),
+      score,
+    );
     requestAnimationFrame(() => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      dither(imageData, palette[palette_id].centroids);
+      applyDithering(
+        imageData,
+        palette.map((c) => color.srgb(c).xyz),
+      );
       ctx.putImageData(imageData, 0, 0);
+      n_colors = palette.length * 2;
+      if (n_colors > 256) n_colors = 2;
     });
   }
 
   function redraw(img: HTMLImageElement) {
     if (!isActive) return;
     image = img;
-    palette_id = -1;
     requestAnimationFrame(() => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
@@ -51,7 +59,7 @@ export default function execute() {
     const offscreen = new OffscreenCanvas(100, 100);
     const offscreenCtx = offscreen.getContext("2d", { alpha: false })!;
     offscreenCtx.drawImage(image, 0, 0, offscreen.width, offscreen.height);
-    palette = getPalette(
+    palette_generator = getPalette_Generator(
       offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height),
       true,
     );

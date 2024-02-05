@@ -1,6 +1,6 @@
 import { TVector3, vector_magSq, vector_sub } from "@/script/utils/math";
 
-export function dither(
+export function applyDithering(
   buffer: ImageData,
   color_palette: [r: number, g: number, b: number][],
 ) {

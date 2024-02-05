@@ -12,8 +12,8 @@ import { randomGaussian, randomUniform } from "@/script/utils/math/random";
 import type { IKernelFunctionThis } from "@/script/utils/types";
 import { flavors } from "@catppuccin/palette";
 import * as color from "@thi.ng/color";
-import { getPalette } from "../color_quantization/pipeline";
-import { dither } from "../dithering/pipeline";
+import { getPalette } from "../image_processing/color_quantization/pipeline";
+import { applyDithering } from "../image_processing/dithering/pipeline";
 
 export default function execute() {
   let isActive = false;
@@ -61,10 +61,10 @@ export default function execute() {
       offscreen.width,
       offscreen.height,
     );
-    const auto_palette = getPalette(buffer, false, 16);
+    const auto_palette = getPalette(buffer, 16).map((c) => color.srgb(c).xyz);
     const auto_palette_weight = auto_palette.map(() => 1 / auto_palette.length);
     {
-      dither(buffer, auto_palette);
+      applyDithering(buffer, auto_palette);
       const ind = new Array(buffer.width * buffer.height)
         .fill(0)
         .map((_, i) => {
@@ -378,21 +378,21 @@ export default function execute() {
       )!.defaultValue = constants.weight_colors.toString();
       config
         .querySelector<HTMLInputElement>("input#range")!
-        .addEventListener("change", function () {
+        .addEventListener("input", function () {
           config.querySelector<HTMLInputElement>(
             "slot#range-value",
           )!.innerText = (+this.value).toFixed(3);
         });
       config
         .querySelector<HTMLInputElement>("input#learning-rate")!
-        .addEventListener("change", function () {
+        .addEventListener("input", function () {
           config.querySelector<HTMLInputElement>(
             "slot#learning-rate-value",
           )!.innerText = (+this.value).toFixed(3);
         });
       config
         .querySelector<HTMLInputElement>("input#color-choices")!
-        .addEventListener("change", function () {
+        .addEventListener("input", function () {
           config.querySelector<HTMLInputElement>(
             "slot#color-choices-value",
           )!.innerText = (+this.value).toFixed(3);
