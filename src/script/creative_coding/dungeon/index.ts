@@ -1,9 +1,10 @@
 import { getColor } from "@/script/utils/dom";
-import { IPalette, drawDungeon, generateDungeon } from "./generator";
+import { DungeonGenerator, IPalette, drawDungeon } from "./generator";
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
-  let gen: ReturnType<typeof generateDungeon>;
+  let dungeon: DungeonGenerator;
+  let gen: ReturnType<typeof dungeon.generate>;
   const getPalette: () => IPalette = () => ({
     background: getColor("--md-sys-color-surface-container", "#1C0B40"),
     border: getColor("--md-sys-color-outline", "#0F71F2"),
@@ -20,16 +21,16 @@ export default function execute() {
   let size = { x: 0, y: 0 };
 
   function generate_and_draw(grid_size: { x: number; y: number }) {
-    gen?.return();
-    gen = generateDungeon(grid_size);
+    dungeon = new DungeonGenerator(grid_size);
+    gen = dungeon.generate();
   }
 
   function drawStep() {
     if (!canvas) return;
-    const { value, done } = gen.next();
+    const { done } = gen.next();
+    drawDungeon(dungeon, ctx, unit, getPalette());
     if (done) return;
     setTimeout(() => requestAnimationFrame(drawStep), 0);
-    drawDungeon(value, ctx, unit, getPalette());
   }
   function redraw() {
     generate_and_draw(size);
