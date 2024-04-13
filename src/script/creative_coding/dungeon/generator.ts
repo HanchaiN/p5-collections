@@ -141,9 +141,9 @@ function* shortest_path<T>(
   getCost: (a: T) => number,
   estimateCost: (a: T, b: T) => number,
   getNeighbors: (a: T) => number[],
-  addPath: (a: T, isFinal: boolean) => {},
-  addSearched: (a: T) => {},
-  clearTemp: () => {},
+  addPath: (a: T, isFinal: boolean) => void,
+  addSearched: (a: T) => void,
+  clearTemp: () => void,
 ) {
   const state: {
     parent: number | null;
@@ -426,7 +426,9 @@ export class DungeonGenerator {
     return this.edges;
   }
   genEdges() {
-    for (const _ of this.genEdges_Stepwise()) { }
+    for (const _ of this.genEdges_Stepwise()) {
+      _;
+    }
   }
   *genTree_Stepwise() {
     const tree_gen = minimum_spanning_tree(
@@ -445,7 +447,9 @@ export class DungeonGenerator {
     return this.tree;
   }
   genTree() {
-    for (const _ of this.genTree_Stepwise()) { }
+    for (const _ of this.genTree_Stepwise()) {
+      _;
+    }
   }
   filterEdges(EXTRA_NODE_RATE = 0.125) {
     this.edges.sort((a, b) => {
@@ -531,13 +535,13 @@ export class DungeonGenerator {
       intery += grad;
     }
     return dist;
-  };
+  }
   *generate() {
     const ROOM_COUNT_MAX = 100;
     const ROOM_AREA_TOTAL = 0.5 * this.GRID_SIZE.x * this.GRID_SIZE.y;
     this.clear();
     yield;
-    let room_area = 0;
+    const room_area = 0;
     for (let i = 0; i < ROOM_COUNT_MAX && room_area < ROOM_AREA_TOTAL; i++) {
       this.addRoom();
       yield;
@@ -549,7 +553,7 @@ export class DungeonGenerator {
     for (const [i_begin, i_target] of this.edges) {
       const nodes = this.grid.map((_, i) => _.map((_, j) => new Vector(i, j))).flat();
       let grid_ = this.grid.map((_) => _.map((_) => _));
-      let _grid = this.grid.map((_) => _.map((_) => _));
+      const _grid = this.grid.map((_) => _.map((_) => _));
       const gen = shortest_path(
         nodes,
         nodes.findIndex((v) => v.x === Math.round(this.nodes[i_begin].x) && v.y === Math.round(this.nodes[i_begin].y)),
@@ -568,6 +572,7 @@ export class DungeonGenerator {
         () => grid_ = grid_.map((_) => _.map((_) => _ === GRID_STATE.SEARCH_PATH || _ === GRID_STATE.SEARCH_CURR ? GRID_STATE.SEARCHED : _)),
       );
       for (const _ of gen) {
+        _;
         this.grid = grid_;
         yield;
         this.grid = _grid;
