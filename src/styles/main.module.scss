@@ -194,5 +194,5 @@
 }
 
 .text-container {
-  max-width: 75ch;
+  max-width: min(75ch, 67en, 45em);
 }
