@@ -8,15 +8,21 @@ function* delaunay_triangulation(nodes: Vector[], supertriangle: Vector[]) {
     const edges: number[][] = [];
     triangles.forEach(([ia, ib, ic]) => {
       if (
-        !edges.some(([i, j]) => (i === ia && j === ib) || (i === ib && j === ia))
+        !edges.some(
+          ([i, j]) => (i === ia && j === ib) || (i === ib && j === ia),
+        )
       )
         edges.push([ia, ib]);
       if (
-        !edges.some(([i, j]) => (i === ib && j === ic) || (i === ic && j === ib))
+        !edges.some(
+          ([i, j]) => (i === ib && j === ic) || (i === ic && j === ib),
+        )
       )
         edges.push([ib, ic]);
       if (
-        !edges.some(([i, j]) => (i === ic && j === ia) || (i === ia && j === ic))
+        !edges.some(
+          ([i, j]) => (i === ic && j === ia) || (i === ia && j === ic),
+        )
       )
         edges.push([ic, ia]);
     });
@@ -157,11 +163,7 @@ function* shortest_path<T>(
     distance: number;
     est_distance: number;
   }>((_) => _.est_distance);
-  const addNode = (
-    p: number,
-    parent: number | null,
-    dist: number,
-  ) => {
+  const addNode = (p: number, parent: number | null, dist: number) => {
     if (p < 0 || p >= nodes.length) return;
     for (let p_ = parent; p_ !== null; p_ = state[p_].parent) {
       if (isEqual(nodes[p], nodes[p_])) return;
@@ -184,7 +186,7 @@ function* shortest_path<T>(
     do {
       yield p_;
     } while ((p_ = state[p_].parent) != null);
-  }
+  };
   addNode(i_begin, null, 0);
   let i_curr: number | null = null;
   while (lookup.top()) {
@@ -200,18 +202,15 @@ function* shortest_path<T>(
       .forEach((p_) => {
         addNode(p_, p, distance);
       });
-    for (const i of tracePath(p))
-      addPath(nodes[i], false);
+    for (const i of tracePath(p)) addPath(nodes[i], false);
     addSearched(nodes[p]);
     yield;
     clearTemp();
   }
   console.log("NFOUND");
   if (i_curr === null) return false;
-  for (const i of tracePath(i_curr!))
-    addPath(nodes[i], true);
+  for (const i of tracePath(i_curr!)) addPath(nodes[i], true);
   return true;
-
 }
 export enum GRID_STATE {
   EMPTY = 1,
@@ -322,7 +321,7 @@ export function drawDungeon(
 }
 
 export class DungeonGenerator {
-  GRID_SIZE: { x: number; y: number; }
+  GRID_SIZE: { x: number; y: number };
   rooms!: {
     left: number;
     right: number;
@@ -336,7 +335,7 @@ export class DungeonGenerator {
   tree!: number[];
   grid!: GRID_STATE[][];
   _noise!: PerlinNoise;
-  constructor(GRID_SIZE: { x: number; y: number; }) {
+  constructor(GRID_SIZE: { x: number; y: number }) {
     this.GRID_SIZE = { x: GRID_SIZE.x, y: GRID_SIZE.y };
     this.clear();
   }
@@ -348,7 +347,9 @@ export class DungeonGenerator {
     this.tree = [];
     this.grid = new Array(this.GRID_SIZE.x)
       .fill(null)
-      .map(() => new Array(this.GRID_SIZE.y).fill(null).map(() => GRID_STATE.EMPTY));
+      .map(() =>
+        new Array(this.GRID_SIZE.y).fill(null).map(() => GRID_STATE.EMPTY),
+      );
     this._noise = new PerlinNoise();
   }
   addRoom(
@@ -393,8 +394,7 @@ export class DungeonGenerator {
         room.top + ROOM_PADDING < room_.bottom,
     );
     this.rooms.push(room);
-    if (!room.valid)
-      return false;
+    if (!room.valid) return false;
     this.nodes.push(node);
     this._room_area +=
       (room.right - room.left + 1) * (room.top - room.bottom + 1);
@@ -402,25 +402,22 @@ export class DungeonGenerator {
       for (let iy = room.bottom; iy <= room.top; iy++)
         this.grid[ix][iy] =
           ix === room.left ||
-            ix === room.right ||
-            iy === room.bottom ||
-            iy === room.top
+          ix === room.right ||
+          iy === room.bottom ||
+          iy === room.top
             ? GRID_STATE.BORDER
             : GRID_STATE.ROOM;
     return true;
   }
   *genEdges_Stepwise() {
-    const edges_gen = delaunay_triangulation(
-      this.nodes,
-      [
-        new Vector(0, 0),
-        new Vector(2 * this.GRID_SIZE.x, 0),
-        new Vector(0, 2 * this.GRID_SIZE.y),
-      ],
-    );
+    const edges_gen = delaunay_triangulation(this.nodes, [
+      new Vector(0, 0),
+      new Vector(2 * this.GRID_SIZE.x, 0),
+      new Vector(0, 2 * this.GRID_SIZE.y),
+    ]);
     while (true) {
       const { value, done } = edges_gen.next();
-      yield this.edges = value;
+      yield (this.edges = value);
       if (done) break;
     }
     return this.edges;
@@ -475,7 +472,8 @@ export class DungeonGenerator {
         [GRID_STATE.DOOR]: 1,
       },
       {
-        get: (target, name) => target[name as unknown as GRID_STATE] ?? Infinity,
+        get: (target, name) =>
+          target[name as unknown as GRID_STATE] ?? Infinity,
       },
     ) as { [key in GRID_STATE]: number };
     const DIST_VAR = new Proxy<{ [key in GRID_STATE]?: number }>(
@@ -487,16 +485,15 @@ export class DungeonGenerator {
       },
     ) as { [key in GRID_STATE]: number };
     return constrain(
-      DIST_VAL[this.grid[Math.round(x)][Math.round(y)]]
-      + this._noise.noise(x * 0.5, y * 0.5, 0) * 3 * DIST_VAR[this.grid[Math.round(x)][Math.round(y)]],
+      DIST_VAL[this.grid[Math.round(x)][Math.round(y)]] +
+        this._noise.noise(x * 0.5, y * 0.5, 0) *
+          3 *
+          DIST_VAR[this.grid[Math.round(x)][Math.round(y)]],
       0,
       Infinity,
     );
   }
-  _estimateCost(
-    from: { x: number; y: number },
-    to: { x: number; y: number },
-  ) {
+  _estimateCost(from: { x: number; y: number }, to: { x: number; y: number }) {
     let dist = 0;
     const steep = Math.abs(to.y - from.y) > Math.abs(to.x - from.x);
     const fpart = (x: number) => x - Math.floor(x);
@@ -545,31 +542,60 @@ export class DungeonGenerator {
     for (let i = 0; i < ROOM_COUNT_MAX && room_area < ROOM_AREA_TOTAL; i++) {
       this.addRoom();
       yield;
-      this.rooms = this.rooms.filter((room) => room.valid)
+      this.rooms = this.rooms.filter((room) => room.valid);
     }
     yield* this.genEdges_Stepwise();
     yield* this.genTree_Stepwise();
     yield this.filterEdges();
     for (const [i_begin, i_target] of this.edges) {
-      const nodes = this.grid.map((_, i) => _.map((_, j) => new Vector(i, j))).flat();
+      const nodes = this.grid
+        .map((_, i) => _.map((_, j) => new Vector(i, j)))
+        .flat();
       let grid_ = this.grid.map((_) => _.map((_) => _));
       const _grid = this.grid.map((_) => _.map((_) => _));
       const gen = shortest_path(
         nodes,
-        nodes.findIndex((v) => v.x === Math.round(this.nodes[i_begin].x) && v.y === Math.round(this.nodes[i_begin].y)),
-        nodes.findIndex((v) => v.x === Math.round(this.nodes[i_target].x) && v.y === Math.round(this.nodes[i_target].y)),
+        nodes.findIndex(
+          (v) =>
+            v.x === Math.round(this.nodes[i_begin].x) &&
+            v.y === Math.round(this.nodes[i_begin].y),
+        ),
+        nodes.findIndex(
+          (v) =>
+            v.x === Math.round(this.nodes[i_target].x) &&
+            v.y === Math.round(this.nodes[i_target].y),
+        ),
         (a, b) => a.x === b.x && a.y === b.y,
         (a) => this._getCost(a.x, a.y),
         (a, b) => this._estimateCost(a, b),
         (a) => [
-          nodes.findIndex((v) => v.x === Math.round(a.x + 1) && v.y === Math.round(a.y)),
-          nodes.findIndex((v) => v.x === Math.round(a.x - 1) && v.y === Math.round(a.y)),
-          nodes.findIndex((v) => v.x === Math.round(a.x) && v.y === Math.round(a.y + 1)),
-          nodes.findIndex((v) => v.x === Math.round(a.x) && v.y === Math.round(a.y - 1)),
+          nodes.findIndex(
+            (v) => v.x === Math.round(a.x + 1) && v.y === Math.round(a.y),
+          ),
+          nodes.findIndex(
+            (v) => v.x === Math.round(a.x - 1) && v.y === Math.round(a.y),
+          ),
+          nodes.findIndex(
+            (v) => v.x === Math.round(a.x) && v.y === Math.round(a.y + 1),
+          ),
+          nodes.findIndex(
+            (v) => v.x === Math.round(a.x) && v.y === Math.round(a.y - 1),
+          ),
         ],
-        (a, isFinal) => grid_[Math.round(a.x)][Math.round(a.y)] = isFinal ? GRID_STATE.PATH : GRID_STATE.SEARCH_PATH,
-        (a) => grid_[Math.round(a.x)][Math.round(a.y)] = GRID_STATE.SEARCH_CURR,
-        () => grid_ = grid_.map((_) => _.map((_) => _ === GRID_STATE.SEARCH_PATH || _ === GRID_STATE.SEARCH_CURR ? GRID_STATE.SEARCHED : _)),
+        (a, isFinal) =>
+          (grid_[Math.round(a.x)][Math.round(a.y)] = isFinal
+            ? GRID_STATE.PATH
+            : GRID_STATE.SEARCH_PATH),
+        (a) =>
+          (grid_[Math.round(a.x)][Math.round(a.y)] = GRID_STATE.SEARCH_CURR),
+        () =>
+          (grid_ = grid_.map((_) =>
+            _.map((_) =>
+              _ === GRID_STATE.SEARCH_PATH || _ === GRID_STATE.SEARCH_CURR
+                ? GRID_STATE.SEARCHED
+                : _,
+            ),
+          )),
       );
       for (const _ of gen) {
         _;
@@ -577,23 +603,25 @@ export class DungeonGenerator {
         yield;
         this.grid = _grid;
       }
-      this.grid = this.grid.map((_, i) => _.map((_, j) => {
-        switch (grid_[i][j]) {
-          case GRID_STATE.PATH:
-            switch (_grid[i][j]) {
-              case GRID_STATE.EMPTY:
-                return GRID_STATE.PATH;
-              case GRID_STATE.ROOM:
-                return GRID_STATE.INTERNAL_PATH;
-              case GRID_STATE.BORDER:
-                return GRID_STATE.DOOR;
-              default:
-                return _grid[i][j];
-            }
-          default:
-            return _grid[i][j];
-        }
-      }));
+      this.grid = this.grid.map((_, i) =>
+        _.map((_, j) => {
+          switch (grid_[i][j]) {
+            case GRID_STATE.PATH:
+              switch (_grid[i][j]) {
+                case GRID_STATE.EMPTY:
+                  return GRID_STATE.PATH;
+                case GRID_STATE.ROOM:
+                  return GRID_STATE.INTERNAL_PATH;
+                case GRID_STATE.BORDER:
+                  return GRID_STATE.DOOR;
+                default:
+                  return _grid[i][j];
+              }
+            default:
+              return _grid[i][j];
+          }
+        }),
+      );
       grid_ = this.grid.map((_) => _.map((_) => _));
     }
     return;
