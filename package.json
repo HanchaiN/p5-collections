@@ -60,7 +60,7 @@
     "@typescript-eslint/parser": "^6.2.0",
     "eslint": "^8.55.0",
     "eslint-config-react-app": "^7.0.1",
-    "eslint-define-config": "^1.21.0",
+    "eslint-define-config": "^2.1.0",
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.32",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "prettier": "^3.0.1",
