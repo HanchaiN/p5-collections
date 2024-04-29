@@ -1167,10 +1167,10 @@
   resolved "https://registry.yarnpkg.com/@builder.io/partytown/-/partytown-0.7.6.tgz#697acea6b552167a4dd43ddd4827018aa42e0364"
   integrity sha512-snXIGNiZpqjno3XYQN2lbBB+05hsQR/LSttbtIW1c0gmZ7Kh/DIo0YrxlDxCDulAMFPFM8J+4voLwvYepSj3sw==
 
-"@catppuccin/palette@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@catppuccin/palette/-/palette-1.0.3.tgz#bba59f0b03836f27a11630b3de740038823c9e5a"
-  integrity sha512-L3jclhx8z7Oyv4b1x9TCXjikvLbKd+dwksNOJsi6W811PPGdP38PYiX5h4/renukOp8lUEkPIPv07S/5HA3tVg==
+"@catppuccin/palette@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@catppuccin/palette/-/palette-1.1.1.tgz#dea7b9f64f7a409e1d507f5850a870f47c7d9c09"
+  integrity sha512-wgITbl3OEIUnv8WPTdG2BGjepSMZtJW9V4XpxNDJjCvel0Q5+BxRmKH3XYN0vVjohHR+APCyZCpzSnO+GdsTLg==
 
 "@discoveryjs/json-ext@0.5.7":
   version "0.5.7"
