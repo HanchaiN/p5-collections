@@ -4,6 +4,11 @@
   "private": true,
   "description": "HanchaiN's GitHub Page",
   "author": "HanchaiN",
+  "packageManager": "yarn@4.2.2",
+  "browserslist": [
+    "defaults",
+    "maintained node versions"
+  ],
   "scripts": {
     "develop": "gatsby develop",
     "start": "gatsby develop",
@@ -58,6 +63,7 @@
     "@types/three": "^0.164.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.2.0",
+    "browserslist": "^4.23.0",
     "eslint": "^8.57.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-define-config": "^2.1.0",
