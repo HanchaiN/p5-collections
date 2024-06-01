@@ -1,154 +1,150 @@
-import { getParentSize } from "@/script/utils/dom";
 import { constrain, Vector } from "@/script/utils/math";
 import p5 from "p5";
 import { Branch } from "./branch";
 import type { p5Extension } from "@/script/utils/types";
+import { PHI } from "@/script/utils/math";
+import { PerlinNoise as Noise } from "@/script/utils/math/noise";
 export default function execute() {
-  let parent: HTMLElement, wrapper: HTMLElement;
+  let wrapper: HTMLElement;
   let canvas: HTMLCanvasElement;
-  let resizeObserver: ResizeObserver;
   let alpha: HTMLInputElement,
     beta1: HTMLInputElement,
     beta2: HTMLInputElement,
     resetButton: HTMLButtonElement;
+  const NAIVE = Symbol("NAIVE"),
+    MATURE = Symbol("MATURE");
 
   const sketch = (p: p5) => {
-    let tree: Branch[] = [];
-    let leaves: Vector[] = [];
-    let branch: number[][] = [];
+    let root: Branch;
+    let wind: Noise;
+    let leaves: [Vector, Vector][] = [];
 
-    const strokemultillier = 0.5;
+    const widScale = 1 / PHI;
+    const lenScale = 0.8;
     const LEAVES_COUNT = 100;
+    const LEAVES_COUNT_MAX = 1000;
+    const getLeavesCount = () =>
+      Math.min(LEAVES_COUNT * root.childCount, LEAVES_COUNT_MAX);
 
-    // let alpha, beta1, beta2, resetButton;
     let tree_layer: p5.Graphics;
+    let isLeaves = false;
 
-    function parentResized() {
-      const { width, height } = getParentSize(wrapper, canvas);
-      p.resizeCanvas(width, height);
-      tree_layer = p.createGraphics(p.width, p.height);
-      updateTreeLayer();
-    }
     p.setup = function () {
-      const { width, height } = getParentSize(wrapper, canvas);
-      const c = p.createCanvas(width, height);
+      p.createCanvas(500, 500);
       tree_layer = p.createGraphics(p.width, p.height);
-      c.mouseClicked(grow);
+      wind = new Noise();
+      resetButton.addEventListener("click", () => {
+        isLeaves = !isLeaves;
+        leaves = [];
+      });
       reset();
-      resetButton.addEventListener("click", reset);
-      resizeObserver = new ResizeObserver(parentResized);
-      resizeObserver.observe(wrapper);
+      alpha.addEventListener("input", reset);
+      beta1.addEventListener("input", reset);
+      beta2.addEventListener("input", reset);
     };
 
     p.draw = function () {
       p.clear(0, 0, 0, 0);
       p.image(tree_layer, 0, 0);
-      updateLeaves();
-      const count = addLeaves();
-      p.noStroke();
-      p.translate(p.width / 2, p.height / 2);
-      for (let i = 0; i < leaves.length; i++) {
-        p.fill(255, 0, 100, constrain((128 * count) / leaves.length, 1, 128));
-        p.ellipse(leaves[i].x, leaves[i].y, 8, 8);
+      if (isLeaves) {
+        addLeaves(root);
+        pruneLeaves();
+        updateLeaves();
+        p.noStroke();
+        p.translate(p.width / 2, p.height / 2);
+        leaves.forEach(([pos], i) => {
+          p.fill(255, 0, 100, constrain(i / leaves.length, 0.1, 1) * 128);
+          p.ellipse(pos.x, pos.y, 2, 2);
+        });
       }
     };
 
     function reset() {
-      tree = [];
       leaves = [];
-      branch = [];
-      const a = new Vector(0, 0);
-      const b = new Vector(0, -100);
-      const root = new Branch(a, b, 0, [
-        [[Number.parseFloat(alpha.value) * Math.PI, 0.67, 1]],
-        [
-          [Number.parseFloat(beta1.value) * Math.PI, 0.67, 0],
-          [Number.parseFloat(beta2.value) * Math.PI, 0.67, 1],
+      const init_len = 250 / (lenScale / (1 - lenScale));
+      const a = new Vector(0, init_len);
+      const b = new Vector(0, 0);
+      root = new Branch(a, b, NAIVE, {
+        [NAIVE]: [
+          {
+            angle: Number.parseFloat(alpha.value) * Math.PI,
+            widScale: Math.pow(widScale, 0),
+            lenScale,
+            type: MATURE,
+          },
         ],
-      ]);
-
-      tree[0] = root;
-      branch = [[]];
-      updateTreeLayer();
-    }
-
-    function grow() {
-      for (let i = tree.length - 1; i >= 0; i--) {
-        if (!tree[i].finished) {
-          const branches = tree[i].branch();
-          for (let j = 0; j < branches.length; j++) {
-            tree.push(branches[j]);
-            branch[i].push(tree.length - 1);
-            branch.push([]);
-          }
-        }
-        let sum = 0;
-        for (let j = 0; j < branch[i].length; j++) {
-          sum += tree[branch[i][j]].size;
-        }
-        tree[i].size = sum * strokemultillier;
-        tree[i].finished = true;
+        [MATURE]: [
+          {
+            angle: Number.parseFloat(beta1.value) * Math.PI,
+            widScale: Math.pow(widScale, 2),
+            lenScale,
+            type: NAIVE,
+          },
+          {
+            angle: Number.parseFloat(beta2.value) * Math.PI,
+            widScale: Math.pow(widScale, 1),
+            lenScale,
+            type: MATURE,
+          },
+        ],
+      });
+      for (let i = 0; i < 15; i++) {
+        root.grow();
       }
-      updateTreeLayer();
+      redrawTree();
     }
-    function updateTreeLayer() {
+    function redrawTree() {
       tree_layer.clear(0, 0, 0, 0);
       tree_layer.push();
       tree_layer.translate(tree_layer.width / 2, tree_layer.height / 2);
-      for (let i = 0; i < tree.length; i++) {
-        tree[i].show(tree_layer);
-      }
+      root.show(tree_layer, 10);
       tree_layer.pop();
     }
-    function addLeaves() {
+    function addLeaves(root: Branch) {
       let count = 0;
-      const leaves_count = leaves.length;
-      for (let i = 0; i < tree.length; i++) {
-        if (!tree[i].finished) {
-          if (Math.random() > leaves_count / LEAVES_COUNT)
-            leaves.push(tree[i].end.copy());
-          count++;
-        }
+      for (const branch of root.branches.sort(() => Math.random() - 0.5)) {
+        count += addLeaves(branch);
+        if (count > LEAVES_COUNT) return count;
+      }
+      if (Math.random() > leaves.length / getLeavesCount()) {
+        leaves.push([root.end.copy(), new Vector(0, 0)]);
+        count++;
       }
       return count;
     }
-    function updateLeaves() {
-      leaves.forEach((leaf) => {
-        leaf.add(Vector.random2D());
-      });
+    function pruneLeaves() {
+      const oldCount = leaves.length;
       leaves = leaves.filter(
-        () => Math.random() > leaves.length / LEAVES_COUNT,
+        ([pos]) =>
+          pos.y < 300 && Math.random() > leaves.length / getLeavesCount() - 1.0,
       );
+      return oldCount - leaves.length;
+    }
+    function updateLeaves() {
+      leaves.forEach(([pos, vel]) => {
+        pos.add(vel);
+        vel.add(new Vector(0, 0.1));
+        vel.add(new Vector(1, 0).mult(wind.noise(pos.x, pos.y, 0)));
+        vel.add(new Vector(0, 1).mult(wind.noise(pos.x, pos.y, 10)));
+        vel.mult(0.99);
+      });
     }
   };
 
   let instance: p5Extension;
   return {
-    start: (node: HTMLElement) => {
-      parent = node;
-      alpha = parent.appendChild(document.createElement("input"));
-      beta1 = parent.appendChild(document.createElement("input"));
-      beta2 = parent.appendChild(document.createElement("input"));
-      resetButton = parent.appendChild(document.createElement("button"));
-      wrapper = parent.appendChild(document.createElement("div"));
-      alpha.type = beta1.type = beta2.type = "range";
-      alpha.min = beta1.min = beta2.min = "-1";
-      alpha.max = beta1.max = beta2.max = "1";
-      alpha.step = beta1.step = beta2.step = "1e-18";
-      alpha.value = beta1.value = beta2.value = "0";
-      resetButton.innerText = "reset";
+    start: (node: HTMLElement, config: HTMLFormElement) => {
+      wrapper = node;
+      alpha = config.querySelector("#alpha")!;
+      beta1 = config.querySelector("#beta1")!;
+      beta2 = config.querySelector("#beta2")!;
+      resetButton = config.querySelector("#reset")!;
       instance = new p5(sketch, wrapper) as p5Extension;
       canvas ??= instance.canvas;
     },
     stop: () => {
-      parent.removeChild(alpha);
-      parent.removeChild(beta1);
-      parent.removeChild(beta2);
-      parent.removeChild(resetButton);
       instance?.remove();
       canvas?.remove();
-      resizeObserver?.disconnect();
-      // wrapper = canvas = instance = resizeObserver = null;
     },
   };
 }

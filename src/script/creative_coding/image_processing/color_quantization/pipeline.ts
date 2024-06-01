@@ -121,12 +121,12 @@ function getSilhouetteScore<T>(
     return Number.isNaN(a[i]) || Number.isNaN(b[i])
       ? 0
       : !Number.isFinite(a[i])
-      ? -1
-      : !Number.isFinite(b[i])
-      ? 1
-      : softmax([a[i], b[i]]) === 0
-      ? 0
-      : (b[i] - a[i]) / softmax([a[i], b[i]]);
+        ? -1
+        : !Number.isFinite(b[i])
+          ? 1
+          : softmax([a[i], b[i]]) === 0
+            ? 0
+            : (b[i] - a[i]) / softmax([a[i], b[i]]);
   });
   const score = softmax(
     cls.map((v) =>

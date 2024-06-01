@@ -142,17 +142,17 @@ export default function execute() {
           LAYER.SLIT_POSITION.length === 1
             ? 0.05
             : slitIndex === LAYER.SLIT_POSITION.length - 1
-            ? (LAYER.SLIT_POSITION[slitIndex] -
-                LAYER.SLIT_POSITION[slitIndex - 1]) *
-              SLIT_WIDTH_RATIO
-            : slitIndex === 0
-            ? (LAYER.SLIT_POSITION[slitIndex + 1] -
-                LAYER.SLIT_POSITION[slitIndex]) *
-              SLIT_WIDTH_RATIO
-            : ((LAYER.SLIT_POSITION[slitIndex + 1] -
-                LAYER.SLIT_POSITION[slitIndex - 1]) /
-                2) *
-              SLIT_WIDTH_RATIO;
+              ? (LAYER.SLIT_POSITION[slitIndex] -
+                  LAYER.SLIT_POSITION[slitIndex - 1]) *
+                SLIT_WIDTH_RATIO
+              : slitIndex === 0
+                ? (LAYER.SLIT_POSITION[slitIndex + 1] -
+                    LAYER.SLIT_POSITION[slitIndex]) *
+                  SLIT_WIDTH_RATIO
+                : ((LAYER.SLIT_POSITION[slitIndex + 1] -
+                    LAYER.SLIT_POSITION[slitIndex - 1]) /
+                    2) *
+                  SLIT_WIDTH_RATIO;
         const SLIT_BEGIN = LAYER.SLIT_POSITION[slitIndex] - SLIT_WIDTH / 2;
         const SLIT_END = LAYER.SLIT_POSITION[slitIndex] + SLIT_WIDTH / 2;
         if (bg_ctx) bg_ctx.strokeStyle = "#000000";

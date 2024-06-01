@@ -90,8 +90,8 @@ export class Boid {
         id_diff < -1 / 6
           ? GROUP.PREY
           : id_diff > 1 / 6
-          ? GROUP.PRED
-          : GROUP.PEER;
+            ? GROUP.PRED
+            : GROUP.PEER;
       if (dist.mag() < SETTING.separationRange) {
         acc[group].sepCount++;
         acc[group].dist.add(dist);

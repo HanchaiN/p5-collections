@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-loss-of-precision */
 export * from "./complex";
 export * from "./vector";
+export * from "./constants";
 export function constrain(v: number, l: number, h: number) {
   return Math.min(h, Math.max(l, v));
 }

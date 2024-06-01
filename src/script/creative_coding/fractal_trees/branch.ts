@@ -1,47 +1,72 @@
 import { Vector } from "@/script/utils/math";
 import type p5 from "p5";
+export interface BranchConfig {
+  [type: number | symbol]: {
+    [i: number]: {
+      angle: number;
+      lenScale: number;
+      widScale: number;
+      type: number;
+    };
+  };
+}
+
 export class Branch {
-  init: number[][][];
+  rule: BranchConfig;
   begin: Vector;
   end: Vector;
-  type: number;
+  type: number | symbol;
   finished: boolean;
   size: number;
-  constructor(begin: Vector, end: Vector, type: number, rule: number[][][]) {
-    this.init = rule;
+  branches: Branch[];
+  constructor(
+    begin: Vector,
+    end: Vector,
+    type: number | symbol,
+    rule: BranchConfig,
+    size: number = 1,
+  ) {
+    this.rule = rule;
     this.begin = begin;
     this.end = end;
     this.type = type;
+    this.size = size;
     this.finished = false;
-    this.size = 1;
+    this.branches = [];
   }
 
-  show(p: p5) {
+  show(p: p5, strokeWidth: number = 1) {
     p.stroke(255);
-    p.strokeWeight(this.size);
+    p.strokeWeight(this.size * strokeWidth);
     p.line(this.begin.x, this.begin.y, this.end.x, this.end.y);
+    this.branches.forEach((branch) => branch.show(p, strokeWidth));
   }
 
-  length() {
-    const l = Vector.sub(this.end, this.begin);
-    return l.mag();
+  get childCount() {
+    if (!this.finished) return 1;
+    return this.branches.reduce((acc, branch) => acc + branch.childCount, 0);
   }
 
-  branch() {
-    const branch = [];
-    for (let i = 0; i < this.init[this.type].length; i++) {
-      const newEnd = Vector.sub(this.end, this.begin)
-        .rotate(this.init[this.type][i][0])
-        .mult(this.init[this.type][i][1])
-        .add(this.end);
-      const child = new Branch(
-        this.end,
-        newEnd,
-        this.init[this.type][i][2],
-        this.init,
-      );
-      branch.push(child);
+  grow() {
+    if (this.finished) {
+      this.branches.forEach((branch) => branch.grow());
+      return;
     }
-    return branch;
+    this.finished = true;
+    this.branches.push(
+      ...this.rule[this.type].map((rule) => {
+        const newEnd = Vector.sub(this.end, this.begin)
+          .rotate(rule.angle)
+          .mult(rule.lenScale)
+          .add(this.end);
+        return new Branch(
+          this.end,
+          newEnd,
+          rule.type,
+          this.rule,
+          this.size * rule.widScale,
+        );
+      }),
+    );
   }
 }
