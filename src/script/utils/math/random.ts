@@ -34,6 +34,17 @@ export function randomChi(alpha = 1) {
     acc += Math.pow(randomGaussian(0, 1), 2);
   return Math.sqrt(acc);
 }
+export function sample<T>(array: T[], prob: number[] = []) {
+  if (prob.length !== 0) {
+    const r = Math.random() * prob.reduce((a, b) => a + b, 0);
+    let acc = 0;
+    for (let i = 0; i < array.length; i++) {
+      acc += prob[i];
+      if (r < acc) return array[i];
+    }
+  }
+  return array[Math.floor(Math.random() * array.length)];
+}
 
 // Alea random number generator.
 //----------------------------------------------------------------------------//

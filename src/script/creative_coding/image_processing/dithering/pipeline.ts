@@ -1,8 +1,15 @@
-import { TVector3, vector_magSq, vector_sub } from "@/script/utils/math";
+import {
+  TVector3,
+  vector_magSq,
+  vector_sub,
+  softargmax,
+  sample,
+} from "@/script/utils/math";
 
 export function applyDithering(
   buffer: ImageData,
   color_palette: [r: number, g: number, b: number][],
+  temperature = 0,
 ) {
   const err_diffusion: [[number, number], number][] = [
     // [[+1, 0], 1 / 8],
@@ -32,21 +39,20 @@ export function applyDithering(
   for (let j = 0; j < buffer.height; j++) {
     for (let i = 0; i < buffer.width; i++) {
       const index = (j * buffer.width + i) * 4;
-      let min_error = Infinity;
       const target_color: [r: number, g: number, b: number] = [
         buffer.data[index + 0] / 255,
         buffer.data[index + 1] / 255,
         buffer.data[index + 2] / 255,
       ];
-      let current_color = color_palette[0];
-      for (const color of color_palette) {
-        const diff = vector_sub(color, target_color);
-        const err = vector_magSq(diff);
-        if (err < min_error) {
-          current_color = color;
-          min_error = err;
-        }
-      }
+      const current_color = sample(
+        color_palette,
+        softargmax(
+          color_palette.map(
+            (color) => -vector_magSq(vector_sub(color, target_color)),
+          ),
+          temperature,
+        ),
+      );
       const err: TVector3 = vector_sub(target_color, current_color);
       err_diffusion.forEach(([ind, w]) => {
         const i_ = i + ind[0];

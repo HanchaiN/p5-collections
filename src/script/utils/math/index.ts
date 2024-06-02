@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-loss-of-precision */
 export * from "./complex";
-export * from "./vector";
 export * from "./constants";
+export * from "./noise";
+export * from "./random";
+export * from "./vector";
 export function constrain(v: number, l: number, h: number) {
   return Math.min(h, Math.max(l, v));
 }
@@ -47,15 +49,15 @@ export function symlog_inv(x: number) {
 export function argmax(x: number[]) {
   return x.indexOf(Math.max(...x));
 }
-export function softargmax(x: number[]): number[] {
-  {
-    const exps = x.map((v) => Math.exp(v));
+export function softargmax(x: number[], temperature = 1): number[] {
+  if (temperature > 0) {
+    const exps = x.map((v) => Math.exp(v / temperature));
     const sum = exps.reduce((acc, v) => acc + v, 0);
     const ret = exps.map((v) => v / sum);
     if (ret.every((v) => Number.isFinite(v) && !Number.isNaN(v))) return ret;
   }
   {
-    const max = Math.max(...x);
+    const max = x.reduce((acc, v) => Math.max(acc, v), -Infinity);
     const argmax: number[] = x.map((v) => (v === max ? 1 : 0));
     const sum = argmax.reduce((acc, v) => acc + v, 0);
     const ret = argmax.map((v) => v / sum);
@@ -67,8 +69,8 @@ export function softargmax(x: number[]): number[] {
     return ret;
   }
 }
-export function softmax(x: number[]) {
-  const argmax = softargmax(x);
+export function softmax(x: number[], temperature = 1) {
+  const argmax = softargmax(x, temperature);
   return x.reduce((acc, v, i) => acc + v * argmax[i], 0);
 }
 export function product(from: number, to: number) {

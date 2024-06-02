@@ -8587,6 +8587,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esm-potrace-wasm@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "esm-potrace-wasm@npm:0.4.1"
+  checksum: 10c0/22ccfce299333d28c59b13b249158afae658a8919473d6f9c21eaeeb14f20616fad9e97cb9c9690155da633af4050a35ac93f2082178632a31b1b103ce03f3c0
+  languageName: node
+  linkType: hard
+
 "esniff@npm:^2.0.1":
   version: 2.0.1
   resolution: "esniff@npm:2.0.1"
@@ -10516,6 +10523,7 @@ __metadata:
     eslint-config-react-app: "npm:^7.0.1"
     eslint-define-config: "npm:^2.1.0"
     eslint-plugin-react: "npm:^7.34.2"
+    esm-potrace-wasm: "npm:^0.4.1"
     gatsby: "npm:^5.13.4"
     gatsby-plugin-image: "npm:^3.13.1"
     gatsby-plugin-manifest: "npm:^5.13.1"
