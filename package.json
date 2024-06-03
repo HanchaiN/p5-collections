@@ -39,7 +39,7 @@
     "gatsby-transformer-sharp": "^5.13.1",
     "gifencoder": "^2.0.1",
     "katex": "^0.16.10",
-    "mathjs": "^12.4.2",
+    "mathjs": "^13.0.0",
     "p5": "^1.9.3",
     "potrace": "^2.1.8",
     "react": "^18.2.0",
@@ -62,7 +62,7 @@
     "@types/react-dom": "^18.2.19",
     "@types/react-katex": "^3.0.1",
     "@types/three": "^0.165.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/eslint-plugin": "^7.11.0",
     "@typescript-eslint/parser": "^7.10.0",
     "babel-preset-gatsby": "^3.13.2",
     "browserslist": "^4.23.0",
@@ -72,8 +72,8 @@
     "eslint-plugin-react": "^7.34.2",
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.32",
     "node-polyfill-webpack-plugin": "^4.0.0",
-    "prettier": "^3.2.5",
-    "typescript": "^5.3.3",
+    "prettier": "^3.3.0",
+    "typescript": "^5.4.5",
     "webpack-glsl-loader": "^1.0.1"
   }
 }
