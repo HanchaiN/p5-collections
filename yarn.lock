@@ -1670,6 +1670,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.24.6":
+  version: 7.24.6
+  resolution: "@babel/runtime@npm:7.24.6"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 10c0/224ad205de33ea28979baaec89eea4c4d4e9482000dd87d15b97859365511cdd4d06517712504024f5d33a5fb9412f9b91c96f1d923974adf9359e1575cde049
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.20.7, @babel/template@npm:^7.22.15, @babel/template@npm:^7.22.5":
   version: 7.22.15
   resolution: "@babel/template@npm:7.22.15"
@@ -9289,7 +9298,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fraction.js@npm:^4.3.6":
+"fraction.js@npm:^4.3.6, fraction.js@npm:^4.3.7":
   version: 4.3.7
   resolution: "fraction.js@npm:4.3.7"
   checksum: 10c0/df291391beea9ab4c263487ffd9d17fed162dbb736982dee1379b2a8cc94e4e24e46ed508c6d278aded9080ba51872f1bc5f3a5fd8d7c74e5f105b508ac28711
@@ -10531,7 +10540,7 @@ __metadata:
     gatsby-source-filesystem: "npm:^5.13.1"
     gifencoder: "npm:^2.0.1"
     katex: "npm:^0.16.10"
-    mathjs: "npm:^12.4.2"
+    mathjs: "npm:^13.0.0"
     node-gyp: "npm:^10.1.0"
     node-polyfill-webpack-plugin: "npm:^4.0.0"
     p5: "npm:^1.9.3"
@@ -12558,7 +12567,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mathjs@npm:*, mathjs@npm:^12.4.2":
+"mathjs@npm:*":
   version: 12.4.2
   resolution: "mathjs@npm:12.4.2"
   dependencies:
@@ -12574,6 +12583,25 @@ __metadata:
   bin:
     mathjs: bin/cli.js
   checksum: 10c0/78a8e2897bd50cfbfcabd34b3fc51ab3bde6205493fbf3a390784b69399fbc8ec46df6696c798dda780c848fd6363068d6ba414092eeaf0cc1b1bec6984d735b
+  languageName: node
+  linkType: hard
+
+"mathjs@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "mathjs@npm:13.0.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.24.6"
+    complex.js: "npm:^2.1.1"
+    decimal.js: "npm:^10.4.3"
+    escape-latex: "npm:^1.2.0"
+    fraction.js: "npm:^4.3.7"
+    javascript-natural-sort: "npm:^0.7.1"
+    seedrandom: "npm:^3.0.5"
+    tiny-emitter: "npm:^2.1.0"
+    typed-function: "npm:^4.1.1"
+  bin:
+    mathjs: bin/cli.js
+  checksum: 10c0/de6083d50f4a8ecc61f6e336b170b869ee97892ad9919605b2c240bf1e3efc968fe45dcdca86b8cff2a5cd55180ce21de712347d20b844176022a045ec851969
   languageName: node
   linkType: hard
 
