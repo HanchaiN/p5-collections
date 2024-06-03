@@ -3,28 +3,5 @@
 		{
 			"path": ".."
 		}
-	],
-	"settings": {
-		"search.exclude": {
-			"**/.yarn": true,
-			"**/.pnp.*": true
-		},
-		"eslint.nodePath": ".yarn/sdks",
-		"prettier.prettierPath": ".yarn/sdks/prettier/index.cjs",
-		"typescript.tsdk": ".yarn/sdks/typescript/lib",
-		"typescript.enablePromptUseWorkspaceTsdk": true
-	},
-	"extensions": {
-		"recommendations": [
-			"christian-kohler.npm-intellisense",
-			"dbaeumer.vscode-eslint",
-			"GraphQL.vscode-graphql",
-			"GraphQL.vscode-graphql-syntax",
-			"slevesque.shader",
-			"syler.sass-indented",
-			"arcanis.vscode-zipfs",
-			"dbaeumer.vscode-eslint",
-			"esbenp.prettier-vscode"
-		]
-	}
+	]
 }

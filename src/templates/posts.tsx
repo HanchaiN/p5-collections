@@ -1,12 +1,12 @@
 import Header from "@/components/header";
 import * as style from "@/styles/main.module.scss";
 import { MDXProvider } from "@mdx-js/react";
-import type { Components } from "@mdx-js/react/lib";
+import type { MDXComponents } from "@mdx-js/react/lib";
 import { HeadProps, Link, PageProps, graphql } from "gatsby";
 import React from "react";
 import { BlockMath, InlineMath } from "react-katex";
 
-const components: Components = {
+const components: MDXComponents = {
   h1: ({ className, ..._props }) => (
     <h1 className={`${style.titleLarge} ${className ?? ""}`} {..._props} />
   ),

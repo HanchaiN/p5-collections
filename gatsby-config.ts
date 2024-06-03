@@ -10,8 +10,9 @@ const config: GatsbyConfig = {
     generateOnBuild: true,
   },
   plugins: [
-    "gatsby-plugin-sitemap",
     "gatsby-plugin-sass",
+    "gatsby-plugin-image",
+    "gatsby-plugin-sitemap",
     {
       resolve: "gatsby-plugin-manifest",
       options: {
@@ -29,21 +30,21 @@ const config: GatsbyConfig = {
         // background_color: "#fbfaf9",
       },
     },
-    "gatsby-plugin-image",
-    "gatsby-plugin-sharp",
-    {
-      resolve: "gatsby-plugin-webpack-bundle-analyser-v2",
-      options: {
-        analyzerMode: "static",
-        openAnalyzer: false,
-      },
-    },
     "gatsby-plugin-mdx",
+    "gatsby-plugin-sharp",
+    "gatsby-transformer-sharp",
     {
       resolve: "gatsby-source-filesystem",
       options: {
         name: "posts",
         path: `${__dirname}/src/posts/`,
+      },
+    },
+    {
+      resolve: "gatsby-plugin-webpack-bundle-analyser-v2",
+      options: {
+        analyzerMode: "static",
+        openAnalyzer: false,
       },
     },
   ],

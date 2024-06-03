@@ -4,7 +4,7 @@
     "lib": ["DOM", "ESNext"],
     "jsx": "react",
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Node10",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
@@ -16,8 +16,8 @@
   },
   "include": [
     "./src/**/*",
+    "./gatsby-node.ts",
     "./gatsby-config.ts",
-    "gatsby-node.ts",
     "./gatsby-ssr.tsx",
     "./gatsby-browser.tsx",
     "./plugins/**/*"

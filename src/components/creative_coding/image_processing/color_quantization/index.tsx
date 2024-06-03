@@ -60,6 +60,16 @@ export default React.lazy(async () => {
               step="1"
               defaultValue="5"
             />
+            <div
+              style={{ gridColumn: "1 / 3", display: "flex", flexWrap: "wrap" }}
+            >
+              <button id="autorun" type="button">
+                Autorun
+              </button>
+              <button id="update-color" type="button">
+                Update colors
+              </button>
+            </div>
             <label htmlFor="palette-count" className={labelMedium}>
               Color Count:
             </label>
@@ -70,27 +80,43 @@ export default React.lazy(async () => {
               step="1"
               defaultValue="0"
             />
-            <label htmlFor="snap" className={labelMedium}>
-              Is snap:
-            </label>
-            <input id="snap" type="checkbox" defaultChecked />
-            <label htmlFor="dither" className={labelMedium}>
-              Is Dithering:
-            </label>
-            <input id="dither" type="checkbox" />
-            <button id="apply" type="button">
-              Recalculate
-            </button>
-            <button id="redraw" type="button">
-              Redraw
-            </button>
+            <div
+              style={{ gridColumn: "1 / 3", display: "flex", flexWrap: "wrap" }}
+            >
+              <button id="calc" type="button">
+                Calculate
+              </button>
+              <button id="snap" type="button">
+                Snap
+              </button>
+              <button id="eval" type="button">
+                Evaluate
+              </button>
+            </div>
             <label htmlFor="palette-score" className={labelMedium}>
               Silhouette Score:
             </label>
             <input id="palette-score" type="number" disabled />
-            <button id="autorun" type="button">
-              Autorun
-            </button>
+            <div
+              style={{ gridColumn: "1 / 3", display: "flex", flexWrap: "wrap" }}
+            >
+              <button id="draw-raw" type="button">
+                Draw (Raw)
+              </button>
+              <button id="draw-quant" type="button">
+                Quantize
+              </button>
+              <button id="draw-dither" type="button">
+                Dither
+              </button>
+              <button id="draw-svg" type="button">
+                Vectorize
+              </button>
+            </div>
+            <div
+              id="palette"
+              style={{ gridColumn: "1 / 3", display: "flex", flexWrap: "wrap" }}
+            ></div>
           </form>
         </div>
       );
