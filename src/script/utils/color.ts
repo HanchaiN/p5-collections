@@ -1,5 +1,3 @@
-export * as d3 from "d3-color";
-
 export function hcl2lab(
   hcl: [h: number, c: number, l: number],
 ): [l: number, a: number, b: number] {

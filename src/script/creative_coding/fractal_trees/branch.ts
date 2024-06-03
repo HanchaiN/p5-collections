@@ -2,13 +2,11 @@ import { Vector } from "@/script/utils/math";
 import type p5 from "p5";
 export interface BranchConfig {
   [type: number | symbol]: {
-    [i: number]: {
-      angle: number;
-      lenScale: number;
-      widScale: number;
-      type: number;
-    };
-  };
+    angle: number;
+    lenScale: number;
+    widScale: number;
+    type: number | symbol;
+  }[];
 }
 
 export class Branch {
@@ -42,7 +40,7 @@ export class Branch {
     this.branches.forEach((branch) => branch.show(p, strokeWidth));
   }
 
-  get childCount() {
+  get childCount(): number {
     if (!this.finished) return 1;
     return this.branches.reduce((acc, branch) => acc + branch.childCount, 0);
   }

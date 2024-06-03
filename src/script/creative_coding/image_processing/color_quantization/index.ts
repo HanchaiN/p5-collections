@@ -9,7 +9,7 @@ import { potrace, init } from "esm-potrace-wasm";
 export default function execute() {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
-  let svgCanvas: HTMLSvgElement;
+  let svgCanvas: SVGSVGElement;
   const getBackground = () => getColor("--md-sys-color-surface", "#000");
   let isInitialized = false;
   let isActive = false;
@@ -44,10 +44,12 @@ export default function execute() {
       redraw();
       return;
     }
-    const closestKey = Object.keys(cache).reduce(
-      (a, b) => (Math.abs(b - n_colors) < Math.abs(a - n_colors) ? b : a),
-      0,
-    );
+    const closestKey = Object.keys(cache)
+      .map((n) => parseInt(n.toString()))
+      .reduce(
+        (a, b) => (Math.abs(b - n_colors) < Math.abs(a - n_colors) ? b : a),
+        0,
+      );
     const closestPalette = cache[closestKey] ?? [];
 
     const offscreen = new OffscreenCanvas(
@@ -169,14 +171,21 @@ export default function execute() {
           posterizelevel: 128, // [1, 255]
           posterizationalgorithm: 0, // 0: simple, 1: interpolation
         });
-        const svg_ = new DOMParser().parseFromString(
-          result,
-          "image/svg+xml",
-        ).documentElement;
-        svgCanvas.parentNode.replaceChild(svg_, svgCanvas);
-        svg_.setAttribute("width", svgCanvas.getAttribute("width"));
-        svg_.setAttribute("height", svgCanvas.getAttribute("height"));
-        svg_.setAttribute("class", svgCanvas.getAttribute("class"));
+        const svg_ = new DOMParser().parseFromString(result, "image/svg+xml")
+          .documentElement as unknown as SVGSVGElement;
+        svgCanvas.parentNode!.replaceChild(svg_, svgCanvas);
+        svg_.setAttribute(
+          "width",
+          svgCanvas.getAttribute("width") ?? canvas.width.toString(),
+        );
+        svg_.setAttribute(
+          "height",
+          svgCanvas.getAttribute("height") ?? canvas.height.toString(),
+        );
+        svg_.setAttribute(
+          "class",
+          svgCanvas.getAttribute("class") ?? canvas.className,
+        );
         svgCanvas = svg_;
       })();
     });
@@ -185,7 +194,7 @@ export default function execute() {
   return {
     start: (
       sketch: HTMLCanvasElement,
-      svg: HTMLSvgElement,
+      svg: SVGSVGElement,
       config: HTMLFormElement,
     ) => {
       canvas = sketch;

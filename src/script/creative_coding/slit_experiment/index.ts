@@ -1,6 +1,6 @@
 import { getParentSize } from "@/script/utils/dom";
 import { Vector, constrain, fpart, lerp, map } from "@/script/utils/math";
-import * as d3 from "d3-color";
+import * as color from "@thi.ng/color";
 export default function execute() {
   let parent: HTMLDivElement;
   let canvas: HTMLDivElement;
@@ -104,14 +104,14 @@ export default function execute() {
     const hue = map(phasor.heading(), -Math.PI, +Math.PI, 0, 360);
     const saturation = 1;
     const chroma = saturation * brightness;
-    const c = d3
-      .hcl(
+    const c = color.css(
+      color.oklch(
         constrain(hue, 0, 360),
         constrain(chroma * 100, 0, 230),
         constrain(brightness * 100, 0, 100),
         opacity,
-      )
-      .formatHex8();
+      ),
+    );
     return c;
   }
   function getPhasor(

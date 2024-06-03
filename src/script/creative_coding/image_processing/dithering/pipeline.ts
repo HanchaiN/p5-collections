@@ -1,16 +1,25 @@
 import {
-  TVector3,
   vector_magSq,
   vector_sub,
   softargmax,
   sample,
 } from "@/script/utils/math";
+import * as color from "@thi.ng/color";
 
 export function applyDithering(
   buffer: ImageData,
   color_palette: [r: number, g: number, b: number][],
   temperature = 0,
 ) {
+  const embed = (c: [r: number, g: number, b: number]) => {
+      const c_ = color.xyzD65(color.srgb(...c));
+      return [c_.x, c_.y, c_.z] as [number, number, number];
+    },
+    unembed = (c: [x: number, y: number, z: number]) => {
+      const c_ = color.srgb(color.xyzD65(...c));
+      return [c_.r, c_.g, c_.b] as [number, number, number];
+    };
+  const color_palette_ = color_palette.map(embed);
   const err_diffusion: [[number, number], number][] = [
     // [[+1, 0], 1 / 8],
     // [[+2, 0], 1 / 8],
@@ -39,32 +48,33 @@ export function applyDithering(
   for (let j = 0; j < buffer.height; j++) {
     for (let i = 0; i < buffer.width; i++) {
       const index = (j * buffer.width + i) * 4;
-      const target_color: [r: number, g: number, b: number] = [
+      const target_color = embed([
         buffer.data[index + 0] / 255,
         buffer.data[index + 1] / 255,
         buffer.data[index + 2] / 255,
-      ];
-      const current_color = sample(
-        color_palette,
+      ]);
+      const color_index = sample(
+        color_palette.map((_, i) => i),
         softargmax(
-          color_palette.map(
+          color_palette_.map(
             (color) => -vector_magSq(vector_sub(color, target_color)),
           ),
           temperature,
         ),
       );
-      const err: TVector3 = vector_sub(target_color, current_color);
+      const err = vector_sub(target_color, color_palette_[color_index]);
       err_diffusion.forEach(([ind, w]) => {
         const i_ = i + ind[0];
         const j_ = j + ind[1];
         if (0 > i_ || i_ >= buffer.width || 0 > j_ || j_ >= buffer.height)
           return;
+        const diff = unembed(err.map((v) => v * w) as [number, number, number]);
         for (let k = 0; k < 3; k++)
-          buffer.data[(j_ * buffer.width + i_) * 4 + k] += err[k] * w * 255;
+          buffer.data[(j_ * buffer.width + i_) * 4 + k] += diff[k] * 255;
       });
-      buffer.data[index + 0] = current_color[0] * 255;
-      buffer.data[index + 1] = current_color[1] * 255;
-      buffer.data[index + 2] = current_color[2] * 255;
+      buffer.data[index + 0] = color_palette[color_index][0] * 255;
+      buffer.data[index + 1] = color_palette[color_index][1] * 255;
+      buffer.data[index + 2] = color_palette[color_index][2] * 255;
     }
   }
 }

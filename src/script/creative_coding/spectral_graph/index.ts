@@ -1,5 +1,7 @@
 import { getColor } from "@/script/utils/dom";
 import * as THREE from "three";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Graph } from "./graph";
 

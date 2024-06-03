@@ -13,7 +13,7 @@ export default React.lazy(async () => {
       : () => null;
   return {
     default: function Component() {
-      const canvas = useRef<HTMLCanvasElement>(null);
+      const canvas = useRef<HTMLDivElement>(null);
       const config = useRef<HTMLFormElement>(null);
       const exec = main();
       useEffect(() => {
@@ -27,7 +27,7 @@ export default React.lazy(async () => {
       );
       return (
         <div className={previewContainer}>
-          <div width="500" height="500" className={sketch} ref={canvas}></div>
+          <div className={sketch} ref={canvas}></div>
           <form className={dataContainer} ref={config}>
             <label htmlFor="alpha" className={labelMedium}>
               Unbranched:

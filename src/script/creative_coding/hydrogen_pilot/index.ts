@@ -2,6 +2,8 @@ import { getColor, maxWorkers } from "@/script/utils/dom";
 import { constrain } from "@/script/utils/math";
 import * as color from "@thi.ng/color";
 import * as THREE from "three";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import type { MessageResponse } from "./worker";
 

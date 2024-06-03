@@ -182,18 +182,23 @@ export function applyQuantization(
   color_palette: [r: number, g: number, b: number][],
   temperature = 0,
 ) {
+  const embed = (c: [r: number, g: number, b: number]) => {
+    const c_ = color.xyzD65(color.srgb(...c));
+    return [c_.x, c_.y, c_.z] as [number, number, number];
+  };
+  const color_palette_ = color_palette.map(embed);
   for (let j = 0; j < buffer.height; j++) {
     for (let i = 0; i < buffer.width; i++) {
       const index = (j * buffer.width + i) * 4;
-      const target_color: [r: number, g: number, b: number] = [
+      const target_color = embed([
         buffer.data[index + 0] / 255,
         buffer.data[index + 1] / 255,
         buffer.data[index + 2] / 255,
-      ];
+      ]);
       const current_color = sample(
         color_palette,
         softargmax(
-          color_palette.map(
+          color_palette_.map(
             (color) => -vector_magSq(vector_sub(color, target_color)),
           ),
           temperature,

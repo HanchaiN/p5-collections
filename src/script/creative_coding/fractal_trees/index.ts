@@ -133,7 +133,7 @@ export default function execute() {
 
   let instance: p5Extension;
   return {
-    start: (node: HTMLElement, config: HTMLFormElement) => {
+    start: (node: HTMLDivElement, config: HTMLFormElement) => {
       wrapper = node;
       alpha = config.querySelector("#alpha")!;
       beta1 = config.querySelector("#beta1")!;

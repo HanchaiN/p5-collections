@@ -18,7 +18,7 @@ export default React.lazy(async () => {
   return {
     default: function Component() {
       const canvas = useRef<HTMLCanvasElement>(null);
-      const svgCanvas = useRef<HTMLCanvasElement>(null);
+      const svgCanvas = useRef<SVGSVGElement>(null);
       const config = useRef<HTMLFormElement>(null);
       const exec = main();
       useEffect(() => {

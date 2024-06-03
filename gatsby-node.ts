@@ -11,18 +11,7 @@ export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({
         "@": path.resolve(__dirname, "src"),
       },
     },
-    plugins: [
-      new NodePolyfillPlugin({
-        includeAliases: [
-          "Buffer",
-          "buffer",
-          "events",
-          "path",
-          "process",
-          "stream",
-        ],
-      }),
-    ],
+    plugins: [new NodePolyfillPlugin()],
     module: {
       rules: [
         {
