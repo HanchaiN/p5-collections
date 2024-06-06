@@ -50,7 +50,7 @@ export function argmax(x: number[]) {
   return x.indexOf(Math.max(...x));
 }
 export function softargmax(x: number[], temperature = 1): number[] {
-  if (temperature > 0) {
+  if (temperature != 0) {
     const exps = x.map((v) => Math.exp(v / temperature));
     const sum = exps.reduce((acc, v) => acc + v, 0);
     const ret = exps.map((v) => v / sum);

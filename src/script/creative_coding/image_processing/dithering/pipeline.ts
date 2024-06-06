@@ -1,9 +1,9 @@
 import {
-  vector_magSq,
-  vector_sub,
-  vector_mult,
-  softargmax,
   sample,
+  softargmax,
+  vector_magSq,
+  vector_mult,
+  vector_sub,
 } from "@/script/utils/math";
 import * as color from "@thi.ng/color";
 
@@ -64,7 +64,10 @@ export function applyDithering(
           temperature,
         ),
       );
-      const err = vector_sub(target_color, color_palette_[color_index]);
+      const err = vector_mult(
+        vector_sub(target_color, color_palette_[color_index]),
+        buffer.data[index * 4 + 3] / 255,
+      );
       err_diffusion.forEach(([ind, w]) => {
         const i_ = i + ind[0];
         const j_ = j + ind[1];

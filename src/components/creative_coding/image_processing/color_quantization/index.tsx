@@ -49,16 +49,16 @@ export default React.lazy(async () => {
               Image:
             </label>
             <input type="file" accept="image/*" id="image" />
-            <label htmlFor="sample-scale" className={labelMedium}>
-              Sample Scale:
+            <label htmlFor="sample-dim" className={labelMedium}>
+              Sample Dimension:
             </label>
             <input
-              id="sample-scale"
+              id="sample-dim"
               type="number"
-              min="1"
-              max="50"
+              min="50"
+              max="5000"
               step="1"
-              defaultValue="5"
+              defaultValue="100"
             />
             <div
               style={{ gridColumn: "1 / 3", display: "flex", flexWrap: "wrap" }}
@@ -113,6 +113,7 @@ export default React.lazy(async () => {
                 Vectorize
               </button>
             </div>
+            <textarea id="palette-text" />
             <div
               id="palette"
               style={{ gridColumn: "1 / 3", display: "flex", flexWrap: "wrap" }}
