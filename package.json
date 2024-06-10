@@ -22,7 +22,7 @@
     "format:check": "prettier --ignore-path .gitignore . --check"
   },
   "dependencies": {
-    "@catppuccin/palette": "^1.1.1",
+    "@catppuccin/palette": "^1.2.0",
     "@material/web": "^1.4.1",
     "@mdx-js/react": "^3.0.1",
     "@thi.ng/color": "^5.6.45",
