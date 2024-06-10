@@ -4909,12 +4909,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-katex@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@types/react-katex@npm:3.0.1"
+"@types/react-katex@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "@types/react-katex@npm:3.0.4"
   dependencies:
     "@types/react": "npm:*"
-  checksum: 10c0/ef1f0eb13a0c06de91c4f928ef467e7d4f591e8a16bf8b8c9c93c8f87f08b62ef15409d2de2489c0c2e28111211912d2a61b682d434a2a31c0326fb53557d37f
+  checksum: 10c0/919d5752eb5ea8e5eb72dde1cb2f2b3e0b0d7e74e463eb95a8da4a3a12478223b92e78c0b1bece53ce9e5404aa1a0ac63955ef1a4e00829080ad41808ee82538
   languageName: node
   linkType: hard
 
@@ -11419,7 +11419,7 @@ __metadata:
     "@types/potrace": "npm:^2.1.5"
     "@types/react": "npm:^18.2.55"
     "@types/react-dom": "npm:^18.2.19"
-    "@types/react-katex": "npm:^3.0.1"
+    "@types/react-katex": "npm:^3.0.4"
     "@types/three": "npm:^0.165.0"
     "@typescript-eslint/eslint-plugin": "npm:^7.11.0"
     "@typescript-eslint/parser": "npm:^7.11.0"
