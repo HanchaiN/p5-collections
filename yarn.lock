@@ -11445,7 +11445,7 @@ __metadata:
     katex: "npm:^0.16.10"
     mathjs: "npm:^13.0.0"
     node-polyfill-webpack-plugin: "npm:^4.0.0"
-    p5: "npm:^1.9.3"
+    p5: "npm:^1.9.4"
     potrace: "npm:^2.1.8"
     prettier: "npm:^3.3.0"
     react: "npm:^18.3.1"
@@ -15379,10 +15379,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p5@npm:^1.9.3":
-  version: 1.9.3
-  resolution: "p5@npm:1.9.3"
-  checksum: 10c0/6879a59a05d0fe53448221712da8ad9d87773095ea30cacfd45889d118e70cdad4ed0129106c253af5a0c54e147968cf848f7c5565248dc46d27a369dcfc5334
+"p5@npm:^1.9.4":
+  version: 1.9.4
+  resolution: "p5@npm:1.9.4"
+  checksum: 10c0/ce874b7b3b73ff0028f7a2ccd6d38c09850dd2312e29e0cdbfeb920213ba68928839b303d40107c84ceff7a857c284cd7edb674add0fd1af31de063875d7b241
   languageName: node
   linkType: hard
 
