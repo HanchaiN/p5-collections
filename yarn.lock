@@ -4851,12 +4851,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.11.19":
-  version: 20.14.0
-  resolution: "@types/node@npm:20.14.0"
+"@types/node@npm:^20.14.8":
+  version: 20.14.8
+  resolution: "@types/node@npm:20.14.8"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/29ccc7592e9ca6b81d00f3a6673241d08e9042d801b10adfd9ebcbbf326208e0a0133a8d146158db18d02a68b85d9ce1fd94e6e1e5be0da263129bf6e42eb22d
+  checksum: 10c0/06d4643fa3b179b41fe19f9c75c240278ca1f7a313b3b837bc36ea119499c7ad77f06bbe72694ac04aa91ec77fe747baa09b889f4c435450c1724a26bd55f160
   languageName: node
   linkType: hard
 
@@ -11494,7 +11494,7 @@ __metadata:
     "@types/gifencoder": "npm:^2.0.3"
     "@types/katex": "npm:^0.16.7"
     "@types/mathjs": "npm:^9.4.2"
-    "@types/node": "npm:^20.11.19"
+    "@types/node": "npm:^20.14.8"
     "@types/p5": "npm:^1.7.6"
     "@types/potrace": "npm:^2.1.5"
     "@types/react": "npm:^18.2.55"
