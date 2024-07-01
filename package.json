@@ -39,7 +39,7 @@
     "gatsby-transformer-sharp": "^5.13.1",
     "gifencoder": "^2.0.1",
     "katex": "^0.16.10",
-    "mathjs": "^13.0.0",
+    "mathjs": "^13.0.1",
     "p5": "^1.9.4",
     "potrace": "^2.1.8",
     "react": "^18.3.1",
