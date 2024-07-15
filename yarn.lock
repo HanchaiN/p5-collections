@@ -11553,7 +11553,7 @@ __metadata:
     react-dom: "npm:^18.2.0"
     react-katex: "npm:^3.0.1"
     sass: "npm:^1.77.8"
-    three: "npm:^0.165.0"
+    three: "npm:^0.166.1"
     typescript: "npm:^5.5.3"
     webpack-glsl-loader: "npm:^1.0.1"
   languageName: unknown
@@ -18693,10 +18693,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"three@npm:^0.165.0":
-  version: 0.165.0
-  resolution: "three@npm:0.165.0"
-  checksum: 10c0/235e52d4634c4fc400de7850af466fdcfaf70c621463a8d886b332faccfbc1c4f697cd67bf848da21e1b6e2fb3e7a153aafc217238ee50923b1a5ce7d47d3973
+"three@npm:^0.166.1":
+  version: 0.166.1
+  resolution: "three@npm:0.166.1"
+  checksum: 10c0/a0ab08ead10d249fed621dcf0d55daec192f3f029ee4c5b8626d35e0eced69d3af078b423e7e8980da6512d565ff7789eead4012a48e0cfafda4cac0906002dc
   languageName: node
   linkType: hard
 
