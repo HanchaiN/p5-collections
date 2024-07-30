@@ -46,7 +46,7 @@
     "react-dom": "^18.2.0",
     "react-katex": "^3.0.1",
     "sass": "^1.77.8",
-    "three": "^0.166.1"
+    "three": "^0.167.0"
   },
   "devDependencies": {
     "@graphql-eslint/eslint-plugin": "^3.20.1",
