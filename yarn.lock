@@ -4355,9 +4355,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/color@npm:^5.6.55":
-  version: 5.6.55
-  resolution: "@thi.ng/color@npm:5.6.55"
+"@thi.ng/color@npm:^5.7.1":
+  version: 5.7.1
+  resolution: "@thi.ng/color@npm:5.7.1"
   dependencies:
     "@thi.ng/api": "npm:^8.11.9"
     "@thi.ng/arrays": "npm:^2.10.0"
@@ -4370,9 +4370,9 @@ __metadata:
     "@thi.ng/math": "npm:^5.11.8"
     "@thi.ng/random": "npm:^4.0.3"
     "@thi.ng/strings": "npm:^3.8.4"
-    "@thi.ng/transducers": "npm:^9.1.1"
-    "@thi.ng/vectors": "npm:^7.11.9"
-  checksum: 10c0/0c1a153dda871ffbd77bacd253552183d617efdbcc8b4f3e5e99461a4f86546b3addac3b62b8564b888ec615d6283f42a6640fdee516ca4be8e63f6cbdc0b25e
+    "@thi.ng/transducers": "npm:^9.2.0"
+    "@thi.ng/vectors": "npm:^7.11.10"
+  checksum: 10c0/1cb61ed3b7ba428c9d3ad72f27ea9eb707cc8a36016b1a298a67d4ac59422af0b902ca5aa88eeaa252ce11bf74abd3e5ab70110051e68174ab4a212d464377c0
   languageName: node
   linkType: hard
 
@@ -4474,9 +4474,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/transducers@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "@thi.ng/transducers@npm:9.1.1"
+"@thi.ng/transducers@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "@thi.ng/transducers@npm:9.2.0"
   dependencies:
     "@thi.ng/api": "npm:^8.11.9"
     "@thi.ng/arrays": "npm:^2.10.0"
@@ -4486,13 +4486,13 @@ __metadata:
     "@thi.ng/errors": "npm:^2.5.15"
     "@thi.ng/math": "npm:^5.11.8"
     "@thi.ng/random": "npm:^4.0.3"
-  checksum: 10c0/ba4d9165c2da9cacb0c6a8e40d01817953fc5253817785b05580501070d47496b653bbcaef55c5121b0e559a59ecaa62e0cd3a1b2ad13a3fb64e0b3d89a8f4e0
+  checksum: 10c0/e8dbf04113bc1a3402570486119f2ef379f697656d63631cfda703c2fda0a707ecbdca9dbec0f7f9ea1250c8213691a7c98d974c3928bd8d32912fadd2fb58ac
   languageName: node
   linkType: hard
 
-"@thi.ng/vectors@npm:^7.11.9":
-  version: 7.11.9
-  resolution: "@thi.ng/vectors@npm:7.11.9"
+"@thi.ng/vectors@npm:^7.11.10":
+  version: 7.11.10
+  resolution: "@thi.ng/vectors@npm:7.11.10"
   dependencies:
     "@thi.ng/api": "npm:^8.11.9"
     "@thi.ng/binary": "npm:^3.4.32"
@@ -4503,8 +4503,8 @@ __metadata:
     "@thi.ng/memoize": "npm:^3.3.11"
     "@thi.ng/random": "npm:^4.0.3"
     "@thi.ng/strings": "npm:^3.8.4"
-    "@thi.ng/transducers": "npm:^9.1.1"
-  checksum: 10c0/cafea9a60f363331436d5f2d9a30e1aac41103325c2cd44ea142e4f692ce9e8b1eae43865807b946cb7429feabec5b485ccb7d08109fa40faed1c59ad5055b1a
+    "@thi.ng/transducers": "npm:^9.2.0"
+  checksum: 10c0/385d95f9ccf5f272c604b1fafe710a91f33dec6ef40684576be2db6d49f9a7b1517826f09a1278e6683e4cbec6f15be31473e5b2802fd9ee82bca16933ff68d7
   languageName: node
   linkType: hard
 
@@ -11504,7 +11504,7 @@ __metadata:
     "@graphql-eslint/eslint-plugin": "npm:^3.20.1"
     "@material/web": "npm:^2.0.0"
     "@mdx-js/react": "npm:^3.0.1"
-    "@thi.ng/color": "npm:^5.6.55"
+    "@thi.ng/color": "npm:^5.7.1"
     "@types/base64-stream": "npm:^1.0.0"
     "@types/eslint": "npm:^9.6.0"
     "@types/gifencoder": "npm:^2.0.3"
