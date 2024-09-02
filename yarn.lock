@@ -1670,12 +1670,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.24.8":
-  version: 7.25.0
-  resolution: "@babel/runtime@npm:7.25.0"
+"@babel/runtime@npm:^7.25.4":
+  version: 7.25.6
+  resolution: "@babel/runtime@npm:7.25.6"
   dependencies:
     regenerator-runtime: "npm:^0.14.0"
-  checksum: 10c0/bd3faf246170826cef2071a94d7b47b49d532351360ecd17722d03f6713fd93a3eb3dbd9518faa778d5e8ccad7392a7a604e56bd37aaad3f3aa68d619ccd983d
+  checksum: 10c0/d6143adf5aa1ce79ed374e33fdfd74fa975055a80bc6e479672ab1eadc4e4bfd7484444e17dd063a1d180e051f3ec62b357c7a2b817e7657687b47313158c3d2
   languageName: node
   linkType: hard
 
@@ -11567,7 +11567,7 @@ __metadata:
     gatsby-transformer-sharp: "npm:^5.13.1"
     gifencoder: "npm:^2.0.1"
     katex: "npm:^0.16.11"
-    mathjs: "npm:^13.0.3"
+    mathjs: "npm:^13.1.1"
     node-polyfill-webpack-plugin: "npm:^4.0.0"
     p5: "npm:^1.10.0"
     potrace: "npm:^2.1.8"
@@ -13689,11 +13689,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mathjs@npm:^13.0.3":
-  version: 13.0.3
-  resolution: "mathjs@npm:13.0.3"
+"mathjs@npm:^13.1.1":
+  version: 13.1.1
+  resolution: "mathjs@npm:13.1.1"
   dependencies:
-    "@babel/runtime": "npm:^7.24.8"
+    "@babel/runtime": "npm:^7.25.4"
     complex.js: "npm:^2.1.1"
     decimal.js: "npm:^10.4.3"
     escape-latex: "npm:^1.2.0"
@@ -13704,7 +13704,7 @@ __metadata:
     typed-function: "npm:^4.2.1"
   bin:
     mathjs: bin/cli.js
-  checksum: 10c0/ad270e980bf5d63b890e1d415bab50d2e68c561e4fb96f62a4ad75043af601475e10dd13fba2a6287b0cfda6cc8f6adfa84969e0e090a073bdd5849bedfa236a
+  checksum: 10c0/db0b9d822fed889fc5f2cf4a9875e3fa627a26c9f6b2efbe7e000e42bfe9c0d71c125124329d2c8fd27a9d22d08b8794681367744787ef1eb8465e8f95955fd3
   languageName: node
   linkType: hard
 
