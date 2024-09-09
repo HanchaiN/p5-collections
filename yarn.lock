@@ -1748,10 +1748,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@catppuccin/palette@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@catppuccin/palette@npm:1.2.0"
-  checksum: 10c0/d68499e136440a3f8d1f8f59de7c03af7f1fb5c4d051e735fbd4b64238773436af4317aae3ff90d9f5b0c273c960c6777f7dd5b7441dee9138cf10213683800e
+"@catppuccin/palette@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "@catppuccin/palette@npm:1.3.0"
+  checksum: 10c0/57b7f11ff903304e521e37e93c01d30cb1a24092a0cdbd1b4856245b45a297f6d527762a4828bd40e427ce1708c6019d7dcdef4724796bdc1f87a4d1deb93309
   languageName: node
   linkType: hard
 
@@ -11528,7 +11528,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "hanchai-n@workspace:."
   dependencies:
-    "@catppuccin/palette": "npm:^1.2.0"
+    "@catppuccin/palette": "npm:^1.3.0"
     "@graphql-eslint/eslint-plugin": "npm:^3.20.1"
     "@material/web": "npm:^2.1.0"
     "@mdx-js/react": "npm:^3.0.1"
