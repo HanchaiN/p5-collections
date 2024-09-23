@@ -63,7 +63,7 @@
     "@types/react-katex": "^3.0.4",
     "@types/three": "^0.168.0",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
-    "@typescript-eslint/parser": "^8.3.0",
+    "@typescript-eslint/parser": "^8.6.0",
     "babel-preset-gatsby": "^3.13.2",
     "browserslist": "^4.23.3",
     "eslint": "^9.10.0",
