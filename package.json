@@ -46,7 +46,7 @@
     "react-dom": "^18.2.0",
     "react-katex": "^3.0.1",
     "sass": "^1.79.4",
-    "three": "^0.168.0"
+    "three": "^0.169.0"
   },
   "devDependencies": {
     "@graphql-eslint/eslint-plugin": "^3.20.1",
@@ -61,7 +61,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.2.19",
     "@types/react-katex": "^3.0.4",
-    "@types/three": "^0.168.0",
+    "@types/three": "^0.169.0",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "^8.6.0",
     "babel-preset-gatsby": "^3.13.2",
