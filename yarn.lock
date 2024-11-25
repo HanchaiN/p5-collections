@@ -6400,10 +6400,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^3.2.4":
-  version: 3.2.5
-  resolution: "async@npm:3.2.5"
-  checksum: 10c0/1408287b26c6db67d45cb346e34892cee555b8b59e6c68e6f8c3e495cad5ca13b4f218180e871f3c2ca30df4ab52693b66f2f6ff43644760cab0b2198bda79c1
+"async@npm:^3.2.5":
+  version: 3.2.6
+  resolution: "async@npm:3.2.6"
+  checksum: 10c0/36484bb15ceddf07078688d95e27076379cc2f87b10c03b6dd8a83e89475a3c8df5848859dd06a4c95af1e4c16fc973de0171a77f18ea00be899aca2a4f85e70
   languageName: node
   linkType: hard
 
@@ -11018,25 +11018,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gatsby-plugin-sharp@npm:^5.13.1":
-  version: 5.13.1
-  resolution: "gatsby-plugin-sharp@npm:5.13.1"
+"gatsby-plugin-sharp@npm:^5.14.0":
+  version: 5.14.0
+  resolution: "gatsby-plugin-sharp@npm:5.14.0"
   dependencies:
     "@babel/runtime": "npm:^7.20.13"
-    async: "npm:^3.2.4"
+    async: "npm:^3.2.5"
     bluebird: "npm:^3.7.2"
     debug: "npm:^4.3.4"
     filenamify: "npm:^4.3.0"
-    fs-extra: "npm:^11.1.1"
-    gatsby-core-utils: "npm:^4.13.1"
-    gatsby-plugin-utils: "npm:^4.13.1"
+    fs-extra: "npm:^11.2.0"
+    gatsby-core-utils: "npm:^4.14.0"
+    gatsby-plugin-utils: "npm:^4.14.0"
     lodash: "npm:^4.17.21"
     probe-image-size: "npm:^7.2.3"
     semver: "npm:^7.5.3"
     sharp: "npm:^0.32.6"
   peerDependencies:
     gatsby: ^5.0.0-next
-  checksum: 10c0/e6e91c31620972f837f20f003caad8df9565f30245eef0956f6aa06235f379175c7dde1fca216d365ca533a63e6f976eebce53d0249120b266b420067a6a53b9
+  checksum: 10c0/a73cb3abaebf47fd3caca96ffd25caa3b706c45678e3daefbabd887547efdcb054701ac1f3c1d8590e7726ad8fbc186e99cce3c4e0307b4ac0d485c91dad5400
   languageName: node
   linkType: hard
 
@@ -11927,7 +11927,7 @@ __metadata:
     gatsby-plugin-manifest: "npm:^5.13.1"
     gatsby-plugin-mdx: "npm:^5.13.1"
     gatsby-plugin-sass: "npm:^6.13.1"
-    gatsby-plugin-sharp: "npm:^5.13.1"
+    gatsby-plugin-sharp: "npm:^5.14.0"
     gatsby-plugin-sitemap: "npm:^6.14.0"
     gatsby-plugin-webpack-bundle-analyser-v2: "npm:^1.1.32"
     gatsby-source-filesystem: "npm:^5.13.1"
