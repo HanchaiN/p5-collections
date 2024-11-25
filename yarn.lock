@@ -5195,9 +5195,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/three@npm:^0.169.0":
-  version: 0.169.0
-  resolution: "@types/three@npm:0.169.0"
+"@types/three@npm:^0.170.0":
+  version: 0.170.0
+  resolution: "@types/three@npm:0.170.0"
   dependencies:
     "@tweenjs/tween.js": "npm:~23.1.3"
     "@types/stats.js": "npm:*"
@@ -5205,7 +5205,7 @@ __metadata:
     "@webgpu/types": "npm:*"
     fflate: "npm:~0.8.2"
     meshoptimizer: "npm:~0.18.1"
-  checksum: 10c0/d5f588dcc9df02875d46e5e6ea8ea6dc346cd1e4c0fbe7bcca4c8d9584f82ac39a951788a79fc2ffae3d5e232f99e66046adec8f93fdf51d30561a4a00c52b40
+  checksum: 10c0/6f96f57f70884fac6e1f62a4bd032462e052bb8a62cccad3a3101f86f47b698062d8070551dc45560c1a7b16f7d0ee911bd75d0abefc17610b29f39e7c83a2a4
   languageName: node
   linkType: hard
 
@@ -11911,7 +11911,7 @@ __metadata:
     "@types/react": "npm:^18.3.12"
     "@types/react-dom": "npm:^18.3.1"
     "@types/react-katex": "npm:^3.0.4"
-    "@types/three": "npm:^0.169.0"
+    "@types/three": "npm:^0.170.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.15.0"
     "@typescript-eslint/parser": "npm:^8.13.0"
     babel-preset-gatsby: "npm:^3.14.0"
@@ -11943,7 +11943,7 @@ __metadata:
     react-dom: "npm:^18.2.0"
     react-katex: "npm:^3.0.1"
     sass: "npm:^1.81.0"
-    three: "npm:^0.169.0"
+    three: "npm:^0.170.0"
     typescript: "npm:^5.7.2"
     webpack-glsl-loader: "npm:^1.0.1"
   languageName: unknown
@@ -19183,10 +19183,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"three@npm:^0.169.0":
-  version: 0.169.0
-  resolution: "three@npm:0.169.0"
-  checksum: 10c0/be2e20f45eaa50489cd22d366c41fa14528f00b873078f52fc6ef37140fa8e541e9805630bbe696ab9b027530c74e5cd341705266eb268b5219402fb9fa78ed4
+"three@npm:^0.170.0":
+  version: 0.170.0
+  resolution: "three@npm:0.170.0"
+  checksum: 10c0/eeaa1eccb31467654a044fb90634b3b6bb8d0768a4f029c082fb6aa22aec0d6362d0e3af74938caa1db512b7823a031b54a76e88fba6cfd535054165ea9667c9
   languageName: node
   linkType: hard
 
