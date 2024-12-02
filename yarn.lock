@@ -11207,22 +11207,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gatsby-transformer-sharp@npm:^5.13.1":
-  version: 5.13.1
-  resolution: "gatsby-transformer-sharp@npm:5.13.1"
+"gatsby-transformer-sharp@npm:^5.14.0":
+  version: 5.14.0
+  resolution: "gatsby-transformer-sharp@npm:5.14.0"
   dependencies:
     "@babel/runtime": "npm:^7.20.13"
     bluebird: "npm:^3.7.2"
     common-tags: "npm:^1.8.2"
-    fs-extra: "npm:^11.1.1"
-    gatsby-plugin-utils: "npm:^4.13.1"
+    fs-extra: "npm:^11.2.0"
+    gatsby-plugin-utils: "npm:^4.14.0"
     probe-image-size: "npm:^7.2.3"
     semver: "npm:^7.5.3"
     sharp: "npm:^0.32.6"
   peerDependencies:
     gatsby: ^5.0.0-next
     gatsby-plugin-sharp: ^5.0.0-next
-  checksum: 10c0/659343d06cd2bf426af0711c44815f9130e7034ed81044a360b0fb32a2d4307e063e5460deceff3b300cd421923d32a8b02347a77d2247eac1f41af59823ba4d
+  checksum: 10c0/e57e78c28006c106571ca907f41cd84b838f66060c86328eb46f8696650adcf5657f54de892a8ffb8b83138715529c74ec9a536bc41345b9ac27f6eca43fe017
   languageName: node
   linkType: hard
 
@@ -11931,7 +11931,7 @@ __metadata:
     gatsby-plugin-sitemap: "npm:^6.14.0"
     gatsby-plugin-webpack-bundle-analyser-v2: "npm:^1.1.32"
     gatsby-source-filesystem: "npm:^5.14.0"
-    gatsby-transformer-sharp: "npm:^5.13.1"
+    gatsby-transformer-sharp: "npm:^5.14.0"
     gifencoder: "npm:^2.0.1"
     katex: "npm:^0.16.11"
     mathjs: "npm:^13.2.0"
