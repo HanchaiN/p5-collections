@@ -10949,9 +10949,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gatsby-plugin-mdx@npm:^5.13.1":
-  version: 5.13.1
-  resolution: "gatsby-plugin-mdx@npm:5.13.1"
+"gatsby-plugin-mdx@npm:^5.14.0":
+  version: 5.14.0
+  resolution: "gatsby-plugin-mdx@npm:5.14.0"
   dependencies:
     "@mdx-js/mdx": "npm:^2.3.0"
     acorn: "npm:^8.8.2"
@@ -10959,9 +10959,9 @@ __metadata:
     astring: "npm:^1.8.5"
     deepmerge: "npm:^4.3.1"
     estree-util-build-jsx: "npm:^2.2.2"
-    fs-extra: "npm:^11.1.1"
-    gatsby-core-utils: "npm:^4.13.1"
-    gatsby-plugin-utils: "npm:^4.13.1"
+    fs-extra: "npm:^11.2.0"
+    gatsby-core-utils: "npm:^4.14.0"
+    gatsby-plugin-utils: "npm:^4.14.0"
     gray-matter: "npm:^4.0.3"
     mdast-util-mdx: "npm:^2.0.1"
     mdast-util-to-hast: "npm:^10.2.0"
@@ -10978,7 +10978,7 @@ __metadata:
     gatsby-source-filesystem: ^5.0.0-next
     react: ^18.0.0 || ^0.0.0
     react-dom: ^18.0.0 || ^0.0.0
-  checksum: 10c0/42257f45fb8564011515d3186f9b8b06c0a4ff313ac0bfb71e6c69977020639970b33f53c354efaac594273d781a77ac38b98218cb4315453340564eba812aae
+  checksum: 10c0/de33ce7a1d064c52213c286483a47d524d77bca67b1cf8936662965e9cc26c31e3492de4d95e90bd8c6be73a67043c2c5300b1b8f74456f805df02f87112c337
   languageName: node
   linkType: hard
 
@@ -11925,7 +11925,7 @@ __metadata:
     gatsby: "npm:^5.13.7"
     gatsby-plugin-image: "npm:^3.14.0"
     gatsby-plugin-manifest: "npm:^5.13.1"
-    gatsby-plugin-mdx: "npm:^5.13.1"
+    gatsby-plugin-mdx: "npm:^5.14.0"
     gatsby-plugin-sass: "npm:^6.13.1"
     gatsby-plugin-sharp: "npm:^5.14.0"
     gatsby-plugin-sitemap: "npm:^6.14.0"
