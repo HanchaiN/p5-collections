@@ -71,7 +71,7 @@
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-react": "^7.37.2",
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.32",
-    "node-polyfill-webpack-plugin": "^4.0.0",
+    "node-polyfill-webpack-plugin": "^4.1.0",
     "prettier": "^3.3.3",
     "typescript": "^5.7.2",
     "webpack-glsl-loader": "^1.0.1"
