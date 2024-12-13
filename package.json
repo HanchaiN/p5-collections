@@ -16,7 +16,7 @@
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint --ignore-path .gitignore .",
+    "lint": "eslint .",
     "lint:fix": "yarn lint --fix",
     "format": "prettier --ignore-path .gitignore . --write",
     "format:check": "prettier --ignore-path .gitignore . --check"
@@ -49,6 +49,7 @@
     "three": "^0.171.0"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.2.4",
     "@graphql-eslint/eslint-plugin": "^4.3.0",
     "@types/base64-stream": "^1.0.0",
     "@types/eslint": "^9.6.1",

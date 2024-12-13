@@ -144,14 +144,13 @@ export default function execute() {
       fac_yc = Math.sqrt(cov_cc - fac_xc * fac_xc);
     while (true) {
       let c: TVector3;
-      // eslint-disable-next-line no-dupe-else-if
+
       if (Math.random() < 0.0025)
         c = [
           Math.round(Math.random()),
           Math.round(Math.random()),
           Math.round(Math.random()),
         ];
-      // eslint-disable-next-line no-dupe-else-if
       else if (Math.random() < 0.95) {
         c = auto_palette[Math.floor(Math.random() * auto_palette.length)];
         const seed = Math.random();
@@ -163,9 +162,7 @@ export default function execute() {
             break;
           }
         }
-      }
-      // eslint-disable-next-line no-dupe-else-if
-      else if (Math.random() < 0.0125)
+      } else if (Math.random() < 0.0125)
         c = palette[Math.floor(Math.random() * palette.length)];
       // eslint-disable-next-line no-dupe-else-if
       else if (Math.random() < 0.0125)
@@ -176,7 +173,6 @@ export default function execute() {
             randomUniform(0, 1),
           ),
         ).xyz;
-      // eslint-disable-next-line no-dupe-else-if
       else if (Math.random() < 0.5) {
         c = color.srgb(
           color.oklch(

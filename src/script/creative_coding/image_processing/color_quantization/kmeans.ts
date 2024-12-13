@@ -87,7 +87,6 @@ function removeCentroid<T>(
   dist: (a: T, b: T) => number = () => 0,
 ) {
   if (seeds.length === 0) return null;
-  samples;
   const weight = softargmax(
     seeds.map((v, i) =>
       Math.min(

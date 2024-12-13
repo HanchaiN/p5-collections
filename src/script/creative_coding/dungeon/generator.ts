@@ -424,7 +424,7 @@ export class DungeonGenerator {
   }
   genEdges() {
     for (const _ of this.genEdges_Stepwise()) {
-      _;
+      _; // eslint-disable-line @typescript-eslint/no-unused-expressions
     }
   }
   *genTree_Stepwise() {
@@ -445,7 +445,7 @@ export class DungeonGenerator {
   }
   genTree() {
     for (const _ of this.genTree_Stepwise()) {
-      _;
+      _; // eslint-disable-line @typescript-eslint/no-unused-expressions
     }
   }
   filterEdges(EXTRA_NODE_RATE = 0.125) {
@@ -597,8 +597,8 @@ export class DungeonGenerator {
             ),
           )),
       );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for (const _ of gen) {
-        _;
         this.grid = grid_;
         yield;
         this.grid = _grid;

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-loss-of-precision */
+/* eslint-disable no-loss-of-precision,@typescript-eslint/no-loss-of-precision */
 import { factorial, powneg, product } from ".";
 
 export type TComplex = [re: number, im: number];

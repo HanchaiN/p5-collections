@@ -1,7 +1,7 @@
 import Header from "@/components/header";
 import * as style from "@/styles/main.module.scss";
 import { MDXProvider } from "@mdx-js/react";
-import type { MDXComponents } from "@mdx-js/react/lib";
+import type { MDXComponents } from "mdx/types";
 import { HeadProps, Link, PageProps, graphql } from "gatsby";
 import React from "react";
 import { BlockMath, InlineMath } from "react-katex";

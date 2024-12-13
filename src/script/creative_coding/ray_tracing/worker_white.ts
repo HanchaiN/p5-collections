@@ -17,8 +17,8 @@ export type MessageResponse = {
   white: TColorRGB;
   bright: TColorRGB;
 };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function main(data: MessageRequest) {
-  data;
   for (let i = 0; i < 1000; i++) {
     white.mix(trace(white_ray, SCENE));
     bright.mix(trace(ref_ray, SCENE));

@@ -8,7 +8,8 @@ import React, { useEffect, useRef } from "react";
 export default React.lazy(async () => {
   const main =
     typeof window !== "undefined"
-      ? (await import("@/script/creative_coding/fractal/fractal_tree_curve")).default
+      ? (await import("@/script/creative_coding/fractal/fractal_tree_curve"))
+          .default
       : () => null;
   return {
     default: function Component() {

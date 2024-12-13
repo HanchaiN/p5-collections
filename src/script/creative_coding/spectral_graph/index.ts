@@ -15,7 +15,6 @@ export default function execute() {
       THREE.MeshPhongMaterial
     >;
   let ended = true;
-  let workers: Worker[];
   const mainelem = new Graph<number>();
   mainelem.addNode(1);
   mainelem.addNode(2);
@@ -116,7 +115,6 @@ export default function execute() {
     },
     stop: () => {
       dispose();
-      workers?.forEach((worker) => worker.terminate());
     },
   };
 }

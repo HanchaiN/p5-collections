@@ -218,7 +218,7 @@ export function psi_orbital_sample(
   n: number,
   l: number,
   m: number,
-  time: number = 0,
+  time: number = 0, // eslint-disable-line @typescript-eslint/no-unused-vars
   counts: number = 1,
 ) {
   const radial = ((counts) => {
@@ -288,7 +288,6 @@ export function psi_orbital_sample(
     );
     return res;
   })(counts);
-  time;
   return new Array(counts)
     .fill(null)
     .map((_, i) =>

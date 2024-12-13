@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-loss-of-precision */
+/* eslint-disable no-loss-of-precision,@typescript-eslint/no-loss-of-precision */
 export * from "./complex";
 export * from "./constants";
 export * from "./noise";

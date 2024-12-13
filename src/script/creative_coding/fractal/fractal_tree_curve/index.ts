@@ -1,6 +1,5 @@
 import { getColor } from "@/script/utils/dom";
 import { PHI } from "@/script/utils/math";
-import { color } from "@thi.ng/color";
 
 export default function execute() {
   let canvas: HTMLCanvasElement;
@@ -12,7 +11,12 @@ export default function execute() {
   const getSecondary = () => getColor("--cpt-overlay2", "#888");
   const getPrimary = () => getColor("--cpt-green", "#FFF");
 
-  function draw(depth: number = 1, s: number = 1, w: number = 1, box: boolean = false) {
+  function draw(
+    depth: number = 1,
+    s: number = 1,
+    w: number = 1,
+    box: boolean = false,
+  ) {
     let w_ = w;
     ctx.save();
     ctx.beginPath();
@@ -51,12 +55,12 @@ export default function execute() {
   }
 
   function redraw(depth_: number = 1) {
-    if (!canvas || !Number.isInteger(depth_)) return;
+    if (!isActive || !canvas || !Number.isInteger(depth_)) return;
     ctx.lineWidth = 0;
     ctx.fillStyle = getBackground();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     if (depth_ < 0) {
-      depth = 0
+      depth = 0;
     } else {
       depth += depth_;
     }
@@ -65,9 +69,9 @@ export default function execute() {
     ctx.save();
     ctx.rotate(-Math.PI / 2);
     ctx.translate(-canvas.height, 0);
-    let s = canvas.height / PHI;
-    let s0 = s / 2;
-    let y0 = canvas.height * 0.5 - s0;
+    const s = canvas.height / PHI;
+    const s0 = s / 2;
+    const y0 = canvas.height * 0.5 - s0;
     ctx.translate(0, y0);
     ctx.moveTo(0, 0);
     draw(depth, s0, 5, isBox);
