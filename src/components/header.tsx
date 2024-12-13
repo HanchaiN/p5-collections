@@ -1,4 +1,4 @@
-import { useColorScheme } from "@/hooks/use-dark-mode";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useSiteMetadata } from "@/hooks/use-site-metadata";
 import { bodyMedium, surface } from "@/styles/main.module.scss";
 import "@/styles/main.scss";

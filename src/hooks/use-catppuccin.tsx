@@ -2,7 +2,7 @@ import type { ColorName } from "@catppuccin/palette";
 import { flavors } from "@catppuccin/palette";
 import * as color from "@thi.ng/color";
 import { useMemo } from "react";
-import { useColorScheme } from "./use-dark-mode";
+import { useColorScheme } from "./use-color-scheme";
 
 export const useCatppuccin = (name: ColorName) => {
   const dark = useColorScheme();

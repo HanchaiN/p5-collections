@@ -9,7 +9,7 @@ import React, { useEffect, useRef } from "react";
 export default React.lazy(async () => {
   const main =
     typeof window !== "undefined"
-      ? (await import("@/script/creative_coding/fractal_trees")).default
+      ? (await import("@/script/creative_coding/fractal/fractal_tree")).default
       : () => null;
   return {
     default: function Component() {
