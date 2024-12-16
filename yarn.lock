@@ -1802,7 +1802,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.25.6":
+"@babel/runtime@npm:^7.25.7":
   version: 7.26.0
   resolution: "@babel/runtime@npm:7.26.0"
   dependencies:
@@ -7980,6 +7980,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"complex.js@npm:^2.2.5":
+  version: 2.4.2
+  resolution: "complex.js@npm:2.4.2"
+  checksum: 10c0/c78cca0a3c08fa48845e2703b9772bdd80d44e56728382d43879183cb23391da6e8b6326ceec23c685abfd529b61d34842ba1784d7fa3783b194fbc6d0850d7c
+  languageName: node
+  linkType: hard
+
 "compose-function@npm:3.0.3":
   version: 3.0.3
   resolution: "compose-function@npm:3.0.3"
@@ -10857,10 +10864,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fraction.js@npm:^4.3.6, fraction.js@npm:^4.3.7":
+"fraction.js@npm:^4.3.6":
   version: 4.3.7
   resolution: "fraction.js@npm:4.3.7"
   checksum: 10c0/df291391beea9ab4c263487ffd9d17fed162dbb736982dee1379b2a8cc94e4e24e46ed508c6d278aded9080ba51872f1bc5f3a5fd8d7c74e5f105b508ac28711
+  languageName: node
+  linkType: hard
+
+"fraction.js@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "fraction.js@npm:5.2.1"
+  checksum: 10c0/4d20062e928d19fa5d1cca031b669785ac3f5817fbd60d4987ebf5c90947a7c602f740218500a5fcbc9bdcf831f729330fa403888561d277ce602fff76e6f015
   languageName: node
   linkType: hard
 
@@ -12117,7 +12131,7 @@ __metadata:
     gatsby-transformer-sharp: "npm:^5.14.0"
     gifencoder: "npm:^2.0.1"
     katex: "npm:^0.16.11"
-    mathjs: "npm:^13.2.0"
+    mathjs: "npm:^14.0.1"
     node-polyfill-webpack-plugin: "npm:^4.1.0"
     p5: "npm:^1.11.1"
     potrace: "npm:^2.1.8"
@@ -14282,22 +14296,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mathjs@npm:^13.2.0":
-  version: 13.2.0
-  resolution: "mathjs@npm:13.2.0"
+"mathjs@npm:^14.0.1":
+  version: 14.0.1
+  resolution: "mathjs@npm:14.0.1"
   dependencies:
-    "@babel/runtime": "npm:^7.25.6"
-    complex.js: "npm:^2.1.1"
+    "@babel/runtime": "npm:^7.25.7"
+    complex.js: "npm:^2.2.5"
     decimal.js: "npm:^10.4.3"
     escape-latex: "npm:^1.2.0"
-    fraction.js: "npm:^4.3.7"
+    fraction.js: "npm:^5.2.1"
     javascript-natural-sort: "npm:^0.7.1"
     seedrandom: "npm:^3.0.5"
     tiny-emitter: "npm:^2.1.0"
     typed-function: "npm:^4.2.1"
   bin:
     mathjs: bin/cli.js
-  checksum: 10c0/75a3f7ff8e401f86ac3b9ca9b67961e062dba94a0fb68a989ef234e932516451fbf63e70a17f504616cdb6c888697826395e028c851907c7ef3e357750714ffc
+  checksum: 10c0/909769564bc487e6412aa84512e686a1ccc5677eab43c651df0cafc43916ccf946377d71856cf962bb70519f8cd06fdbc31f1a1f87ab22994eb0a000d3e921e6
   languageName: node
   linkType: hard
 
