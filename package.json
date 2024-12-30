@@ -45,7 +45,7 @@
     "react": "^19.0.0",
     "react-dom": "^18.2.0",
     "react-katex": "^3.0.1",
-    "sass": "^1.82.0",
+    "sass": "^1.83.0",
     "three": "^0.171.0"
   },
   "devDependencies": {
