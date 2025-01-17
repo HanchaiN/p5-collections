@@ -38,7 +38,7 @@
     "gatsby-source-filesystem": "^5.14.0",
     "gatsby-transformer-sharp": "^5.14.0",
     "gifencoder": "^2.0.1",
-    "katex": "^0.16.19",
+    "katex": "^0.16.21",
     "mathjs": "^14.0.1",
     "p5": "^1.11.1",
     "potrace": "^2.1.8",
