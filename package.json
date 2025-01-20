@@ -59,7 +59,7 @@
     "@types/node": "^22.9.3",
     "@types/p5": "^1.7.6",
     "@types/potrace": "^2.1.5",
-    "@types/react": "^19.0.2",
+    "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.2",
     "@types/react-katex": "^3.0.4",
     "@types/three": "^0.171.0",
